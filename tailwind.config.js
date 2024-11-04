@@ -24,7 +24,7 @@ module.exports = {
         foreground: 'hsl(var(--foreground))',
 
         /* Custom Color Start */
-        primary: {
+        'tra-primary': {
           DEFAULT: 'hsl(var(--tra-primary))',
           soft: 'hsl(var(--tra-primary-soft))',
           focused: 'hsl(var(--tra-primary-focused))',

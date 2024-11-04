@@ -31,6 +31,7 @@ const tr = {
   Profile: 'Profil',
   Settings: 'Ayarlar',
   Logout: 'Çıkış Yap',
+  'Shopping List added successfully': 'Alışveriş Listesi başarıyla eklendi',
 };
 
 export default tr;
