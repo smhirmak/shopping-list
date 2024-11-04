@@ -8,7 +8,7 @@ import { signInWithEmailAndPassword,
   onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '@/configurations/firebase';
 import Notification from '@/components/Notification';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, Timestamp, collection, getDocs } from 'firebase/firestore';
 import { useLocalizeContext } from '../locale/LocalizeContext';
 import { AuthContext } from './AuthContext';
 
@@ -18,6 +18,7 @@ const AuthProvider:React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userInfo, setUserInfo] = useState<object | undefined>(undefined);
+  const [allUsersInfo, setAllUsersInfo] = useState<object[] | undefined>(undefined);
   const { t } = useLocalizeContext();
 
   interface LoginData {
@@ -43,6 +44,14 @@ const AuthProvider:React.FC<{ children: React.ReactNode }> = ({ children }) => {
       }
     });
   };
+  const getAllUsersInfo = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'users'));
+      setAllUsersInfo(querySnapshot.docs.map(doc => doc.data()));
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    }
+  };
 
   const login = async (data: LoginData) => {
     try {
@@ -59,6 +68,7 @@ const AuthProvider:React.FC<{ children: React.ReactNode }> = ({ children }) => {
           setIsAuthenticated(true);
           setIsInitialized(true);
           getUserInfo();
+          getAllUsersInfo();
           localStorage.setItem('token', response.user.uid);
           redirect('/');
         }
@@ -74,6 +84,8 @@ const AuthProvider:React.FC<{ children: React.ReactNode }> = ({ children }) => {
     firstName: string;
     lastName: string;
     email: string;
+    uid: string;
+    createDateTime: string;
   }
 
   const addUser = async (id: string, firstName: string, lastName: string, email: string): Promise<void> => {
@@ -82,6 +94,8 @@ const AuthProvider:React.FC<{ children: React.ReactNode }> = ({ children }) => {
         firstName,
         lastName,
         email,
+        uid: id,
+        createDateTime: Timestamp.now().toDate().toLocaleString(),
       } as UserData);
     } catch (error) {
       console.error('Error setting document:', error);
@@ -143,6 +157,7 @@ const AuthProvider:React.FC<{ children: React.ReactNode }> = ({ children }) => {
           const idToken = await user.getIdToken();
           localStorage.setItem('token', idToken);
           getUserInfo();
+          getAllUsersInfo();
           setIsAuthenticated(true);
           setIsInitialized(true);
         } catch (error) {
@@ -171,11 +186,12 @@ const AuthProvider:React.FC<{ children: React.ReactNode }> = ({ children }) => {
     () => ({ isInitialized,
       isAuthenticated,
       userInfo,
+      allUsersInfo,
       login,
       signUp,
       logout,
       resetPassword }),
-    [isInitialized, isAuthenticated, userInfo],
+    [isInitialized, isAuthenticated, userInfo, allUsersInfo],
   );
 
   return (

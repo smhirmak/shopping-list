@@ -12,6 +12,7 @@ import AuthProvider from './contexts/auth/AuthProvider';
 import LoginLayout from './layout/LoginLayout';
 import ResetPassword from './pages/Account/ResetPassword';
 import SignUp from './pages/Account/SignUp';
+import ProductProvider from './contexts/product/ProductProvider';
 
 const router = createBrowserRouter([
   {
@@ -57,9 +58,11 @@ const router = createBrowserRouter([
 const App = () => (
   <div>
     <AuthProvider>
-      <RouterProvider router={router} />
-      <ToastContainer newestOnTop toastClassName="rounded-lg" bodyStyle={{ fontSize: '.9rem' }} theme="colored" />
-      <BackToTopButton />
+      <ProductProvider>
+        <RouterProvider router={router} />
+        <ToastContainer newestOnTop toastClassName="rounded-lg" bodyStyle={{ fontSize: '.9rem' }} theme="colored" />
+        <BackToTopButton />
+      </ProductProvider>
     </AuthProvider>
   </div>
 );

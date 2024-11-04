@@ -22,7 +22,7 @@ const menuList = [
 ];
 
 const Header = () => {
-  const { logout } = useAuthContext();
+  const { logout, userInfo } = useAuthContext();
   const { t } = useLocalizeContext();
   return (
     <div className="flex w-full items-center justify-between bg-slate-700 p-4">
@@ -31,9 +31,14 @@ const Header = () => {
         <p className="font-mono text-4xl">Shopping List</p>
       </Link>
 
-      <div className="flex">
+      <div className="flex items-center">
         <ThemeModeToggle />
         <LanguangeSelect />
+        <span className="mr-4 text-xl">
+          {userInfo?.firstName}
+          {' '}
+          {userInfo?.lastName}
+        </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <label className="burger" htmlFor="burger">
@@ -45,7 +50,7 @@ const Header = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {menuList.map(e => (
-              <DropdownMenuItem asChild className="cursor-pointer gap-2 text-xl">
+              <DropdownMenuItem key={e.link} asChild className="cursor-pointer gap-2 text-xl">
                 <Link to={e.link}>
                   {e.icon}
                   {t(e.name)}
