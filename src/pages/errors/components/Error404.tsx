@@ -1,5 +1,5 @@
+import Button from '@/components/Button';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 const Error404 = () => {
@@ -14,7 +14,7 @@ const Error404 = () => {
       <div className="mb-3" />
       <div className="mb-0">
         <Link to="/">
-          <Button onClick={() => {}} variant="contained">
+          <Button onClick={() => { }} variant="contained">
             {t('Back to Home Page')}
           </Button>
         </Link>

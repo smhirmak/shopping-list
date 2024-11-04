@@ -4,12 +4,12 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCTlvXu49QQoTL4VZ-v0Egm8dnJSR8YjW4',
-  authDomain: 'shopping-list-36541.firebaseapp.com',
-  projectId: 'shopping-list-36541',
-  storageBucket: 'shopping-list-36541.firebasestorage.app',
-  messagingSenderId: '769492863961',
-  appId: '1:769492863961:web:3495fac54c0b4bca84e7c8',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
