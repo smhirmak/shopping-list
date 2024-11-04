@@ -1,5 +1,5 @@
+import Button from '@/components/Button';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 const Error500 = () => {
