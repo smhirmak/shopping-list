@@ -43,7 +43,7 @@ const SignUp = () => {
           <FormikInput id="lastName" formik={formik} label={t('Last Name')} type="text" />
           <FormikInput id="email" formik={formik} label={t('Email')} type="email" />
           <FormikInput id="password" formik={formik} label={t('Password')} type="password" />
-          <Button variant="solid" color="secondary" loading={loading} type="submit">{t('Send')}</Button>
+          <Button variant="solid" color="secondary" loading={loading} type="submit">{t('Save')}</Button>
           <Link to="/login" className="self-end">{t('Do you have an account?')}</Link>
         </Form>
       </Formik>

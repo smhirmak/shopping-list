@@ -1,41 +1,187 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
-  Column,
-  Table,
   ExpandedState,
   useReactTable,
   getCoreRowModel,
+  getExpandedRowModel,
+  flexRender,
+  getSortedRowModel,
+  SortingFn,
+  SortingState,
   getPaginationRowModel,
   getFilteredRowModel,
-  getExpandedRowModel,
-  ColumnDef,
-  flexRender,
 } from '@tanstack/react-table';
-import { CaretRight } from '@/assets/Icons';
+import { CaretDown, CaretLeft, CaretLeftDouble, CaretRight, CaretRightDouble, CaretUp, Pencil, Plus } from '@/assets/Icons';
+import Button from '@/components/Button';
+import { useProductContext } from '@/contexts/product/ProductContext';
+import { useAuthContext } from '@/contexts/auth/AuthContext';
+import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
+import Enums from '@/constants/Enums';
+import Notification from '@/components/Notification';
+import { deleteDoc, doc } from 'firebase/firestore';
+import { db } from '@/configurations/firebase';
+import { deleteShoppingListPopup } from '@/constants/PopupContents';
+import Swal from 'sweetalert2';
+import SelectBox from '@/components/SelectBox';
+import TextField from '@/components/TextField';
+
+const ExpanderCell = ({ row, setExpanded }: { row: any; setExpanded: (e: object) => void }) => (
+  <span
+    onClick={e => {
+      e.stopPropagation();
+      setExpanded(prev => ({
+        ...prev,
+        [row.id]: !prev[row.id],
+      }));
+    }}
+    className="flex cursor-pointer select-none items-center justify-center"
+  >
+    <CaretRight className={`size-5 transition-all duration-200 ${row.getIsExpanded() ? 'rotate-90' : 'rotate-0'}`} />
+  </span>
+);
+
+const AddButtonCell = ({ row, setSelectedShoppingList }: { row: any; setSelectedShoppingList: (e: object) => void }) => (
+  <Button
+    size="icon"
+    className="group bg-transparent hover:bg-transparent"
+    onClick={e => {
+      e.stopPropagation();
+      setSelectedShoppingList({ state: true, id: row?.original?.shoppingListId });
+    }}
+  >
+    <Plus className="size-4 text-success/80 group-hover:text-success" />
+  </Button>
+);
+
+const EditShoppingListButton = ({ row, setEditShoppingList }: { row: any; setEditShoppingList: (e: object) => void }) => (
+  <Button
+    size="icon"
+    variant="ghost"
+    className="group bg-transparent hover:bg-transparent"
+    onClick={e => {
+      e.stopPropagation();
+      setEditShoppingList({ state: true, data: row.original });
+    }}
+  >
+    <Pencil className="size-5 text-tra-tetriary/80 group-hover:text-tra-tetriary" />
+  </Button>
+);
+
+const DeleteButtonCell = ({ row, handleDeleteList }: { row: any; handleDeleteList: (id: string) => void }) => (
+  <Button
+    size="icon"
+    className="group relative bg-transparent hover:bg-transparent"
+    onClick={e => {
+      e.stopPropagation();
+      handleDeleteList(row?.original?.shoppingListId);
+    }}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 39 7"
+      className="bin-top z-10 w-4 origin-right transition-transform duration-300 group-hover:rotate-45"
+    >
+      <line strokeWidth="4" className="stroke-error/80 group-hover:stroke-error" y2="5" x2="39" y1="5" />
+      <line strokeWidth="3" className="stroke-error/80 group-hover:stroke-error" y2="1.5" x2="26.0357" y1="1.5" x1="12" />
+    </svg>
+
+    {/* Bin Bottom */}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 33 39"
+      className="bin-bottom z-10 w-4"
+    >
+      <mask id="path-1-inside-1_8_19" fill="white">
+        <path d="M0 0H33V35C33 37.2091 31.2091 39 29 39H4C1.78086 39 0 37.2091 0 35V0Z" />
+      </mask>
+      <path
+        mask="url(#path-1-inside-1_8_19)"
+        className="fill-error/80 stroke-error/80 group-hover:fill-error group-hover:stroke-error"
+        d="M0 0H33H0ZM37 35C37 39.4183 33.4183 43 29 43H4C-0.418278 43 -4 39.4183 -4 35H4H29H37ZM4 43C-0.418278 43 -4 39.4183 -4 35V0H4V35V43ZM37 0V35C37 39.4183 33.4183 43 29 43V35V0H37Z"
+      />
+      <path strokeWidth="4" className="stroke-error/80 group-hover:stroke-error" d="M12 6L12 29" />
+      <path strokeWidth="4" className="stroke-error/80 group-hover:stroke-error" d="M21 6V29" />
+    </svg>
+  </Button>
+);
+
+const sortCreateDateFn = (rowA, rowB, _columnId) => {
+  const parseDate = dateString => {
+    const [datePart, timePart] = dateString.split(' ');
+    const [day, month, year] = datePart.split('.');
+    return new Date(`${year}-${month}-${day}T${timePart}`);
+  };
+
+  const dateA = parseDate(rowA.original.createDateTime);
+  const dateB = parseDate(rowB.original.createDateTime);
+
+  if (dateA < dateB) return -1;
+  if (dateA > dateB) return 1;
+  return 0;
+};
+
+const sortPlannedDateFn = (rowA, rowB, _columnId) => {
+  const parseDate = dateString => {
+    if (!dateString) return new Date(0); // Geçersiz tarihleri sıralamak için en eski tarih
+    const [day, month, year] = dateString.split('.');
+    return new Date(`${year}-${month}-${day}`);
+  };
+
+  const dateA = parseDate(rowA.original.dateToShop);
+  const dateB = parseDate(rowB.original.dateToShop);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Bugünün tarihini saat bilgisi olmadan al
+
+  const isDateAInFuture = dateA >= today;
+  const isDateBInFuture = dateB >= today;
+
+  if (isDateAInFuture && isDateBInFuture) {
+    // İkisi de gelecekteki tarihlerse, artan sırayla sıralayın
+    return dateA - dateB;
+  } if (!isDateAInFuture && !isDateBInFuture) {
+    // İkisi de geçmişteki tarihlerse, azalan sırayla sıralayın
+    return dateB - dateA;
+  } if (isDateAInFuture && !isDateBInFuture) {
+    // dateA gelecekte, dateB geçmişte
+    return -1;
+  }
+  // dateA geçmişte, dateB gelecekte
+  return 1;
+};
 
 const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
-  console.log(rowData);
+  const { selectedShoppingList, setSelectedShoppingList, selectedProduct, setSelectedProduct, getAllShoppingList, setEditShoppingList } = useProductContext();
+  const { allUsersInfo } = useAuthContext();
+  const { t, locale } = useLocalizeContext();
+
+  const [expanded, setExpanded] = useState<ExpandedState>({});
+  const [sorting, setSorting] = React.useState<SortingState>([{ id: 'dateToShop', desc: true }]);
+
+  const handleDeleteList = async shoppingListId => {
+    const areYouSure = await Swal.fire(deleteShoppingListPopup(t));
+
+    if (areYouSure.isConfirmed) {
+      try {
+        const docRef = doc(db, 'shopping-list', shoppingListId);
+        await deleteDoc(docRef);
+        Notification.success('Shopping list successfully deleted');
+        getAllShoppingList(); // Alışveriş listelerini yeniden yükleyin
+      } catch (error) {
+        Notification.error('An error occurred while deleting the shopping list');
+        console.error('Error occurred:', error);
+      }
+    }
+  };
+
   const columns = React.useMemo(
     () => [
       {
         id: 'expander',
         header: () => null,
-        cell: ({ row }) => (
-          <span
-            {...{
-              onClick: row.getToggleExpandedHandler(),
-              className: 'cursor-pointer select-none flex justify-center items-center',
-            }}
-          >
-            <CaretRight className={`size-5 transition-all duration-200 ${row.getIsExpanded() ? 'rotate-90' : 'rotate-0'}`} />
-          </span>
-        ),
-      },
-      {
-        header: 'Shopping List Id',
-        accessorKey: 'shoppingListId',
-        cell: info => info.getValue(),
+        cell: ({ row }) => <ExpanderCell row={row} setExpanded={setExpanded} />,
       },
       {
         header: 'Shopping List Name',
@@ -45,20 +191,74 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
       {
         header: 'Create Date Time',
         accessorKey: 'createDateTime',
-        cell: info => info.getValue(),
+        cell: info => info.getValue().split(':').slice(0, 2).join(':'),
+        sortingFn: sortCreateDateFn,
       },
       {
-        header: 'Create Id',
+        header: 'Creator Name',
         accessorKey: 'creatorId',
-        cell: info => info.getValue(),
+        cell: info => (
+          <span>
+            {allUsersInfo?.filter(e => e.uid === info.getValue())?.[0].firstName}
+          </span>
+        ),
       },
       {
-        header: 'Date To Shop',
+        header: 'Planned Shopping Date',
         accessorKey: 'dateToShop',
-        cell: info => info.getValue(),
+        cell: info => {
+          const parseDate = dateString => {
+            if (!dateString) return new Date(0); // Geçersiz tarihleri sıralamak için en eski tarih
+            const [day, month, year] = dateString.split('.');
+            return new Date(`${year}-${month}-${day}`);
+          };
+
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // Bugünün tarihini saat bilgisi olmadan al
+
+          const dateToShop = parseDate(info.getValue());
+          dateToShop.setHours(0, 0, 0, 0); // Tarihi saat bilgisi olmadan al
+
+          const diffTime = dateToShop.getTime() - today.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays > 0) {
+            return (
+              <span className="flex flex-col text-sm">
+                <span>{info.getValue()}</span>
+                <span>{`(${`${Math.abs(diffDays)} ${t('days after')}`})`}</span>
+              </span>
+            );
+          } if (diffDays < 0) {
+            return (
+              <span className="flex flex-col text-sm">
+                <span>{info.getValue()}</span>
+                <span>{`(${`${Math.abs(diffDays)} ${t('days ago')}`})`}</span>
+              </span>
+            );
+          }
+          return (
+            <span className="flex flex-col text-sm">
+              <span className="text-base font-bold">{t('Today')}</span>
+              <span>{info.getValue()}</span>
+            </span>
+          );
+        },
+        sortingFn: sortPlannedDateFn,
+      },
+      {
+        id: 'addNewProduct',
+        header: () => null,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-2">
+            <AddButtonCell row={row} setSelectedShoppingList={setSelectedShoppingList} />
+            <DeleteButtonCell row={row} handleDeleteList={handleDeleteList} />
+            <EditShoppingListButton row={row} setEditShoppingList={setEditShoppingList} />
+          </div>
+        ),
       },
     ],
-    [],
+    [allUsersInfo],
   );
 
   const subColumns = React.useMemo(
@@ -66,37 +266,58 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
       {
         header: 'Product Name',
         accessorKey: 'productName',
+        cell: ({ row }) => row.productName,
       },
       {
         header: 'Product Brand',
         accessorKey: 'productBrand',
+        cell: ({ row }) => row.productBrand,
       },
       {
         header: 'Product Quantity',
         accessorKey: 'productQuantity',
-      },
-      {
-        header: 'Quantity Type',
-        accessorKey: 'quantityType',
+        cell: ({ row }) => `${row.productQuantity} ${Enums.QuantityTypeLabel[row.quantityType]}`,
       },
       {
         header: 'Create Date Time',
         accessorKey: 'createDateTime',
+        cell: ({ row }) => row.createDateTime.split(':').slice(0, 2).join(':'),
       },
       {
-        header: 'Create Id',
+        header: 'Creator Name',
         accessorKey: 'creatorId',
-      },
-      {
-        header: 'Note',
-        accessorKey: 'note',
+        cell: ({ row }) => (
+          <span>
+            {allUsersInfo?.filter(e => e.uid === row.creatorId)?.[0].firstName}
+          </span>
+        ),
       },
       {
         header: 'Product Category',
         accessorKey: 'productCategory',
+        cell: ({ row }) => t(Enums.ProductCategory[row.productCategory]),
+      },
+      {
+        header: 'Note',
+        accessorKey: 'note',
+        cell: ({ row }) => <div className="max-w-48 truncate text-start hover:whitespace-break-spaces">{row.note}</div>,
+      },
+      {
+        id: 'editProduct',
+        header: () => null,
+        cell: ({ row }) => (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="group bg-transparent hover:bg-transparent"
+            onClick={() => setSelectedProduct({ state: true, data: row, documentId: row.shoppingListId })}
+          >
+            <Pencil className="size-5 text-tra-tetriary/80 group-hover:text-tra-tetriary" />
+          </Button>
+        ),
       },
     ],
-    [],
+    [allUsersInfo],
   );
 
   const data = React.useMemo(
@@ -115,32 +336,68 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
         productBrand: product.productBrand,
         productCategory: product.productCategory,
         quantityType: product.quantityType,
+        productId: product.productId,
+        shoppingListId: item.shoppingListId,
       })),
     })),
     [rowData],
   );
 
-  const [expanded, setExpanded] = React.useState<ExpandedState>({});
-
   const table = useReactTable({
     data,
     columns,
-    state: { expanded },
+    state: { expanded, sorting },
     onExpandedChange: setExpanded,
     getSubRows: row => row.subRows,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
     getExpandedRowModel: getExpandedRowModel(),
   });
 
   return (
-    <div className="p-2">
+    <div className="flex flex-col gap-2 p-2">
       <table className="w-full">
         <thead>
           {table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => (
-                <th key={header.id} colSpan={header.colSpan} style={{ border: '1px solid', padding: '6px' }}>
-                  {flexRender(header.column.columnDef.header, header.getContext())}
+                <th key={header.id} colSpan={header.colSpan} className="bg-tra-primary-15 px-3 py-2 text-center first:rounded-s-md last:rounded-e-md last:text-end [&:nth-child(2)]:text-start">
+                  <div
+                    className={
+                      header.column.getCanSort()
+                        ? 'cursor-pointer select-none'
+                        : ''
+                    }
+                    onClick={header.column.getToggleSortingHandler()}
+                    title={
+                      header.column.getCanSort()
+                        ? header.column.getNextSortingOrder() === 'asc'
+                          ? 'Sort ascending'
+                          : header.column.getNextSortingOrder() === 'desc'
+                            ? 'Sort descending'
+                            : 'Clear sort'
+                        : undefined
+                    }
+                  >
+                    {typeof flexRender(header.column.columnDef.header, header.getContext()) === 'string' && (
+                      <span className={`flex items-center ${header?.index !== 1 && 'justify-center'} `}>
+                        {t(flexRender(header.column.columnDef.header, header.getContext()))}
+                        {header.column.getIsSorted() && ({
+                          asc: <CaretUp className="ml-2" />,
+                          desc: <CaretDown className="ml-2" />,
+                        }[header.column.getIsSorted() as string] ?? null)}
+                      </span>
+                    )}
+                    {header.column.getCanFilter() ? (
+                      <div>
+                        <Filter className={`${header?.index !== 1 && 'items-center'}`} column={header.column} table={table} />
+                      </div>
+                    ) : null}
+
+                  </div>
                 </th>
               ))}
             </tr>
@@ -148,96 +405,198 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
         </thead>
         <tbody>
           {table.getRowModel().rows
-            .filter(row => row.depth === 0) // Yalnızca ana satırları al
+            .filter(row => row.depth === 0)
             .map(row => (
               <React.Fragment key={row.id}>
-                <tr>
+                <tr onClick={() => setExpanded(prev => ({
+                  ...prev,
+                  [row.id]: !prev[row.id],
+                }))}
+                >
                   {row.getVisibleCells().map(cell => (
-                    <td key={cell.id} style={{ border: '1px solid', padding: '6px' }}>
+                    <td key={cell.id} className="px-3 py-2 text-center last:text-end [&:nth-child(2)]:text-start">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
                 </tr>
-                {row.getIsExpanded() && (
-                  <tr>
-                    <td colSpan={columns.length} style={{ paddingLeft: '3.5rem' }}>
-                      <table className="w-full">
-                        <thead>
-                          <tr>
-                            {subColumns.map(subColumn => (
-                              <th key={subColumn.id} style={{ border: '1px solid', padding: '6px' }}>
-                                {flexRender(subColumn.header, {})}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {row.original.subRows?.map((subRow, subRowIndex) => (
-                            <tr key={subRowIndex}>
-                              {subColumns.map(subColumn => (
-                                <td key={subColumn.id} style={{ border: '1px solid', padding: '6px' }}>
-                                  {subRow[subColumn.accessorKey]}
-                                </td>
+                {
+                  row.getIsExpanded() && (
+                    <tr className={`opacity-0 transition-all duration-500 ${row.getIsExpanded() && 'opacity-100'}`}>
+                      <td colSpan={columns.length} style={{ paddingLeft: '3.5rem' }}>
+                        <table className="w-full">
+                          <thead>
+                            <tr>
+                              {subColumns.map((subColumn, index) => (
+                                <th key={index} className="bg-tra-primary-15/80 px-3 py-2 text-base text-sm first:rounded-tl-md first:text-start last:rounded-tr-md">
+                                  {typeof flexRender(subColumn.header, {}) === 'string' && t(flexRender(subColumn.header, {}))}
+                                </th>
                               ))}
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                )}
+                          </thead>
+                          <tbody>
+                            {row.original.subRows?.map((subRow, subRowIndex) => (
+                              <tr key={subRowIndex}>
+                                {subColumns.map((subColumn, index) => (
+                                  <td key={index} className="bg-tra-primary-5/70 px-3 py-2 text-center first:rounded-bl-md first:text-start last:rounded-br-md last:text-end">
+                                    {flexRender(subColumn.cell, { row: subRow })}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  )
+                }
               </React.Fragment>
             ))}
         </tbody>
       </table>
+      <div className="flex items-center gap-2 self-end">
+        <Button
+          variant="outlined"
+          size="icon"
+          type="button"
+          onClick={() => table.setPageIndex(0)}
+          disabled={!table.getCanPreviousPage()}
+        >
+          <CaretLeftDouble className="size-5" />
+        </Button>
+        <Button
+          variant="outlined"
+          size="icon"
+          type="button"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          <CaretLeft className="size-5" />
+        </Button>
+        <Button
+          variant="outlined"
+          size="icon"
+          type="button"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          <CaretRight className="size-5" />
+        </Button>
+        <Button
+          variant="outlined"
+          size="icon"
+          type="button"
+          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+          disabled={!table.getCanNextPage()}
+        >
+          <CaretRightDouble className="size-5" />
+        </Button>
+        <div>
+          {locale === 'tr' ? 'Toplam' : 'Total'}
+          {' '}
+          {table.getRowModel().rows.length.toLocaleString()}
+          {' '}
+          {locale === 'tr' ? 'kayıttan' : 'of'}
+          {' '}
+          {table.getRowCount().toLocaleString()}
+          {' '}
+          {locale === 'tr' ? 'kayıt gösteriliyor' : 'Rows Showing'}
+        </div>
+        <span className="flex items-center gap-1">
+          <div>{t('Page')}</div>
+          <strong>
+            {table.getState().pagination.pageIndex + 1}
+            {' '}
+            {locale === 'tr' ? 'toplam' : 'of'}
+            {' '}
+            {table.getPageCount()}
+          </strong>
+        </span>
+        {/* <span className="flex items-center gap-1">
+          | Go to page:
+          <TextField
+            type="number"
+            onChange={e => {
+              const page = e.target.value ? Number(e.target.value) - 1 : 0;
+              table.setPageIndex(page);
+            }}
+            defaultValue={table.getState().pagination.pageIndex + 1}
+            min={1}
+            max={+table.getPageCount()}
+            inputClassName="w-16 rounded border p-1"
+          />
+        </span> */}
+        <span className="ml-2 flex items-center gap-2">
+          <b>{t('Number of items to show:')}</b>
+          <SelectBox
+            containerClassName="min-w-[100px]"
+            className="h-8"
+            id="pageSize"
+            value={table.getState().pagination.pageSize}
+            optionsList={[
+              { value: 10, content: '10' },
+              { value: 20, content: '20' },
+              { value: 30, content: '30' },
+              { value: 40, content: '40' },
+              { value: 50, content: '50' }]}
+            onChange={e => {
+              table.setPageSize(Number(e));
+            }}
+            placeholder="Select Page Size"
+          />
+        </span>
+      </div>
     </div>
   );
 };
-// const Filter = ({
-//   column,
-//   table,
-// }: {
-//   column: Column<any, any>
-//   table: Table<any>
-// }) => {
-//   const firstValue = table
-//     .getPreFilteredRowModel()
-//     .flatRows[0]?.getValue(column.id);
 
-//   const columnFilterValue = column.getFilterValue();
+const Filter = ({
+  column,
+  table,
+  className,
+}: {
+  column: Column<any, any>
+  table: Table<any>
+  className?: string
+}) => {
+  const firstValue = table
+    .getPreFilteredRowModel()
+    .flatRows[0]?.getValue(column.id);
 
-//   return typeof firstValue === 'number' ? (
-//     <div className="flex space-x-2">
-//       <input
-//         type="number"
-//         value={(columnFilterValue as [number, number])?.[0] ?? ''}
-//         onChange={e => column.setFilterValue((old: [number, number]) => [
-//           e.target.value,
-//           old?.[1],
-//         ])}
-//         placeholder="Min"
-//         className="w-24 rounded border shadow"
-//       />
-//       <input
-//         type="number"
-//         value={(columnFilterValue as [number, number])?.[1] ?? ''}
-//         onChange={e => column.setFilterValue((old: [number, number]) => [
-//           old?.[0],
-//           e.target.value,
-//         ])}
-//         placeholder="Max"
-//         className="w-24 rounded border shadow"
-//       />
-//     </div>
-//   ) : (
-//     <input
-//       type="text"
-//       value={(columnFilterValue ?? '') as string}
-//       onChange={e => column.setFilterValue(e.target.value)}
-//       placeholder="Search..."
-//       className="w-36 rounded border shadow"
-//     />
-//   );
-// };
+  const columnFilterValue = column.getFilterValue();
+
+  return typeof firstValue === 'number' ? (
+    <div className="flex space-x-2">
+      <input
+        type="number"
+        value={(columnFilterValue as [number, number])?.[0] ?? ''}
+        onChange={e => column.setFilterValue((old: [number, number]) => [
+          e.target.value,
+          old?.[1],
+        ])}
+        placeholder="Min"
+        className="w-24 rounded border shadow"
+      />
+      <input
+        type="number"
+        value={(columnFilterValue as [number, number])?.[1] ?? ''}
+        onChange={e => column.setFilterValue((old: [number, number]) => [
+          old?.[0],
+          e.target.value,
+        ])}
+        placeholder="Max"
+        className="w-24 rounded border shadow"
+      />
+    </div>
+  ) : (
+    <TextField
+      className={className}
+      inputClassName="h-8 w-36"
+      type="text"
+      value={(columnFilterValue ?? '') as string}
+      onChange={e => column.setFilterValue(e.target.value)}
+      placeholder="Search..."
+    />
+  );
+};
 
 export default ShoppingListTable;

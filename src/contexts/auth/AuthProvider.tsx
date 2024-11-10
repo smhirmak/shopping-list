@@ -1,11 +1,16 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import React, { createRef, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useState } from 'react';
 import { redirect } from 'react-router-dom';
-import { signInWithEmailAndPassword,
+import {
+  signInWithEmailAndPassword,
   sendEmailVerification,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
-  onAuthStateChanged } from 'firebase/auth';
+  onAuthStateChanged,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword,
+} from 'firebase/auth';
 import { auth, db } from '@/configurations/firebase';
 import Notification from '@/components/Notification';
 import { doc, getDoc, setDoc, Timestamp, collection, getDocs } from 'firebase/firestore';
@@ -14,7 +19,7 @@ import { AuthContext } from './AuthContext';
 
 export const jwtTimeCheckRef = createRef();
 
-const AuthProvider:React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userInfo, setUserInfo] = useState<object | undefined>(undefined);
@@ -102,6 +107,37 @@ const AuthProvider:React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   };
 
+  const editUser = async (id: string, firstName: string, lastName: string): Promise<void> => {
+    try {
+      await setDoc(doc(db, 'users', id), {
+        firstName,
+        lastName,
+      }, { merge: true });
+    } catch (error) {
+      Notification.error(t('Error setting document'));
+      console.error('Error setting document:', error);
+    }
+  };
+
+  const updateUserPassword = async (email: string, currentPassword: string, newPassword: string): Promise<void> => {
+    try {
+      // debugger;
+      const user = auth.currentUser;
+      if (user) {
+        const credential = EmailAuthProvider.credential(email, currentPassword);
+        await reauthenticateWithCredential(user, credential);
+        await updatePassword(user, newPassword);
+        getUserInfo();
+        Notification.success(t('Password updated successfully'));
+      } else {
+        Notification.error(t('User is not authenticated'));
+      }
+    } catch (error) {
+      Notification.error(t(error.code.split('/').pop()));
+      console.error('Error updating password:', error);
+    }
+  };
+
   const signUp = async (data: signUpData) => {
     try {
       const response = await createUserWithEmailAndPassword(auth, data.email, data.password);
@@ -183,14 +219,19 @@ const AuthProvider:React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }, [isAuthenticated]);
 
   const values = useMemo(
-    () => ({ isInitialized,
+    () => ({
+      isInitialized,
       isAuthenticated,
       userInfo,
       allUsersInfo,
       login,
       signUp,
       logout,
-      resetPassword }),
+      resetPassword,
+      editUser,
+      getUserInfo,
+      updateUserPassword,
+    }),
     [isInitialized, isAuthenticated, userInfo, allUsersInfo],
   );
 

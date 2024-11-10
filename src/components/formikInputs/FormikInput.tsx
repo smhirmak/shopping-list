@@ -14,12 +14,13 @@ interface IFormikInput {
   tooltip?: string;
   size?: 'default' | 'sm' | 'lg';
   variant?: 'filled' | 'outlined' | 'underlined';
+  className?: string;
 }
 
-const FormikInput: React.FC<IFormikInput> = ({ id, formik, variant, size, label, disabled = false, type = 'text', placeholder = '', tooltip, ...otherProps }) => {
+const FormikInput: React.FC<IFormikInput> = ({ id, formik, variant, size, label, disabled = false, type = 'text', placeholder = '', tooltip, className, ...otherProps }) => {
   const { t } = useLocalizeContext();
   return (
-    <div className="flex flex-col">
+    <div className={`flex flex-col ${className}`}>
       <TextField
         id={id}
         variant={variant}

@@ -39,7 +39,7 @@ const ResetPassword = () => {
       <Formik initialValues={formik.initialValues} onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
         <Form className="flex w-2/3 flex-col">
           <FormikInput id="email" formik={formik} label={t('Email')} type="email" />
-          <Button variant="solid" color="secondary" loading={loading} type="submit">{t('Send')}</Button>
+          <Button variant="solid" color="secondary" loading={loading} type="submit">{t('Save')}</Button>
         </Form>
       </Formik>
     </div>

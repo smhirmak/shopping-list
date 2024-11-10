@@ -48,7 +48,7 @@ const Header = () => {
               <span />
             </label>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="px-4 py-2">
             {menuList.map(e => (
               <DropdownMenuItem key={e.link} asChild className="cursor-pointer gap-2 text-xl">
                 <Link to={e.link}>
@@ -56,7 +56,7 @@ const Header = () => {
                   {t(e.name)}
                 </Link>
               </DropdownMenuItem>
-            )) }
+            ))}
             <DropdownMenuItem asChild onClick={logout} className="cursor-pointer">
               <div className="flex items-center gap-2 text-xl">
                 <SignOut className="size-6" />

@@ -8,6 +8,8 @@ import Label from './Label';
 interface ITextField {
   alwaysTop?: boolean;
   borderRadius?: 'default' | 'lg';
+  className?: string;
+  defaultValue?: string | number | undefined;
   disabled?: boolean;
   endIcon?: React.ReactNode;
   error?: boolean;
@@ -15,12 +17,15 @@ interface ITextField {
   inputClassName?: string;
   label?: string;
   labelClassName?: string;
+  min?: number;
+  max?: number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onWheel?: (e: React.WheelEvent<HTMLInputElement>) => void;
   placeholder?: string;
   showRequiredIcon?: boolean;
   size?: 'default' | 'sm' | 'lg';
   startIcon?: React.ReactNode;
+  step?: number;
   tooltip?: string | string[];
   type?: React.InputHTMLAttributes<HTMLInputElement>['type'];
   value: string | number;
@@ -44,8 +49,8 @@ const labelStyles = cva('mb-1 transition-all duration-150 ease-cubic', {
   variants: {
     variant: {
       filled: '',
-      outlined: 'absolute left-3 transform top-1/2 -translate-y-1/2',
-      underlined: 'absolute left-0 transform top-1/2 -translate-y-1/2',
+      outlined: 'absolute left-3 top-1/2 -translate-y-1/2 transform',
+      underlined: 'absolute left-0 top-1/2 -translate-y-1/2 transform',
     },
     borderRadius: {
       default: '',
@@ -63,7 +68,7 @@ const inputStyles = cva('p-2 transition-colors', {
     variant: {
       filled: '',
       outlined: '',
-      underlined: 'border-x-0 border-t-0 rounded-none bg-transparent disabled:bg-transparent hover:bg-transparent hover:shadow-none focus-visible:shadow-none',
+      underlined: 'rounded-none border-x-0 border-t-0 bg-transparent hover:bg-transparent hover:shadow-none focus-visible:shadow-none disabled:bg-transparent',
     },
   },
   defaultVariants: {
@@ -74,6 +79,8 @@ const inputStyles = cva('p-2 transition-colors', {
 const TextField = React.forwardRef<HTMLInputElement, ITextField>(({
   alwaysTop,
   borderRadius,
+  className,
+  defaultValue,
   disabled = false,
   endIcon,
   error,
@@ -81,12 +88,15 @@ const TextField = React.forwardRef<HTMLInputElement, ITextField>(({
   inputClassName,
   label,
   labelClassName,
+  min,
+  max,
   onChange,
   onWheel,
   placeholder,
   showRequiredIcon,
   size = 'default',
   startIcon,
+  step,
   tooltip,
   type,
   value,
@@ -98,7 +108,7 @@ const TextField = React.forwardRef<HTMLInputElement, ITextField>(({
   const labelRef = useRef<HTMLLabelElement>(null);
 
   return (
-    <div ref={ref} className={cn(textFieldStyles({ variant }))}>
+    <div ref={ref} className={cn(textFieldStyles({ variant }), className)}>
       <Label
         ref={labelRef}
         className={` 
@@ -117,7 +127,7 @@ const TextField = React.forwardRef<HTMLInputElement, ITextField>(({
         borderRadius={borderRadius}
         showRequiredIcon={showRequiredIcon}
       >
-        {label}
+        {t(label)}
       </Label>
       <Input
         id={id}
@@ -125,6 +135,11 @@ const TextField = React.forwardRef<HTMLInputElement, ITextField>(({
         size={size}
         error={error}
         value={value}
+        min={min}
+        defaultValue={defaultValue}
+        readOnly={disabled}
+        max={max}
+        step={step}
         onWheel={onWheel}
         onChange={onChange}
         onFocus={() => setInputFocused(true)}

@@ -97,6 +97,24 @@ export const CaretRight: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
+export const CaretLeft: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={`${cn(className)} size-4 text-current`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256">
+    <path className="fill-current" d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z" />
+  </svg>
+);
+
+export const CaretLeftDouble: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={`${cn(className)} size-4 text-current`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256">
+    <path className="fill-current" d="M205.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L131.31,128ZM51.31,128l74.35-74.34a8,8,0,0,0-11.32-11.32l-80,80a8,8,0,0,0,0,11.32l80,80a8,8,0,0,0,11.32-11.32Z" />
+  </svg>
+);
+
+export const CaretRightDouble: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={`${cn(className)} size-4 text-current`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256">
+    <path className="fill-current" d="M50.34,53.66a8,8,0,0,1,11.32-11.32l80,80a8,8,0,0,1,0,11.32l-80,80a8,8,0,0,1-11.32-11.32L124.69,128ZM204.69,128,130.34,202.34a8,8,0,0,0,11.32,11.32l80-80a8,8,0,0,0,0-11.32l-80-80a8,8,0,0,0-11.32,11.32Z" />
+  </svg>
+);
+
 export const CaretDown: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={`${cn(className)} size-4 text-current`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
     <path className="fill-current" d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z" />
@@ -135,5 +153,16 @@ export const Gear: React.FC<{ className?: string }> = ({ className }) => (
 export const SignOut: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={`${cn(className)} size-4 text-current`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256">
     <path className="fill-current" d="M120,216a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56V208h56A8,8,0,0,1,120,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L204.69,120H112a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,229.66,122.34Z" />
+  </svg>
+);
+export const Pencil: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={`${cn(className)} size-4 text-current`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256">
+    <path className="fill-current" d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z" />
+  </svg>
+);
+
+export const ArrowClockwise: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={`${cn(className)} size-4 text-current`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256">
+    <path className="fill-current" d="M240,56v48a8,8,0,0,1-8,8H184a8,8,0,0,1,0-16H211.4L184.81,71.64l-.25-.24a80,80,0,1,0-1.67,114.78,8,8,0,0,1,11,11.63A95.44,95.44,0,0,1,128,224h-1.32A96,96,0,1,1,195.75,60L224,85.8V56a8,8,0,1,1,16,0Z" />
   </svg>
 );

@@ -7,12 +7,12 @@ import Button from './Button';
 
 // eslint-disable-next-line tailwindcss/no-custom-classname, tailwindcss/no-contradicting-classname
 const inputVariants = cva(
-  `focus-visible:border-1 placeholder:text-muted-foreground focus-visible:border-tra-primary-focused flex w-full border border-tra-input
-  bg-tra-input-fill
-  px-3 py-2 file:mr-2 file:h-fit 
-  file:cursor-pointer file:rounded-md file:border-0 file:bg-tra-neutral-disabled-text
-  file:bg-transparent 
-  file:p-2 file:text-sm file:font-medium file:text-tra-neutral-black file:transition-all hover:shadow-input-hover file:hover:contrast-125 
+  `focus-visible:border-1 placeholder:text-muted-foreground flex w-full border border-tra-input bg-tra-input-fill
+  px-3
+  py-2 file:mr-2 file:h-fit file:cursor-pointer 
+  file:rounded-md file:border-0 file:bg-tra-neutral-disabled-text file:bg-transparent
+  file:p-2 
+  file:text-sm file:font-medium file:text-tra-neutral-black file:transition-all hover:shadow-input-hover file:hover:contrast-125 focus-visible:border-tra-primary-focused 
   focus-visible:shadow-input-focus focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-tra-input-light disabled:text-tra-neutral-grey disabled:placeholder:text-tra-input`,
   {
     variants: {
@@ -67,9 +67,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="flex items-center">
         {startIcon && (
-        <span className="absolute left-3 text-current">
-          {startIcon}
-        </span>
+          <span className="absolute left-3 text-current">
+            {startIcon}
+          </span>
         )}
         <input
           type={passwordVisible ? 'text' : type}
@@ -80,24 +80,24 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             paddingLeft: startIcon ? '2.5rem' : undefined,
             paddingRight: endIcon ? '2.5rem' : undefined,
           }}
-        // eslint-disable-next-line react/jsx-props-no-spreading
+          // eslint-disable-next-line react/jsx-props-no-spreading
           {...props}
         />
         {endIcon && (
           (
-          <span className="absolute right-3 text-current">
-            {endIcon}
-          </span>
+            <span className="absolute right-3 text-current">
+              {endIcon}
+            </span>
           )
         )}
         {type === 'password'
-        && (
-        <Button className="absolute right-3 text-current" size="icon" type="button" onClick={() => setPasswordVisible(prev => !prev)}>
-          {passwordVisible
-            ? <EyeSlash className=" dark:text-gray-400" />
-            : <Eye className=" dark:text-white" />}
-        </Button>
-        )}
+          && (
+            <Button className="absolute right-3 bg-transparent text-current hover:bg-transparent" size="icon" type="button" onClick={() => setPasswordVisible(prev => !prev)}>
+              {passwordVisible
+                ? <EyeSlash className=" dark:text-gray-400" />
+                : <Eye className=" dark:text-white" />}
+            </Button>
+          )}
       </div>
     );
   },

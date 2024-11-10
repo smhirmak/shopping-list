@@ -17,7 +17,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      `flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background 
+      `flex h-10 w-full items-center justify-between rounded-md border border-tra-input bg-tra-input-fill px-3 py-2 text-sm ring-offset-background 
       placeholder:text-muted-foreground 
       focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 
       disabled:cursor-not-allowed disabled:opacity-50 
@@ -29,7 +29,7 @@ const SelectTrigger = React.forwardRef<
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <CaretDown className="h-4 w-4 opacity-50" />
+      <CaretDown className="size-4 opacity-50" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -48,7 +48,7 @@ const SelectScrollUpButton = React.forwardRef<
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   >
-    <CaretUp className="h-4 w-4" />
+    <CaretUp className="size-4" />
   </SelectPrimitive.ScrollUpButton>
 ));
 SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName;
@@ -66,7 +66,7 @@ const SelectScrollDownButton = React.forwardRef<
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   >
-    <CaretDown className="h-4 w-4" />
+    <CaretDown className="size-4" />
   </SelectPrimitive.ScrollDownButton>
 ));
 SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayName;
@@ -79,7 +79,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        `relative z-50 max-h-96 min-w-[6rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md 
+        `relative z-50 max-h-96 bg-background min-w-[6rem] overflow-hidden rounded-md border text-popover-foreground shadow-md 
         data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
         data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 
         data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2`,
@@ -135,9 +135,9 @@ const SelectItem = React.forwardRef<
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span className="absolute left-2 flex size-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
+        <Check className="size-4" />
       </SelectPrimitive.ItemIndicator>
     </span>
 

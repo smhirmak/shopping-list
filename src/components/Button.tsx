@@ -1,20 +1,21 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import React, { useEffect, useRef } from 'react';
+import { cva } from 'class-variance-authority';
+import { forwardRef, useEffect, useRef } from 'react';
 
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { cn } from '@/lib/utils';
+import { IButton } from '@/types/types';
 
-const buttonVariants = cva(
-  `btn-ripple relative inline-flex select-none items-center justify-center overflow-hidden whitespace-nowrap text-sm font-medium ring-offset-background transition-colors
+export const buttonVariants = cva(
+  `btn-ripple relative inline-flex select-none flex-wrap items-center justify-center overflow-hidden whitespace-nowrap text-sm font-medium ring-offset-background transition-all
   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
   disabled:pointer-events-none `,
   {
     variants: {
       variant: {
         solid: 'bg-tra-primary text-tra-primary-foreground hover:bg-tra-primary/90 disabled:bg-tra-button-disabled disabled:text-tra-button-disabled-text',
-        outlined: 'border-tra-primary text-tra-primary-foreground hover:bg-tra-primary/10 border-2 bg-transparent disabled:border-tra-button-disabled-text disabled:text-tra-button-disabled-text',
-        ghost: 'text-tra-primary hover:text-tra-primary/90 bg-transparent disabled:text-tra-button-disabled-text',
+        outlined: 'border-2 border-tra-primary bg-transparent text-tra-primary-foreground hover:bg-tra-primary/10 disabled:border-tra-button-disabled-text disabled:text-tra-button-disabled-text',
+        ghost: 'bg-transparent text-tra-primary hover:text-tra-primary/90 disabled:text-tra-button-disabled-text',
       },
       color: {
         primary: 'bg-tra-primary text-tra-primary-foreground',
@@ -36,7 +37,7 @@ const buttonVariants = cva(
       {
         variant: 'outlined',
         color: 'primary',
-        className: 'border-tra-primary text-tra-primary hover:bg-tra-primary/10 bg-transparent',
+        className: 'border-tra-primary bg-transparent text-tra-primary hover:bg-tra-primary/10',
       },
       {
         variant: 'outlined',
@@ -66,7 +67,7 @@ const buttonVariants = cva(
       {
         variant: 'ghost',
         color: 'primary',
-        className: 'text-tra-primary hover:text-tra-primary/80 bg-transparent',
+        className: 'bg-transparent text-tra-primary hover:text-tra-primary/80',
       },
       {
         variant: 'ghost',
@@ -105,26 +106,7 @@ const spinnerVariants = cva(
   },
 );
 
-export interface ButtonProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'color'>,
-  VariantProps<typeof buttonVariants> {
-  asChild?: React.ElementType;
-  children: React.ReactNode;
-  className?: string;
-  color?: 'primary' | 'secondary' | 'tetriary';
-  disabled?: boolean;
-  disableEffect?: boolean;
-  effectColor?: string;
-  effectOpacity?: string;
-  loading?: boolean;
-  loadingSpinnerClassname?: string;
-  loadingText?: string;
-  rounded?: 'default' | 'lg';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  variant?: 'solid' | 'outlined' | 'ghost';
-}
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+const Button = forwardRef<HTMLButtonElement, IButton>(
   ({
     asChild,
     children,
@@ -217,6 +199,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {loading && (
           <LoadingSpinner className={cn(spinnerVariants({ size }), loadingSpinnerClassname)} />
         )}
+        {/* eslint-disable-next-line no-nested-ternary */}
         <div>{(loading && size !== 'icon') ? (loadingText ?? t('Sending...')) : (loading && size === 'icon') ? null : children}</div>
       </Comp>
     );
