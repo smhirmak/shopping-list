@@ -34,10 +34,7 @@ const Login = () => {
   });
   return (
     <div className="flex w-1/2 flex-col items-center justify-center gap-8 rounded-xl border-2 border-tra-neutral-grey py-10">
-      <p className="text-4xl font-semibold">
-        {t('Login')}
-        1
-      </p>
+      <p className="text-4xl font-semibold">{t('Login')}</p>
       <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
         <Form className="flex w-2/3 flex-col">
           <FormikInput id="email" formik={formik} label="Email" type="email" />
