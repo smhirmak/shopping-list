@@ -1,17 +1,8 @@
 import Button from '@/components/Button';
 import Container from '@/components/Container';
-import FormikInput from '@/components/formikInputs/FormikInput';
-import { db } from '@/configurations/firebase';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { collection, doc, getDocs, setDoc, Timestamp } from 'firebase/firestore';
-import { Form, Formik, useFormik } from 'formik';
 import { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import Notification from '@/components/Notification';
-
 import { useProductContext } from '@/contexts/product/ProductContext';
-import FormikSelect from '@/components/formikInputs/FormikSelect';
 import { ArrowClockwise } from '@/assets/Icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import ShoppingListTable from './ShoppingListTable';

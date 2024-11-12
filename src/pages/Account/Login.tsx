@@ -3,9 +3,7 @@ import FormikInput from '@/components/formikInputs/FormikInput';
 import { loginValidationSchema } from '@/constants/Validations';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { Form, Formik, useFormik } from 'formik';
-import { auth } from '@/configurations/firebase';
-import Notification from '@/components/Notification';
-import { Link, redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useState } from 'react';
 
@@ -37,7 +35,7 @@ const Login = () => {
   return (
     <div className="flex w-1/2 flex-col items-center justify-center gap-8 rounded-xl border-2 border-tra-neutral-grey py-10">
       <p className="text-4xl font-semibold">{t('Login')}</p>
-      <Formik initialValues={formik.initialValues} onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
+      <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
         <Form className="flex w-2/3 flex-col">
           <FormikInput id="email" formik={formik} label="Email" type="email" />
           <FormikInput id="password" formik={formik} label="Password" type="password" />

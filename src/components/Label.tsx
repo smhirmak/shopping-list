@@ -54,7 +54,7 @@ const outlineLabelVariants = cva('relative z-1 pl-1', {
       false: '',
     },
     showRequiredIcon: {
-      true: 'after:content-required after:text-error after:ml-0.5',
+      true: 'after:ml-0.5 after:text-error after:content-required',
       false: '',
     },
   },
@@ -85,7 +85,7 @@ const outlineLabelVariants = cva('relative z-1 pl-1', {
   },
 });
 
-const outlineLabelBoxVariants = cva('absolute bg-tra-input-fill h-2', {
+const outlineLabelBoxVariants = cva('absolute h-2 bg-tra-input-fill', {
   variants: {
     size: {
       default: 'top-[14px]',
@@ -111,9 +111,9 @@ const outlineLabelBoxVariants = cva('absolute bg-tra-input-fill h-2', {
 const tooltipVariants = cva('', {
   variants: {
     size: {
-      default: 'h-[18px] w-[18px]',
-      sm: 'h-4 w-4',
-      lg: 'h-5 w-5',
+      default: 'size-[18px]',
+      sm: 'size-4',
+      lg: 'size-5',
     },
   },
   defaultVariants: {
@@ -124,9 +124,9 @@ const tooltipVariants = cva('', {
 const outlineTooltipVariants = cva('absolute z-50', {
   variants: {
     size: {
-      default: 'ml-0.5 top-0.5',
-      sm: 'ml-0.5 top-px',
-      lg: 'ml-1 top-1',
+      default: 'top-0.5 ml-0.5',
+      sm: 'top-px ml-0.5',
+      lg: 'top-1 ml-1',
     },
   },
   defaultVariants: {
@@ -177,10 +177,10 @@ const Label = React.forwardRef<HTMLLabelElement, LabelProps>(({
       {...props}
     >
       {variant === 'outlined' ? (
-        <div className={`relative ${disabled && 'text-tra-neutral-grey cursor-not-allowed'} ${(startIcon && !outlineFocused && !alwaysTop) && 'pl-7'}`}>
+        <div className={`relative ${disabled && 'cursor-not-allowed text-tra-neutral-grey'} ${(startIcon && !outlineFocused && !alwaysTop) && 'pl-7'}`}>
           <span className={cn(outlineLabelVariants({ size, outlineFocused, alwaysTop, showRequiredIcon }))}>{children}</span>
           <div
-            style={{ width: tooltip ? `${+(ref?.current?.offsetWidth ?? 0) + 25}px` : `${+(ref?.current?.offsetWidth ?? 0) + 6}px` }}
+            style={{ width: tooltip ? `${ref && 'current' in ref ? +(ref.current?.offsetWidth ?? 0) + 25 : 0}px` : `${ref && 'current' in ref ? +(ref.current?.offsetWidth ?? 0) + 6 : 0}px` }}
             className={cn(outlineLabelBoxVariants({ size, disabled, borderRadius }))}
           />
           {tooltip && (
@@ -197,7 +197,7 @@ const Label = React.forwardRef<HTMLLabelElement, LabelProps>(({
           )}
         </div>
       ) : (
-        <span className={`${showRequiredIcon ? 'after:content-required after:text-error after:ml-0.5' : ''} ${disabled ? 'text-tra-input cursor-not-allowed' : ''}`}>{children}</span>
+        <span className={`${showRequiredIcon ? 'after:ml-0.5 after:text-error after:content-required' : ''} ${disabled ? 'cursor-not-allowed text-tra-input' : ''}`}>{children}</span>
       )}
 
     </label>

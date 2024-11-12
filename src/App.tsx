@@ -13,9 +13,10 @@ import LoginLayout from './layout/LoginLayout';
 import ResetPassword from './pages/Account/ResetPassword';
 import SignUp from './pages/Account/SignUp';
 import ProductProvider from './contexts/product/ProductProvider';
-import { PopupProvider } from './components/Alert';
+// import { PopupProvider } from './components/Alert';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import GoShopping from './pages/GoShopping';
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
           {
             path: 'settings',
             element: <Settings />,
+          },
+          {
+            path: 'go-shopping',
+            element: <GoShopping />,
           },
         ],
       },
@@ -73,7 +78,7 @@ const App = () => (
       <ProductProvider>
         <RouterProvider router={router} />
         <ToastContainer newestOnTop toastClassName="rounded-lg" bodyStyle={{ fontSize: '.9rem' }} theme="colored" />
-        <PopupProvider />
+        {/* <PopupProvider /> */}
         <BackToTopButton />
       </ProductProvider>
     </AuthProvider>

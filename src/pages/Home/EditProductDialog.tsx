@@ -37,14 +37,14 @@ const EditProductDialog = () => {
           const data = docSnap.data();
           const { shoppingList } = data;
 
-          const updatedShoppingList = shoppingList.filter(item => item.productId !== selectedProduct?.data.productId);
+          const updatedShoppingList = shoppingList.filter((item: any) => item.productId !== selectedProduct?.data.productId);
 
           await updateDoc(docRef, {
             shoppingList: updatedShoppingList,
           });
 
           Notification.success('Product successfully deleted');
-          setSelectedProduct({ state: false, data: '' });
+          setSelectedProduct((prev: any) => ({ ...prev, state: false, data: '' }));
           getAllShoppingList();
         } else {
           Notification.error('Document not found!');
@@ -79,6 +79,8 @@ const EditProductDialog = () => {
         lastUpdateDateTime: Timestamp.now().toDate().toLocaleString(),
         lastUpdaterId: userInfo?.uid,
         productQuantity: values.productQuantity && +values.productQuantity,
+        isItBought: false,
+        buyDate: '',
       };
 
       try {
@@ -88,7 +90,7 @@ const EditProductDialog = () => {
           const data = docSnap.data();
           const { shoppingList } = data;
 
-          const updatedShoppingList = shoppingList.map(item => {
+          const updatedShoppingList = shoppingList.map((item: any) => {
             if (item.productId === values.productId) {
               return { ...item, ...editedValues };
             }
@@ -100,7 +102,7 @@ const EditProductDialog = () => {
           });
 
           Notification.success('Product successfully edited');
-          setSelectedProduct({ state: false, data: '' });
+          setSelectedProduct(prev => ({ ...prev, state: false, data: '' }));
           getAllShoppingList();
         } else {
           Notification.error('Belge bulunamadı!');
@@ -117,12 +119,12 @@ const EditProductDialog = () => {
     validateOnMount: false,
   });
   return (
-    <Dialog open={selectedProduct.state} onOpenChange={() => setSelectedProduct((prev: { state: boolean; data: string }) => ({ ...prev, state: !prev.state }))}>
+    <Dialog open={selectedProduct.state} onOpenChange={() => setSelectedProduct((prev: { state: boolean; data: string; documentId: string }) => ({ ...prev, state: !prev.state }))}>
       <DialogContent className="max-h-[90vh] min-w-[50vw] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">{t('Edit Product')}</DialogTitle>
         </DialogHeader>
-        <Formik initialValues={formik.initialValues} onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
+        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
           <Form>
             <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
             <div className="grid grid-cols-4 space-x-3">

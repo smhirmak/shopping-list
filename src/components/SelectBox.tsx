@@ -3,22 +3,20 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 interface ISelectBox {
   className?: string;
   containerClassName?: string;
-  defaultValue?: string | number | undefined;
-  id: string;
+  defaultValue?: string | undefined;
   value: string | number;
   optionsList: { value: string | number; content: string }[];
   translateFunction?: (key: string) => string;
   onChange: (value: string) => void;
-  placeholder: string;
+  placeholder?: string;
 }
 
-const SelectBox: React.FC<ISelectBox> = ({ containerClassName, className, defaultValue, id, value, optionsList, translateFunction, onChange, placeholder }) => (
+const SelectBox: React.FC<ISelectBox> = ({ containerClassName, className, defaultValue, value, optionsList, translateFunction, onChange, placeholder = '' }) => (
   <div className={containerClassName}>
     <Select
       onValueChange={onChange}
       defaultValue={defaultValue}
-      id={id}
-      value={value}
+      value={String(value)}
     >
       <SelectTrigger className={`h-14 ${className}`}>
         <SelectValue placeholder={translateFunction ? translateFunction(placeholder) : placeholder} />
@@ -28,7 +26,7 @@ const SelectBox: React.FC<ISelectBox> = ({ containerClassName, className, defaul
           {optionsList?.map((option, index) => (
             <SelectItem
               key={index}
-              value={option.value}
+              value={String(option.value)}
             >
               {translateFunction ? translateFunction(option.content) : option.content}
             </SelectItem>

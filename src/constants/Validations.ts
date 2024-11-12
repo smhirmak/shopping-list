@@ -28,6 +28,10 @@ export const newShoppingListValidationSchema = yup.object().shape({
   shoppingListName: yup.string().required(requiredErrorMessage),
   dateToShop: yup.string().required(requiredErrorMessage),
 });
+export const editShoppingListValidationSchema = yup.object().shape({
+  shoppingListName: yup.string().required(requiredErrorMessage),
+  dateToShop: yup.string().required(requiredErrorMessage),
+});
 
 export const newProductValidationSchema = yup.object().shape({
   productName: yup.string().required(requiredErrorMessage),

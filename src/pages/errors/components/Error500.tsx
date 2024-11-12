@@ -17,7 +17,7 @@ const Error500 = () => {
       <div className="mb-11" />
       <div className="mb-0">
         <Link to="/">
-          <Button onClick={() => { }} variant="contained">
+          <Button onClick={() => { }} variant="solid">
             {t('Back to Home Page')}
           </Button>
         </Link>

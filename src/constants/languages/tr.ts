@@ -90,6 +90,7 @@ const tr = {
   'Search...': 'Ara...',
   Today: 'Bugün',
   Page: 'Sayfa',
+  'Go Shopping': 'Alışverişe Çık',
 };
 
 export default tr;

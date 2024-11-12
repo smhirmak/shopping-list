@@ -30,14 +30,14 @@ interface TabProps {
   radius?: 'default' | 'none' | 'sm' | 'lg' | 'full';
 }
 
-const tabsContainerVariants = cva('relative flex w-fit', {
-  variants: {
-    direction: {
-      horizontal: 'flex-row',
-      vertical: 'flex-col',
-    },
-  },
-});
+// const tabsContainerVariants = cva('relative flex w-fit', {
+//   variants: {
+//     direction: {
+//       horizontal: 'flex-row',
+//       vertical: 'flex-col',
+//     },
+//   },
+// });
 
 const tabsVariants = cva('inline-flex items-center justify-center', {
   variants: {

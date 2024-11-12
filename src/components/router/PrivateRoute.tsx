@@ -1,5 +1,5 @@
-import { useContext, useEffect } from 'react';
-import { Outlet } from 'react-router';
+import { useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import Auth from '@/constants/Auth';
 import { useAuthContext } from '@/contexts/auth/AuthContext';
 

@@ -7,10 +7,11 @@ import {
   getExpandedRowModel,
   flexRender,
   getSortedRowModel,
-  SortingFn,
   SortingState,
   getPaginationRowModel,
   getFilteredRowModel,
+  Table,
+  Column,
 } from '@tanstack/react-table';
 import { CaretDown, CaretLeft, CaretLeftDouble, CaretRight, CaretRightDouble, CaretUp, Pencil, Plus } from '@/assets/Icons';
 import Button from '@/components/Button';
@@ -25,12 +26,13 @@ import { deleteShoppingListPopup } from '@/constants/PopupContents';
 import Swal from 'sweetalert2';
 import SelectBox from '@/components/SelectBox';
 import TextField from '@/components/TextField';
+import { useNavigate } from 'react-router-dom';
 
-const ExpanderCell = ({ row, setExpanded }: { row: any; setExpanded: (e: object) => void }) => (
+const ExpanderCell = ({ row, setExpanded }: { row: any; setExpanded: React.Dispatch<React.SetStateAction<ExpandedState>> }) => (
   <span
     onClick={e => {
       e.stopPropagation();
-      setExpanded(prev => ({
+      setExpanded((prev: any) => ({
         ...prev,
         [row.id]: !prev[row.id],
       }));
@@ -41,7 +43,7 @@ const ExpanderCell = ({ row, setExpanded }: { row: any; setExpanded: (e: object)
   </span>
 );
 
-const AddButtonCell = ({ row, setSelectedShoppingList }: { row: any; setSelectedShoppingList: (e: object) => void }) => (
+const AddButtonCell = ({ row, setSelectedShoppingList }: { row: any; setSelectedShoppingList: React.Dispatch<React.SetStateAction<{ state: boolean; id: string }>> }) => (
   <Button
     size="icon"
     className="group bg-transparent hover:bg-transparent"
@@ -54,7 +56,7 @@ const AddButtonCell = ({ row, setSelectedShoppingList }: { row: any; setSelected
   </Button>
 );
 
-const EditShoppingListButton = ({ row, setEditShoppingList }: { row: any; setEditShoppingList: (e: object) => void }) => (
+const EditShoppingListButton = ({ row, setEditShoppingList }: { row: any; setEditShoppingList: React.Dispatch<React.SetStateAction<{ state: boolean; data: any }>> }) => (
   <Button
     size="icon"
     variant="ghost"
@@ -108,8 +110,8 @@ const DeleteButtonCell = ({ row, handleDeleteList }: { row: any; handleDeleteLis
   </Button>
 );
 
-const sortCreateDateFn = (rowA, rowB, _columnId) => {
-  const parseDate = dateString => {
+const sortCreateDateFn = (rowA: any, rowB: any) => {
+  const parseDate = (dateString: any) => {
     const [datePart, timePart] = dateString.split(' ');
     const [day, month, year] = datePart.split('.');
     return new Date(`${year}-${month}-${day}T${timePart}`);
@@ -123,8 +125,8 @@ const sortCreateDateFn = (rowA, rowB, _columnId) => {
   return 0;
 };
 
-const sortPlannedDateFn = (rowA, rowB, _columnId) => {
-  const parseDate = dateString => {
+const sortPlannedDateFn = (rowA: any, rowB: any) => {
+  const parseDate = (dateString: any) => {
     if (!dateString) return new Date(0); // Geçersiz tarihleri sıralamak için en eski tarih
     const [day, month, year] = dateString.split('.');
     return new Date(`${year}-${month}-${day}`);
@@ -140,10 +142,10 @@ const sortPlannedDateFn = (rowA, rowB, _columnId) => {
 
   if (isDateAInFuture && isDateBInFuture) {
     // İkisi de gelecekteki tarihlerse, artan sırayla sıralayın
-    return dateA - dateB;
+    return dateA.getTime() - dateB.getTime();
   } if (!isDateAInFuture && !isDateBInFuture) {
     // İkisi de geçmişteki tarihlerse, azalan sırayla sıralayın
-    return dateB - dateA;
+    return dateB.getTime() - dateA.getTime();
   } if (isDateAInFuture && !isDateBInFuture) {
     // dateA gelecekte, dateB geçmişte
     return -1;
@@ -153,14 +155,15 @@ const sortPlannedDateFn = (rowA, rowB, _columnId) => {
 };
 
 const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
-  const { selectedShoppingList, setSelectedShoppingList, selectedProduct, setSelectedProduct, getAllShoppingList, setEditShoppingList } = useProductContext();
+  const { setSelectedShoppingList, setSelectedProduct, getAllShoppingList, setEditShoppingList } = useProductContext();
   const { allUsersInfo } = useAuthContext();
   const { t, locale } = useLocalizeContext();
+  const navigate = useNavigate();
 
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const [sorting, setSorting] = React.useState<SortingState>([{ id: 'dateToShop', desc: true }]);
 
-  const handleDeleteList = async shoppingListId => {
+  const handleDeleteList = async (shoppingListId: string) => {
     const areYouSure = await Swal.fire(deleteShoppingListPopup(t));
 
     if (areYouSure.isConfirmed) {
@@ -181,33 +184,33 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
       {
         id: 'expander',
         header: () => null,
-        cell: ({ row }) => <ExpanderCell row={row} setExpanded={setExpanded} />,
+        cell: ({ row }: { row: any }) => <ExpanderCell row={row} setExpanded={setExpanded} />,
       },
       {
         header: 'Shopping List Name',
         accessorKey: 'shoppingListName',
-        cell: info => info.getValue(),
+        cell: (info: any) => info.getValue(),
       },
       {
         header: 'Create Date Time',
         accessorKey: 'createDateTime',
-        cell: info => info.getValue().split(':').slice(0, 2).join(':'),
+        cell: (info: any) => info.getValue().split(':').slice(0, 2).join(':'),
         sortingFn: sortCreateDateFn,
       },
       {
         header: 'Creator Name',
         accessorKey: 'creatorId',
-        cell: info => (
+        cell: (info: any) => (
           <span>
-            {allUsersInfo?.filter(e => e.uid === info.getValue())?.[0].firstName}
+            {allUsersInfo?.filter((e: any) => e.uid === info.getValue())?.[0].firstName}
           </span>
         ),
       },
       {
         header: 'Planned Shopping Date',
         accessorKey: 'dateToShop',
-        cell: info => {
-          const parseDate = dateString => {
+        cell: (info: any) => {
+          const parseDate = (dateString: any) => {
             if (!dateString) return new Date(0); // Geçersiz tarihleri sıralamak için en eski tarih
             const [day, month, year] = dateString.split('.');
             return new Date(`${year}-${month}-${day}`);
@@ -249,8 +252,19 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
       {
         id: 'addNewProduct',
         header: () => null,
-        cell: ({ row }) => (
+        cell: ({ row }: { row: any }) => (
           <div className="flex items-center justify-end gap-2">
+            <Button
+              size="sm"
+              className="h-11 px-2"
+              onClick={e => {
+                e.stopPropagation();
+                const shoppingListId = row?.original?.shoppingListId;
+                navigate(`/go-shopping?shoppingListId=${shoppingListId}`);
+              }}
+            >
+              {t('Go Shopping')}
+            </Button>
             <AddButtonCell row={row} setSelectedShoppingList={setSelectedShoppingList} />
             <DeleteButtonCell row={row} handleDeleteList={handleDeleteList} />
             <EditShoppingListButton row={row} setEditShoppingList={setEditShoppingList} />
@@ -261,51 +275,51 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
     [allUsersInfo],
   );
 
-  const subColumns = React.useMemo(
+  const subColumns: any = React.useMemo(
     () => [
       {
         header: 'Product Name',
         accessorKey: 'productName',
-        cell: ({ row }) => row.productName,
+        cell: ({ row }: { row: any }) => row.productName,
       },
       {
         header: 'Product Brand',
         accessorKey: 'productBrand',
-        cell: ({ row }) => row.productBrand,
+        cell: ({ row }: { row: any }) => row.productBrand,
       },
       {
         header: 'Product Quantity',
         accessorKey: 'productQuantity',
-        cell: ({ row }) => `${row.productQuantity} ${Enums.QuantityTypeLabel[row.quantityType]}`,
+        cell: ({ row }: { row: { productQuantity: number; quantityType: keyof typeof Enums.QuantityTypeLabel } }) => `${row.productQuantity} ${Enums.QuantityTypeLabel[row.quantityType]}`,
       },
       {
         header: 'Create Date Time',
         accessorKey: 'createDateTime',
-        cell: ({ row }) => row.createDateTime.split(':').slice(0, 2).join(':'),
+        cell: ({ row }: { row: any }) => row.createDateTime.split(':').slice(0, 2).join(':'),
       },
       {
         header: 'Creator Name',
         accessorKey: 'creatorId',
-        cell: ({ row }) => (
+        cell: ({ row }: { row: any }) => (
           <span>
-            {allUsersInfo?.filter(e => e.uid === row.creatorId)?.[0].firstName}
+            {allUsersInfo?.filter((e: any) => e.uid === row.creatorId)?.[0].firstName}
           </span>
         ),
       },
       {
         header: 'Product Category',
         accessorKey: 'productCategory',
-        cell: ({ row }) => t(Enums.ProductCategory[row.productCategory]),
+        cell: ({ row }: { row: { productCategory: keyof typeof Enums.ProductCategory } }) => t(Enums.ProductCategory[row.productCategory]),
       },
       {
         header: 'Note',
         accessorKey: 'note',
-        cell: ({ row }) => <div className="max-w-48 truncate text-start hover:whitespace-break-spaces">{row.note}</div>,
+        cell: ({ row }: { row: any }) => <div className="max-w-48 truncate text-start hover:whitespace-break-spaces">{row.note}</div>,
       },
       {
         id: 'editProduct',
         header: () => null,
-        cell: ({ row }) => (
+        cell: ({ row }: { row: any }) => (
           <Button
             size="icon"
             variant="ghost"
@@ -327,7 +341,7 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
       createDateTime: item.createDateTime,
       creatorId: item.creatorId,
       dateToShop: item.dateToShop,
-      subRows: item?.shoppingList?.map(product => ({
+      subRows: item?.shoppingList?.map((product: any) => ({
         productName: product.productName,
         productQuantity: product.productQuantity,
         createDateTime: product.createDateTime,
@@ -408,7 +422,7 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
             .filter(row => row.depth === 0)
             .map(row => (
               <React.Fragment key={row.id}>
-                <tr onClick={() => setExpanded(prev => ({
+                <tr onClick={() => setExpanded((prev: any) => ({
                   ...prev,
                   [row.id]: !prev[row.id],
                 }))}
@@ -426,17 +440,17 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
                         <table className="w-full">
                           <thead>
                             <tr>
-                              {subColumns.map((subColumn, index) => (
-                                <th key={index} className="bg-tra-primary-15/80 px-3 py-2 text-base text-sm first:rounded-tl-md first:text-start last:rounded-tr-md">
+                              {subColumns.map((subColumn: any, index: any) => (
+                                <th key={index} className="bg-tra-primary-15/80 px-3 py-2 text-base first:rounded-tl-md first:text-start last:rounded-tr-md">
                                   {typeof flexRender(subColumn.header, {}) === 'string' && t(flexRender(subColumn.header, {}))}
                                 </th>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
-                            {row.original.subRows?.map((subRow, subRowIndex) => (
+                            {row.original.subRows?.map((subRow: any, subRowIndex: number) => (
                               <tr key={subRowIndex}>
-                                {subColumns.map((subColumn, index) => (
+                                {subColumns.map((subColumn: any, index: number) => (
                                   <td key={index} className="bg-tra-primary-5/70 px-3 py-2 text-center first:rounded-bl-md first:text-start last:rounded-br-md last:text-end">
                                     {flexRender(subColumn.cell, { row: subRow })}
                                   </td>
@@ -530,7 +544,7 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
           <SelectBox
             containerClassName="min-w-[100px]"
             className="h-8"
-            id="pageSize"
+            // id="pageSize"
             value={table.getState().pagination.pageSize}
             optionsList={[
               { value: 10, content: '10' },

@@ -28,7 +28,7 @@ interface ITextField {
   step?: number;
   tooltip?: string | string[];
   type?: React.InputHTMLAttributes<HTMLInputElement>['type'];
-  value: string | number;
+  value: string | number | undefined;
   variant?: 'filled' | 'outlined' | 'underlined';
 }
 

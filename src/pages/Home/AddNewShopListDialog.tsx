@@ -1,4 +1,4 @@
-import { Minus, Plus, X } from '@/assets/Icons';
+import { Plus, X } from '@/assets/Icons';
 import Button from '@/components/Button';
 import FormikInput from '@/components/formikInputs/FormikInput';
 import FormikSelect from '@/components/formikInputs/FormikSelect';
@@ -16,8 +16,8 @@ import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: () => void; isAddListDialogOpen: boolean }> = ({ isAddListDialogOpen, setIsAddListDialogOpen }) => {
-  const { userInfo, allUsersInfo } = useAuthContext();
+const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void; isAddListDialogOpen: boolean }> = ({ isAddListDialogOpen, setIsAddListDialogOpen }) => {
+  const { userInfo } = useAuthContext();
   const { getAllShoppingList } = useProductContext();
   const { t } = useLocalizeContext();
 
@@ -60,6 +60,8 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: () => void; isAdd
             productBrand: values.productBrand,
             productCategory: values.productCategory,
             productId,
+            isItBought: false,
+            buyDate: '',
             productName: values.productName,
             productQuantity: values.productQuantity && +values.productQuantity,
             quantityType: values.quantityType,
@@ -86,13 +88,13 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: () => void; isAdd
     validateOnMount: false,
   });
   return (
-    <Dialog open={isAddListDialogOpen} onOpenChange={() => setIsAddListDialogOpen(prev => !prev)}>
+    <Dialog open={isAddListDialogOpen} onOpenChange={() => setIsAddListDialogOpen((prev: any) => !prev)}>
       <DialogContent className="max-h-[90vh] min-w-[50vw] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">Add New Shopping List</DialogTitle>
         </DialogHeader>
         {/* <DialogDescription> */}
-        <Formik initialValues={formik.initialValues} onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
+        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
           <Form className="flex flex-col">
             <FormikInput id="shoppingListName" formik={formik} label="Shopping List Name" type="text" />
             <FormikInput id="dateToShop" formik={formik} label="Planned Shopping Date" type="date" />

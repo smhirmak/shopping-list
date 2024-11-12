@@ -6,7 +6,7 @@ import { updateUserInfoValidationSchema } from '@/constants/Validations';
 import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { Form, Formik, useFormik } from 'formik';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const Profile = () => {
   const { userInfo, editUser, getUserInfo } = useAuthContext();
@@ -23,7 +23,7 @@ const Profile = () => {
     onSubmit: async values => {
       setLoading(true);
       try {
-        await editUser(userInfo?.uid, values.firstName, values.lastName);
+        await editUser(userInfo!.uid, values.firstName, values.lastName);
         Notification.success('User updated successfully');
         getUserInfo();
       } catch (error) {
@@ -41,7 +41,7 @@ const Profile = () => {
   return (
     <div className="flex justify-center">
       <div className="w-3/5 border p-6">
-        <Formik initialValues={formik.initialValues} onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
+        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
           <Form className="flex flex-col">
             <FormikInput id="firstName" label="First Name" formik={formik} />
             <FormikInput id="lastName" label="Last Name" formik={formik} />

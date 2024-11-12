@@ -37,7 +37,7 @@ const SignUp = () => {
   return (
     <div className="flex w-1/2 flex-col items-center justify-center gap-8 rounded-xl border-2 border-tra-neutral-grey py-10">
       <p className="text-4xl font-semibold">{t('Sign Up')}</p>
-      <Formik initialValues={formik.initialValues} onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
+      <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
         <Form className="flex w-2/3 flex-col">
           <FormikInput id="firstName" formik={formik} label={t('First Name')} type="text" />
           <FormikInput id="lastName" formik={formik} label={t('Last Name')} type="text" />

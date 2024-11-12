@@ -48,7 +48,7 @@ export interface InputProps
   size?: 'default' | 'sm' | 'lg' | undefined;
   startIcon?: React.ReactNode;
   type?: React.InputHTMLAttributes<HTMLInputElement>['type'];
-  value: string | number;
+  value: string | number | undefined;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(

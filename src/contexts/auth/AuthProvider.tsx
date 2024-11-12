@@ -15,21 +15,16 @@ import { auth, db } from '@/configurations/firebase';
 import Notification from '@/components/Notification';
 import { doc, getDoc, setDoc, Timestamp, collection, getDocs } from 'firebase/firestore';
 import { useLocalizeContext } from '../locale/LocalizeContext';
-import { AuthContext } from './AuthContext';
+import { AuthContext, UserInfo } from './AuthContext';
 
 export const jwtTimeCheckRef = createRef();
 
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [userInfo, setUserInfo] = useState<object | undefined>(undefined);
-  const [allUsersInfo, setAllUsersInfo] = useState<object[] | undefined>(undefined);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [allUsersInfo, setAllUsersInfo] = useState<UserInfo[] | null>(null);
   const { t } = useLocalizeContext();
-
-  interface LoginData {
-    email: string;
-    password: string;
-  }
   interface signUpData {
     firstName: string;
     lastName: string;
@@ -42,7 +37,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       if (user) {
         try {
           const info = await getDoc(doc(db, 'users', user.uid));
-          setUserInfo(info.data() || undefined);
+          setUserInfo(info.data() as UserInfo || null);
         } catch (error) {
           console.error('Error setting document:', error);
         }
@@ -52,17 +47,17 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const getAllUsersInfo = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'users'));
-      setAllUsersInfo(querySnapshot.docs.map(doc => doc.data()));
+      setAllUsersInfo(querySnapshot.docs.map(docItem => docItem.data() as UserInfo));
     } catch (error) {
       console.error('Error fetching documents:', error);
     }
   };
 
-  const login = async (data: LoginData) => {
+  const login = async ({ email, password }: { email: string; password: string }) => {
     try {
-      const response = await signInWithEmailAndPassword(auth, data.email, data.password);
+      const response = await signInWithEmailAndPassword(auth, email, password);
       if (response && response.user && response.user.uid) {
-        if (!response.user.emailVerified) {
+        if (!response.user.emailVerified && auth.currentUser) {
           sendEmailVerification(auth.currentUser).then(() => {
             Notification.success('Email doğrulama e-postası gönderildi. Oturum açabilmek için lütfen mail adresinizi doğrulayın.');
           }).catch(() => {
@@ -81,7 +76,11 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         Notification.error('Oturum açma başarısız!');
       }
     } catch (error: any) {
-      Notification.error(t(error.code.split('/').pop()));
+      if (error instanceof Error) {
+        Notification.error(t(error.message.split('/').pop()));
+      } else {
+        Notification.error(t('An unknown error occurred'));
+      }
     }
   };
 
@@ -133,7 +132,11 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         Notification.error(t('User is not authenticated'));
       }
     } catch (error) {
-      Notification.error(t(error.code.split('/').pop()));
+      if (error instanceof Error && 'code' in error) {
+        Notification.error(t((error as any).code.split('/').pop()));
+      } else {
+        Notification.error(t('An unknown error occurred'));
+      }
       console.error('Error updating password:', error);
     }
   };
@@ -141,7 +144,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const signUp = async (data: signUpData) => {
     try {
       const response = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      if (response && response.user && response.user.uid) {
+      if (response && response.user && response.user.uid && auth.currentUser) {
         Notification.success(t('Your account was successfully created!'));
         await sendEmailVerification(auth.currentUser);
         Notification.success(t('Mail verification email has been sent. Please verify your email address to be able to log in.'));

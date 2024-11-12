@@ -43,6 +43,8 @@ const AddNewProductDialog = () => {
         lastUpdateDateTime: Timestamp.now().toDate().toLocaleString(),
         lastUpdaterId: userInfo?.uid,
         productId,
+        isItBought: false,
+        buyDate: '',
         productQuantity: values.productQuantity && +values.productQuantity,
       };
       try {
@@ -51,7 +53,7 @@ const AddNewProductDialog = () => {
         });
         Notification.success('Product added successfully in list');
         getAllShoppingList();
-        setSelectedShoppingList(false);
+        setSelectedShoppingList(prev => ({ ...prev, state: false }));
       } catch (error) {
         Notification.error('Error setting document');
         console.error('Error setting document:', error);
@@ -70,7 +72,7 @@ const AddNewProductDialog = () => {
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">{t('Add New Product to List')}</DialogTitle>
         </DialogHeader>
-        <Formik initialValues={formik.initialValues} onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
+        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
           <Form className="flex flex-col">
             <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
             <div className="grid grid-cols-4 space-x-3">

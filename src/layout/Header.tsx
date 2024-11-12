@@ -1,5 +1,4 @@
 import { Gear, SignOut, User } from '@/assets/Icons';
-import Button from '@/components/Button';
 import LanguangeSelect from '@/components/LanguangeSelect';
 import ThemeModeToggle from '@/components/ThemeModeToggle';
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';

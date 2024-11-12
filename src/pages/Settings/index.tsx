@@ -8,7 +8,7 @@ import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 
 const Settings = () => {
-  const { userInfo, updateUserPassword, getUserInfo } = useAuthContext();
+  const { userInfo, updateUserPassword } = useAuthContext();
   const { t } = useLocalizeContext();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -27,7 +27,7 @@ const Settings = () => {
       }
       setLoading(true);
       try {
-        await updateUserPassword(userInfo?.email, values.currentPassword, values.newPassword);
+        await updateUserPassword(userInfo!.email, values.currentPassword, values.newPassword);
       } catch (error) {
         Notification.error('Error updating user');
         console.error('Error updating user:', error);
@@ -43,7 +43,7 @@ const Settings = () => {
   return (
     <div className="flex justify-center">
       <div className="w-3/5 border p-6">
-        <Formik initialValues={formik.initialValues} onSubmit={formik.handleSubmit} onReset={formik.handleReset}>
+        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
           <Form className="flex flex-col">
             <FormikInput id="currentPassword" label="Current Password" formik={formik} type="password" />
             <FormikInput id="newPassword" label="New Password" formik={formik} type="password" />

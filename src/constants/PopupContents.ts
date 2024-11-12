@@ -1,4 +1,4 @@
-export const deleteShoppingListPopup = (t: (e: string) => void) => ({
+export const deleteShoppingListPopup = (t: any) => ({
   title: (t('Are you sure?')),
   text: (t('Do you want to delete the shopping list?')),
   showCancelButton: true,
@@ -16,7 +16,7 @@ export const deleteShoppingListPopup = (t: (e: string) => void) => ({
   },
 });
 
-export const deleteProductPopup = (t: (e: string) => void) => ({
+export const deleteProductPopup = (t: any) => ({
   title: (t('Are you sure?')),
   text: (t('Do you want to delete the product?')),
   showCancelButton: true,
