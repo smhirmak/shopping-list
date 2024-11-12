@@ -77,7 +77,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       }
     } catch (error: any) {
       if (error instanceof Error) {
-        Notification.error(t(error.message.split('/').pop()));
+        Notification.error(t((error as any).code.split('/').pop()));
       } else {
         Notification.error(t('An unknown error occurred'));
       }
