@@ -13,7 +13,7 @@ interface AuthContextType {
   login: ({ email, password }: {email: string, password: string}) => Promise<void>;
   signUp: ({ email, password, firstName, lastName }: {email: string, password: string, firstName: string, lastName: string}) => Promise<void>;
   logout: () => void;
-  resetPassword: (email: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<boolean>;
   updateUserPassword: (email: string, currentPassword: string, newPassword: string) => Promise<void>;
   editUser: (uid: string, firstName: string, lastName: string) => Promise<void>;
   getUserInfo: () => Promise<void>;
@@ -27,7 +27,7 @@ const defaultAuthContext: AuthContextType = {
   login: async () => {},
   signUp: async () => {},
   logout: () => {},
-  resetPassword: async () => {},
+  resetPassword: async () => false,
   updateUserPassword: async () => {},
   editUser: async () => {},
   getUserInfo: async () => {},

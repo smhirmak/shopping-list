@@ -26,14 +26,13 @@ const Header = () => {
   return (
     <div className="flex w-full items-center justify-between bg-slate-700 p-4">
       <Link to="/" className="flex items-center gap-6">
-        <img src="/assets/logos/logo.png" alt="Shopping List" className="w-20" />
-        <p className="font-mono text-4xl">Shopping List</p>
+        <img src="/assets/logos/logo.png" alt="Shopping List" className="w-12 md:w-20" />
+        <p className="font-mono text-xl md:text-4xl">Shopping List</p>
       </Link>
-
       <div className="flex items-center">
         <ThemeModeToggle />
         <LanguangeSelect />
-        <span className="mr-4 text-xl">
+        <span className="mr-4 hidden text-xl md:block">
           {userInfo?.firstName}
           {' '}
           {userInfo?.lastName}

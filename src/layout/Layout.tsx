@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom/dist';
 import Header from './Header';
 
 const Layout = () => (
-  <div className="flex min-h-screen flex-col">
+  <div className="min-w-screen flex min-h-screen flex-col">
     <Header />
     <div className="mt-4 grow pl-2">
       <Outlet />

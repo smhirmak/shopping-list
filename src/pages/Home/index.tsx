@@ -21,8 +21,7 @@ const Home = () => {
   }, []);
 
   return (
-    <Container maxWidth="xl">
-
+    <Container maxWidth="xl" className="overflow-x-hidden">
       <div className="flex items-center justify-end gap-4">
         <TooltipProvider>
           <Tooltip>

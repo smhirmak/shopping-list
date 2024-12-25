@@ -1,5 +1,6 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import { cva } from 'class-variance-authority';
-import { forwardRef, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
@@ -106,7 +107,7 @@ const spinnerVariants = cva(
   },
 );
 
-const Button = forwardRef<HTMLButtonElement, IButton>(
+const Button = React.forwardRef<HTMLButtonElement, IButton>(
   ({
     asChild,
     children,
@@ -200,7 +201,7 @@ const Button = forwardRef<HTMLButtonElement, IButton>(
           <LoadingSpinner className={cn(spinnerVariants({ size }), loadingSpinnerClassname)} />
         )}
         {/* eslint-disable-next-line no-nested-ternary */}
-        <div>{(loading && size !== 'icon') ? (loadingText ?? t('Sending...')) : (loading && size === 'icon') ? null : children}</div>
+        <>{(loading && size !== 'icon') ? (loadingText ?? t('Sending...')) : (loading && size === 'icon') ? null : children}</>
       </Comp>
     );
   },
