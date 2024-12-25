@@ -39,17 +39,15 @@ const Profile = () => {
   });
 
   return (
-    <div className="flex justify-center">
-      <div className="w-3/5 border p-6">
-        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
-          <Form className="flex flex-col">
-            <FormikInput id="firstName" label="First Name" formik={formik} />
-            <FormikInput id="lastName" label="Last Name" formik={formik} />
-            <TextField label="Email" disabled value={userInfo?.email} />
-            <Button className="mt-4 self-end" color="tetriary" loading={loading}>{t('Save')}</Button>
-          </Form>
-        </Formik>
-      </div>
+    <div className="flex w-full flex-col items-center justify-center gap-8 rounded-xl py-10 md:w-1/2">
+      <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
+        <Form className="flex w-5/6 flex-col md:w-2/3">
+          <FormikInput id="firstName" label="First Name" formik={formik} />
+          <FormikInput id="lastName" label="Last Name" formik={formik} />
+          <TextField label="Email" disabled value={userInfo?.email} />
+          <Button className="mt-4 self-end" color="tetriary" loading={loading}>{t('Save')}</Button>
+        </Form>
+      </Formik>
     </div>
   );
 };

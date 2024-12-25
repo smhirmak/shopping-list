@@ -41,17 +41,15 @@ const Settings = () => {
   });
 
   return (
-    <div className="flex justify-center">
-      <div className="w-3/5 border p-6">
-        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
-          <Form className="flex flex-col">
-            <FormikInput id="currentPassword" label="Current Password" formik={formik} type="password" />
-            <FormikInput id="newPassword" label="New Password" formik={formik} type="password" />
-            <FormikInput id="newPasswordAgain" label="New Password (Again)" formik={formik} type="password" />
-            <Button className="mt-4 self-end" color="tetriary" loading={loading}>{t('Save')}</Button>
-          </Form>
-        </Formik>
-      </div>
+    <div className="flex w-full flex-col items-center justify-center gap-8 rounded-xl py-10 md:w-1/2">
+      <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
+        <Form className="flex w-5/6 flex-col md:w-2/3">
+          <FormikInput id="currentPassword" label="Current Password" formik={formik} type="password" />
+          <FormikInput id="newPassword" label="New Password" formik={formik} type="password" />
+          <FormikInput id="newPasswordAgain" label="New Password (Again)" formik={formik} type="password" />
+          <Button className="mt-4 self-end" color="tetriary" loading={loading}>{t('Save')}</Button>
+        </Form>
+      </Formik>
     </div>
   );
 };

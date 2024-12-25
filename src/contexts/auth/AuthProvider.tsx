@@ -165,14 +165,13 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   const resetPassword = async (email: string) => {
     try {
-      await sendPasswordResetEmail(auth, email).then(() => {
-        Notification.success('Şifre sıfırlama e-postası gönderildi.');
-      }).catch(error => {
-        console.error('Hata:', error);
-        Notification.error('Şifre sıfırlama e-postası gönderilemedi.');
-      });
+      await sendPasswordResetEmail(auth, email);
+      Notification.success('Şifre sıfırlama e-postası gönderildi.');
+      return true;
     } catch (error: any) {
+      console.error('Hata:', error);
       Notification.error(t(error.code.split('/').pop()));
+      return false;
     }
   };
 

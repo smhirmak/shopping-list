@@ -1,103 +1,125 @@
-import * as React from 'react';
-
 import { cn } from '@/lib/utils';
-import { cva, VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
+import { IInput } from '@/types/types';
 import { Eye, EyeSlash } from '@/assets/Icons';
+import React from 'react';
 import Button from './Button';
 
 // eslint-disable-next-line tailwindcss/no-custom-classname, tailwindcss/no-contradicting-classname
-const inputVariants = cva(
-  `focus-visible:border-1 placeholder:text-muted-foreground flex w-full border border-tra-input bg-tra-input-fill
-  px-3
-  py-2 file:mr-2 file:h-fit file:cursor-pointer 
-  file:rounded-md file:border-0 file:bg-tra-neutral-disabled-text file:bg-transparent
-  file:p-2 
-  file:text-sm file:font-medium file:text-tra-neutral-black file:transition-all hover:shadow-input-hover file:hover:contrast-125 focus-visible:border-tra-primary-focused 
-  focus-visible:shadow-input-focus focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-tra-input-light disabled:text-tra-neutral-grey disabled:placeholder:text-tra-input`,
+export const inputVariants = cva(
+  `focus-visible:border-1 placeholder:text-muted-foreground hover:shadow-soft-primary focus-visible:shadow-hard-primary flex w-full border border-tra-input
+  bg-transparent 
+  px-3 py-2 file:mr-2 file:h-fit 
+  file:cursor-pointer file:rounded-md file:border-0 file:bg-tra-neutral-disabled-text
+  file:bg-transparent 
+  file:p-2 file:text-sm file:font-medium file:text-tra-neutral-black file:transition-all file:hover:contrast-125 focus-visible:border-tra-primary-focused 
+  focus-visible:outline-none disabled:cursor-not-allowed disabled:text-tra-neutral-grey `,
   {
     variants: {
+      variant: {
+        filled: 'disabled:bg-tra-input-light disabled:placeholder:text-tra-input',
+        outlined: 'border-none outline-none focus-visible:border-none focus-visible:outline-none',
+        underlined: 'disabled:bg-tra-input-light disabled:placeholder:text-tra-input',
+        filledUnderlined: 'disabled:bg-tra-input-light disabled:placeholder:text-tra-input',
+      },
       size: {
         default: 'h-14 text-base',
         sm: 'h-13 text-sm',
         lg: 'h-15 text-lg',
       },
       error: {
-        true: 'border-error outline-none focus-visible:border-error focus-visible:shadow-none focus-visible:-outline-offset-1 focus-visible:outline-error',
+        true: 'focus-visible:shadow-none',
         false: '',
       },
       borderRadius: {
         default: 'rounded-md',
         lg: 'rounded-5xl',
       },
+      textarea: {
+        true: 'h-[calc(1.75rem*4)] w-full overflow-y-auto',
+        false: '',
+      },
     },
     defaultVariants: {
       size: 'default',
       error: false,
       borderRadius: 'default',
+      variant: 'filled',
     },
+    compoundVariants: [
+      {
+        error: true,
+        variant: 'filled',
+        className: 'border-error outline-none focus-visible:border-error focus-visible:shadow-none focus-visible:-outline-offset-1 focus-visible:outline-error',
+      },
+      {
+        error: true,
+        variant: 'underlined',
+        className: 'border-b-error outline-none focus-visible:border-b-error focus-visible:shadow-none focus-visible:-outline-offset-1',
+      },
+      {
+        error: true,
+        variant: 'filledUnderlined',
+        className: 'border-b-error outline-none focus-visible:border-b-error focus-visible:shadow-none focus-visible:-outline-offset-1',
+      },
+    ],
   },
 );
 
-export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
-  VariantProps<typeof inputVariants> {
-  borderRadius?: 'default' | 'lg';
-  className?: string;
-  endIcon?: React.ReactNode;
-  error?: boolean | null | undefined;
-  size?: 'default' | 'sm' | 'lg' | undefined;
-  startIcon?: React.ReactNode;
-  type?: React.InputHTMLAttributes<HTMLInputElement>['type'];
-  value: string | number | undefined;
-}
-
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({
-    borderRadius,
-    className = '',
-    endIcon,
-    error,
-    size,
-    startIcon,
-    type,
-    value,
-    ...props
-  }, ref) => {
+const Input = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, IInput>(
+  (props, ref) => {
+    const {
+      borderRadius,
+      className = '',
+      endIcon,
+      error,
+      size,
+      startIcon,
+      type,
+      variant = 'filled',
+      value,
+      onChange,
+      autoComplete,
+      textarea = false,
+      ...restProps
+    } = props;
     const [passwordVisible, setPasswordVisible] = React.useState(false);
+    const Comp = textarea ? 'textarea' : 'input';
     return (
-      <div className="flex items-center">
+      <div className="flex w-full items-center">
         {startIcon && (
-          <span className="absolute left-3 text-current">
-            {startIcon}
-          </span>
+        <span className="absolute left-3 text-current">
+          {startIcon}
+        </span>
         )}
-        <input
+        <Comp
           type={passwordVisible ? 'text' : type}
-          className={cn(inputVariants({ size, error, borderRadius }), className)}
-          ref={ref}
+          className={cn(inputVariants({ variant, size, error, borderRadius, textarea }), className)}
+          ref={ref as React.Ref<HTMLInputElement & HTMLTextAreaElement>}
+          autoComplete={autoComplete ?? 'off'}
           value={value}
+          onChange={e => onChange && onChange(e as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)}
           style={{
             paddingLeft: startIcon ? '2.5rem' : undefined,
             paddingRight: endIcon ? '2.5rem' : undefined,
           }}
+          rows={textarea ? 4 : undefined}
           // eslint-disable-next-line react/jsx-props-no-spreading
-          {...props}
+          {...(restProps as React.InputHTMLAttributes<HTMLInputElement> & React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
         />
         {endIcon && (
-          (
-            <span className="absolute right-3 text-current">
-              {endIcon}
-            </span>
-          )
+        <span className="absolute right-3 text-current">
+          {endIcon}
+        </span>
         )}
         {type === 'password'
-          && (
-            <Button className="absolute right-3 bg-transparent text-current hover:bg-transparent" size="icon" type="button" onClick={() => setPasswordVisible(prev => !prev)}>
-              {passwordVisible
-                ? <EyeSlash className=" dark:text-gray-400" />
-                : <Eye className=" dark:text-white" />}
-            </Button>
-          )}
+              && (
+                <Button className="z-3 absolute right-3 bg-transparent text-current hover:bg-transparent" size="icon" type="button" onClick={() => setPasswordVisible(prev => !prev)}>
+                  {passwordVisible
+                    ? <EyeSlash className=" dark:text-gray-400" />
+                    : <Eye className=" dark:text-white" />}
+                </Button>
+              )}
       </div>
     );
   },

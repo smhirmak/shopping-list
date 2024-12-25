@@ -35,10 +35,10 @@ const SignUp = () => {
     validateOnMount: false,
   });
   return (
-    <div className="flex w-1/2 flex-col items-center justify-center gap-8 rounded-xl border-2 border-tra-neutral-grey py-10">
+    <div className="flex w-full flex-col items-center justify-center gap-8 rounded-xl border-2 border-tra-neutral-grey py-10 md:w-1/2">
       <p className="text-4xl font-semibold">{t('Sign Up')}</p>
       <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
-        <Form className="flex w-2/3 flex-col">
+        <Form className="flex w-5/6 flex-col md:w-2/3">
           <FormikInput id="firstName" formik={formik} label={t('First Name')} type="text" />
           <FormikInput id="lastName" formik={formik} label={t('Last Name')} type="text" />
           <FormikInput id="email" formik={formik} label={t('Email')} type="email" />

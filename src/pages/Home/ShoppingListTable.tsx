@@ -1,4 +1,11 @@
-import React, { useState } from 'react';
+/* eslint-disable react/no-unused-prop-types */
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react/jsx-no-useless-fragment */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import React, { useState, useEffect } from 'react';
 
 import {
   ExpandedState,
@@ -28,19 +35,73 @@ import SelectBox from '@/components/SelectBox';
 import TextField from '@/components/TextField';
 import { useNavigate } from 'react-router-dom';
 
+const Filter = ({
+  column,
+  table,
+  className,
+}: {
+  column: Column<any, any>
+  table: Table<any>
+  className?: string
+}) => {
+  const firstValue = table
+    .getPreFilteredRowModel()
+    .flatRows[0]?.getValue(column.id);
+
+  const columnFilterValue = column.getFilterValue();
+
+  return typeof firstValue === 'number' ? (
+    <div className="flex space-x-2">
+      <input
+        type="number"
+        value={(columnFilterValue as [number, number])?.[0] ?? ''}
+        onChange={e => column.setFilterValue((old: [number, number]) => [
+          e.target.value,
+          old?.[1],
+        ])}
+        placeholder="Min"
+        className="w-24 rounded border shadow"
+      />
+      <input
+        type="number"
+        value={(columnFilterValue as [number, number])?.[1] ?? ''}
+        onChange={e => column.setFilterValue((old: [number, number]) => [
+          old?.[0],
+          e.target.value,
+        ])}
+        placeholder="Max"
+        className="w-24 rounded border shadow"
+      />
+    </div>
+  ) : (
+    <TextField
+      className={className}
+      inputClassName="h-8 w-36"
+      type="text"
+      value={(columnFilterValue ?? '') as string}
+      onChange={e => column.setFilterValue(e.target.value)}
+      placeholder="Search..."
+    />
+  );
+};
+
 const ExpanderCell = ({ row, setExpanded }: { row: any; setExpanded: React.Dispatch<React.SetStateAction<ExpandedState>> }) => (
-  <span
-    onClick={e => {
-      e.stopPropagation();
-      setExpanded((prev: any) => ({
-        ...prev,
-        [row.id]: !prev[row.id],
-      }));
-    }}
-    className="flex cursor-pointer select-none items-center justify-center"
-  >
-    <CaretRight className={`size-5 transition-all duration-200 ${row.getIsExpanded() ? 'rotate-90' : 'rotate-0'}`} />
-  </span>
+  <>
+    {row.original.subRows?.length !== undefined && (
+      <span
+        onClick={e => {
+          e.stopPropagation();
+          setExpanded((prev: any) => ({
+            ...prev,
+            [row.id]: !prev[row.id],
+          }));
+        }}
+        className="cursor-pointer select-none md:flex md:items-center md:justify-center"
+      >
+        <CaretRight className={`size-5 transition-all duration-200 ${row.getIsExpanded() ? 'rotate-90' : 'rotate-0'}`} />
+      </span>
+    )}
+  </>
 );
 
 const AddButtonCell = ({ row, setSelectedShoppingList }: { row: any; setSelectedShoppingList: React.Dispatch<React.SetStateAction<{ state: boolean; id: string }>> }) => (
@@ -79,34 +140,36 @@ const DeleteButtonCell = ({ row, handleDeleteList }: { row: any; handleDeleteLis
       handleDeleteList(row?.original?.shoppingListId);
     }}
   >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 39 7"
-      className="bin-top z-10 w-4 origin-right transition-transform duration-300 group-hover:rotate-45"
-    >
-      <line strokeWidth="4" className="stroke-error/80 group-hover:stroke-error" y2="5" x2="39" y1="5" />
-      <line strokeWidth="3" className="stroke-error/80 group-hover:stroke-error" y2="1.5" x2="26.0357" y1="1.5" x1="12" />
-    </svg>
+    <div>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 39 7"
+        className="bin-top z-10 w-4 origin-right transition-transform duration-300 group-hover:rotate-45"
+      >
+        <line strokeWidth="4" className="stroke-error/80 group-hover:stroke-error" y2="5" x2="39" y1="5" />
+        <line strokeWidth="3" className="stroke-error/80 group-hover:stroke-error" y2="1.5" x2="26.0357" y1="1.5" x1="12" />
+      </svg>
 
-    {/* Bin Bottom */}
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 33 39"
-      className="bin-bottom z-10 w-4"
-    >
-      <mask id="path-1-inside-1_8_19" fill="white">
-        <path d="M0 0H33V35C33 37.2091 31.2091 39 29 39H4C1.78086 39 0 37.2091 0 35V0Z" />
-      </mask>
-      <path
-        mask="url(#path-1-inside-1_8_19)"
-        className="fill-error/80 stroke-error/80 group-hover:fill-error group-hover:stroke-error"
-        d="M0 0H33H0ZM37 35C37 39.4183 33.4183 43 29 43H4C-0.418278 43 -4 39.4183 -4 35H4H29H37ZM4 43C-0.418278 43 -4 39.4183 -4 35V0H4V35V43ZM37 0V35C37 39.4183 33.4183 43 29 43V35V0H37Z"
-      />
-      <path strokeWidth="4" className="stroke-error/80 group-hover:stroke-error" d="M12 6L12 29" />
-      <path strokeWidth="4" className="stroke-error/80 group-hover:stroke-error" d="M21 6V29" />
-    </svg>
+      {/* Bin Bottom */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 33 39"
+        className="bin-bottom z-10 w-4"
+      >
+        <mask id="path-1-inside-1_8_19" fill="white">
+          <path d="M0 0H33V35C33 37.2091 31.2091 39 29 39H4C1.78086 39 0 37.2091 0 35V0Z" />
+        </mask>
+        <path
+          mask="url(#path-1-inside-1_8_19)"
+          className="fill-error/80 stroke-error/80 group-hover:fill-error group-hover:stroke-error"
+          d="M0 0H33H0ZM37 35C37 39.4183 33.4183 43 29 43H4C-0.418278 43 -4 39.4183 -4 35H4H29H37ZM4 43C-0.418278 43 -4 39.4183 -4 35V0H4V35V43ZM37 0V35C37 39.4183 33.4183 43 29 43V35V0H37Z"
+        />
+        <path strokeWidth="4" className="stroke-error/80 group-hover:stroke-error" d="M12 6L12 29" />
+        <path strokeWidth="4" className="stroke-error/80 group-hover:stroke-error" d="M21 6V29" />
+      </svg>
+    </div>
   </Button>
 );
 
@@ -254,6 +317,7 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
         header: () => null,
         cell: ({ row }: { row: any }) => (
           <div className="flex items-center justify-end gap-2">
+            {row.original.subRows?.length !== undefined && (
             <Button
               size="sm"
               className="h-11 px-2"
@@ -265,6 +329,7 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
             >
               {t('Go Shopping')}
             </Button>
+            )}
             <AddButtonCell row={row} setSelectedShoppingList={setSelectedShoppingList} />
             <DeleteButtonCell row={row} handleDeleteList={handleDeleteList} />
             <EditShoppingListButton row={row} setEditShoppingList={setEditShoppingList} />
@@ -369,24 +434,125 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
     getExpandedRowModel: getExpandedRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: window.innerWidth < 768 ? data.length : 10, // Show all items on mobile
+      },
+    },
   });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        table.setPageSize(data.length); // Show all items on mobile
+      } else {
+        table.setPageSize(10); // Default page size for larger screens
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Set initial page size
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [data.length, table]);
 
   return (
     <div className="flex flex-col gap-2 p-2">
-      <table className="w-full">
-        <thead>
-          {table.getHeaderGroups().map(headerGroup => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map(header => (
-                <th key={header.id} colSpan={header.colSpan} className="bg-tra-primary-15 px-3 py-2 text-center first:rounded-s-md last:rounded-e-md last:text-end [&:nth-child(2)]:text-start">
-                  <div
-                    className={
+      <div className="mobile-responsive md:hidden">
+        {/* {table.getHeaderGroups().map(headerGroup => (
+          <div key={headerGroup.id} className="grid grid-cols-12 gap-2">
+            {headerGroup.headers.map(header => (
+              <div key={header.id} className="col-span-2 bg-tra-neutral-light px-3 py-2">
+                <div
+                  className={
+                    header.column.getCanSort()
+                      ? 'cursor-pointer select-none'
+                      : ''
+                  }
+                  onClick={header.column.getToggleSortingHandler()}
+                  title={
+                    header.column.getCanSort()
+                      ? header.column.getNextSortingOrder() === 'asc'
+                        ? 'Sort ascending'
+                        : header.column.getNextSortingOrder() === 'desc'
+                          ? 'Sort descending'
+                          : 'Clear sort'
+                      : undefined
+                  }
+                >
+                  {typeof flexRender(header.column.columnDef.header, header.getContext()) === 'string' && (
+                    <span className={`flex items-center ${header?.index !== 1 && 'justify-center'} `}>
+                      {t(flexRender(header.column.columnDef.header, header.getContext()))}
+                      {header.column.getIsSorted() && (header.column.getIsSorted() === 'asc' ? <CaretUp className="ml-2" /> : <CaretDown className="ml-2" />)}
+                    </span>
+                  )}
+                  {header.column.getCanFilter() ? (
+                    <div>
+                      <Filter className={`${header?.index !== 1 && 'items-center'}`} column={header.column} table={table} />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        ))} */}
+        {table.getRowModel().rows
+          .filter(row => row.depth === 0)
+          .map(row => (
+            <React.Fragment key={row.id}>
+              <div className={`${!row.getIsExpanded() ? 'mb-4' : 'rounded-b-none'} rounded-md bg-tra-primary-5/70`}>
+                {row.getVisibleCells().map((cell, i) => (
+                  <div key={cell.id} className="flex items-center justify-between  px-3 py-2 hover:brightness-125">
+                    <span>
+                      {flexRender(table.getHeaderGroups()[0].headers[i]?.column.columnDef.header, table.getHeaderGroups()[0].headers[i]?.getContext())}
+                    </span>
+                    <span>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
+                  </div>
+                ))}
+              </div>
+              {
+                  row.getIsExpanded() && (
+                    <div className={`mb-4 rounded-b-md bg-tra-neutral-light opacity-0 transition-all duration-500 ${row.getIsExpanded() && 'opacity-100'}`}>
+                      {/* <div className="">
+                        {subColumns.map((subColumn: any, index: any) => (
+                          <div key={index} className=" bg-tra-primary-15/80 px-3 py-2 text-base first:rounded-tl-md first:text-start last:rounded-tr-md">
+                            {typeof flexRender(subColumn.header, {}) === 'string' && t(flexRender(subColumn.header, {}))}
+                            </div>
+                            ))}
+                            </div> */}
+                      {row.original.subRows?.map((subRow: any, subRowIndex: number) => (
+                        <div key={subRowIndex} className="">
+                          {subColumns.map((subColumn: any, index: number) => (
+                            <div key={index} className="flex items-center justify-between  px-3 py-2">
+                              <span>{typeof flexRender(subColumn.header, {}) === 'string' && t(flexRender(subColumn.header, {}))}</span>
+                              <span>{flexRender(subColumn.cell, { row: subRow })}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                }
+            </React.Fragment>
+          ))}
+      </div>
+      <div className="hidden md:table">
+        <table className="w-full">
+          <thead>
+            {table.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map(header => (
+                  <th key={header.id} colSpan={header.colSpan} className="bg-tra-primary-15 px-3 py-2 [&:nth-child(2)]:text-start">
+                    <div
+                      className={
                       header.column.getCanSort()
                         ? 'cursor-pointer select-none'
                         : ''
                     }
-                    onClick={header.column.getToggleSortingHandler()}
-                    title={
+                      onClick={header.column.getToggleSortingHandler()}
+                      title={
                       header.column.getCanSort()
                         ? header.column.getNextSortingOrder() === 'asc'
                           ? 'Sort ascending'
@@ -395,8 +561,8 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
                             : 'Clear sort'
                         : undefined
                     }
-                  >
-                    {typeof flexRender(header.column.columnDef.header, header.getContext()) === 'string' && (
+                    >
+                      {typeof flexRender(header.column.columnDef.header, header.getContext()) === 'string' && (
                       <span className={`flex items-center ${header?.index !== 1 && 'justify-center'} `}>
                         {t(flexRender(header.column.columnDef.header, header.getContext()))}
                         {header.column.getIsSorted() && ({
@@ -404,36 +570,36 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
                           desc: <CaretDown className="ml-2" />,
                         }[header.column.getIsSorted() as string] ?? null)}
                       </span>
-                    )}
-                    {header.column.getCanFilter() ? (
-                      <div>
-                        <Filter className={`${header?.index !== 1 && 'items-center'}`} column={header.column} table={table} />
-                      </div>
-                    ) : null}
+                      )}
+                      {header.column.getCanFilter() ? (
+                        <div>
+                          <Filter className={`${header?.index !== 1 && 'items-center'}`} column={header.column} table={table} />
+                        </div>
+                      ) : null}
 
-                  </div>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows
-            .filter(row => row.depth === 0)
-            .map(row => (
-              <React.Fragment key={row.id}>
-                <tr onClick={() => setExpanded((prev: any) => ({
-                  ...prev,
-                  [row.id]: !prev[row.id],
-                }))}
-                >
-                  {row.getVisibleCells().map(cell => (
-                    <td key={cell.id} className="px-3 py-2 text-center last:text-end [&:nth-child(2)]:text-start">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-                {
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows
+              .filter(row => row.depth === 0)
+              .map(row => (
+                <React.Fragment key={row.id}>
+                  <tr onClick={() => setExpanded((prev: any) => ({
+                    ...prev,
+                    [row.id]: !prev[row.id],
+                  }))}
+                  >
+                    {row.getVisibleCells().map(cell => (
+                      <td key={cell.id} className="px-3 py-2 text-center last:text-end [&:nth-child(2)]:text-start">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                  {
                   row.getIsExpanded() && (
                     <tr className={`opacity-0 transition-all duration-500 ${row.getIsExpanded() && 'opacity-100'}`}>
                       <td colSpan={columns.length} style={{ paddingLeft: '3.5rem' }}>
@@ -463,69 +629,69 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
                     </tr>
                   )
                 }
-              </React.Fragment>
-            ))}
-        </tbody>
-      </table>
-      <div className="flex items-center gap-2 self-end">
-        <Button
-          variant="outlined"
-          size="icon"
-          type="button"
-          onClick={() => table.setPageIndex(0)}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <CaretLeftDouble className="size-5" />
-        </Button>
-        <Button
-          variant="outlined"
-          size="icon"
-          type="button"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <CaretLeft className="size-5" />
-        </Button>
-        <Button
-          variant="outlined"
-          size="icon"
-          type="button"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          <CaretRight className="size-5" />
-        </Button>
-        <Button
-          variant="outlined"
-          size="icon"
-          type="button"
-          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-          disabled={!table.getCanNextPage()}
-        >
-          <CaretRightDouble className="size-5" />
-        </Button>
-        <div>
-          {locale === 'tr' ? 'Toplam' : 'Total'}
-          {' '}
-          {table.getRowModel().rows.length.toLocaleString()}
-          {' '}
-          {locale === 'tr' ? 'kayıttan' : 'of'}
-          {' '}
-          {table.getRowCount().toLocaleString()}
-          {' '}
-          {locale === 'tr' ? 'kayıt gösteriliyor' : 'Rows Showing'}
-        </div>
-        <span className="flex items-center gap-1">
-          <div>{t('Page')}</div>
-          <strong>
-            {table.getState().pagination.pageIndex + 1}
+                </React.Fragment>
+              ))}
+          </tbody>
+        </table>
+        <div className="flex items-center gap-2 self-end">
+          <Button
+            variant="outlined"
+            size="icon"
+            type="button"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <CaretLeftDouble className="size-5" />
+          </Button>
+          <Button
+            variant="outlined"
+            size="icon"
+            type="button"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <CaretLeft className="size-5" />
+          </Button>
+          <Button
+            variant="outlined"
+            size="icon"
+            type="button"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <CaretRight className="size-5" />
+          </Button>
+          <Button
+            variant="outlined"
+            size="icon"
+            type="button"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            <CaretRightDouble className="size-5" />
+          </Button>
+          <div>
+            {locale === 'tr' ? 'Toplam' : 'Total'}
             {' '}
-            {locale === 'tr' ? 'toplam' : 'of'}
+            {table.getRowModel().rows.length.toLocaleString()}
             {' '}
-            {table.getPageCount()}
-          </strong>
-        </span>
-        {/* <span className="flex items-center gap-1">
+            {locale === 'tr' ? 'kayıttan' : 'of'}
+            {' '}
+            {table.getRowCount().toLocaleString()}
+            {' '}
+            {locale === 'tr' ? 'kayıt gösteriliyor' : 'Rows Showing'}
+          </div>
+          <span className="flex items-center gap-1">
+            <div>{t('Page')}</div>
+            <strong>
+              {table.getState().pagination.pageIndex + 1}
+              {' '}
+              {locale === 'tr' ? 'toplam' : 'of'}
+              {' '}
+              {table.getPageCount()}
+            </strong>
+          </span>
+          {/* <span className="flex items-center gap-1">
           | Go to page:
           <TextField
             type="number"
@@ -539,77 +705,28 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
             inputClassName="w-16 rounded border p-1"
           />
         </span> */}
-        <span className="ml-2 flex items-center gap-2">
-          <b>{t('Number of items to show:')}</b>
-          <SelectBox
-            containerClassName="min-w-[100px]"
-            className="h-8"
+          <span className="ml-2 flex items-center gap-2">
+            <b>{t('Number of items to show:')}</b>
+            <SelectBox
+              containerClassName="min-w-[100px]"
+              className="h-8"
             // id="pageSize"
-            value={table.getState().pagination.pageSize}
-            optionsList={[
-              { value: 10, content: '10' },
-              { value: 20, content: '20' },
-              { value: 30, content: '30' },
-              { value: 40, content: '40' },
-              { value: 50, content: '50' }]}
-            onChange={e => {
-              table.setPageSize(Number(e));
-            }}
-            placeholder="Select Page Size"
-          />
-        </span>
+              value={table.getState().pagination.pageSize}
+              optionsList={[
+                { value: 10, content: '10' },
+                { value: 20, content: '20' },
+                { value: 30, content: '30' },
+                { value: 40, content: '40' },
+                { value: 50, content: '50' }]}
+              onChange={e => {
+                table.setPageSize(Number(e));
+              }}
+              placeholder="Select Page Size"
+            />
+          </span>
+        </div>
       </div>
     </div>
-  );
-};
-
-const Filter = ({
-  column,
-  table,
-  className,
-}: {
-  column: Column<any, any>
-  table: Table<any>
-  className?: string
-}) => {
-  const firstValue = table
-    .getPreFilteredRowModel()
-    .flatRows[0]?.getValue(column.id);
-
-  const columnFilterValue = column.getFilterValue();
-
-  return typeof firstValue === 'number' ? (
-    <div className="flex space-x-2">
-      <input
-        type="number"
-        value={(columnFilterValue as [number, number])?.[0] ?? ''}
-        onChange={e => column.setFilterValue((old: [number, number]) => [
-          e.target.value,
-          old?.[1],
-        ])}
-        placeholder="Min"
-        className="w-24 rounded border shadow"
-      />
-      <input
-        type="number"
-        value={(columnFilterValue as [number, number])?.[1] ?? ''}
-        onChange={e => column.setFilterValue((old: [number, number]) => [
-          old?.[0],
-          e.target.value,
-        ])}
-        placeholder="Max"
-        className="w-24 rounded border shadow"
-      />
-    </div>
-  ) : (
-    <TextField
-      className={className}
-      inputClassName="h-8 w-36"
-      type="text"
-      value={(columnFilterValue ?? '') as string}
-      onChange={e => column.setFilterValue(e.target.value)}
-      placeholder="Search..."
-    />
   );
 };
 
