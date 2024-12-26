@@ -5,6 +5,7 @@ export interface UserInfo {
   firstName: string;
   lastName: string;
   uid: string
+  includingHouse: string;
 }
 interface AuthContextType {
   userInfo: UserInfo | null;
@@ -15,7 +16,7 @@ interface AuthContextType {
   logout: () => void;
   resetPassword: (email: string) => Promise<boolean>;
   updateUserPassword: (email: string, currentPassword: string, newPassword: string) => Promise<void>;
-  editUser: (uid: string, firstName: string, lastName: string) => Promise<void>;
+  editUser: (uid: string, firstName: string, lastName: string, includingHouse: string) => Promise<void>;
   getUserInfo: () => Promise<void>;
   allUsersInfo: UserInfo[] | null;
 }

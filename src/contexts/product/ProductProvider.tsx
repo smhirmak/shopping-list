@@ -1,7 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useMemo, useState, useEffect } from 'react';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/configurations/firebase';
 import { ProductContext } from './ProductContext';
+import { useAuthContext } from '../auth/AuthContext';
 
 const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [selectedShoppingList, setSelectedShoppingList] = useState<{ state: boolean; id: string }>({ state: false, id: '' });
@@ -9,19 +11,40 @@ const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const [allShoppingList, setAllShoppingList] = useState<any[]>([]);
   const [shoppingList, setShoppingList] = useState<any>(null);
   const [editShoppingList, setEditShoppingList] = useState<{ state: boolean; data: string }>({ state: false, data: '' });
+  const { userInfo } = useAuthContext();
+
+  // Add useEffect for initial data fetch
 
   const getAllShoppingList = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'shopping-list'));
+      if (!userInfo?.includingHouse) {
+        setAllShoppingList([]);
+        return;
+      }
+
+      const shoppingListRef = collection(db, 'shopping-list');
+      const q = query(
+        shoppingListRef,
+        where('homeId', '==', userInfo.includingHouse),
+      );
+
+      const querySnapshot = await getDocs(q);
       const documentsArray: any[] = [];
       querySnapshot.forEach(document => {
         documentsArray.push(document.data());
       });
       setAllShoppingList(documentsArray);
     } catch (error) {
-      console.error('Error setting document:', error);
+      console.error('Error getting documents:', error);
+      setAllShoppingList([]);
     }
   };
+
+  useEffect(() => {
+    if (userInfo?.includingHouse) {
+      getAllShoppingList();
+    }
+  }, [userInfo?.includingHouse]);
 
   const getShoppingListById = async (id: string) => {
     try {

@@ -92,6 +92,8 @@ const tr = {
   Page: 'Sayfa',
   'Go Shopping': 'Alışverişe Çık',
   'Finish Shopping': 'Alışverişi Bitir',
+  'Including House': 'Eviniz',
+  'To add and view a shopping list, please add a house from the profile page': 'Alışveriş listesi eklemek ve görüntülemek için lütfen profil sayfasından bir ev ekleyin',
 };
 
 export default tr;

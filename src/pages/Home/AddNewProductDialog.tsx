@@ -21,6 +21,7 @@ const AddNewProductDialog = () => {
   const { userInfo } = useAuthContext();
   const { t } = useLocalizeContext();
   const [loading, setLoading] = useState<boolean>(false);
+  const { success, error } = Notification();
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -51,12 +52,12 @@ const AddNewProductDialog = () => {
         await updateDoc(doc(db, 'shopping-list', selectedShoppingList.id), {
           shoppingList: arrayUnion(editedValues),
         });
-        Notification.success('Product added successfully in list');
+        success('Product added successfully in list');
         getAllShoppingList();
         setSelectedShoppingList(prev => ({ ...prev, state: false }));
-      } catch (error) {
-        Notification.error('Error setting document');
-        console.error('Error setting document:', error);
+      } catch (catchError) {
+        error('Error setting document');
+        console.error('Error setting document:', catchError);
       } finally {
         setLoading(false);
       }

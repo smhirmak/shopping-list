@@ -20,6 +20,7 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
   const { userInfo } = useAuthContext();
   const { getAllShoppingList } = useProductContext();
   const { t } = useLocalizeContext();
+  const { success, error } = Notification();
 
   const [addProduct, setAddProduct] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -46,6 +47,7 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
         createDateTime: Timestamp.now().toDate().toLocaleString(),
         lastUpdateDateTime: Timestamp.now().toDate().toLocaleString(),
         creatorId: userInfo?.uid,
+        homeId: userInfo?.includingHouse,
         lastUpdaterId: userInfo?.uid,
         dateToShop: values.dateToShop && new Date(values.dateToShop).toLocaleDateString(),
         shoppingListId: listId,
@@ -73,12 +75,12 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
           doc(db, 'shopping-list', listId),
           editedValues,
         );
-        Notification.success('Shopping List added successfully');
+        success('Shopping List added successfully');
         getAllShoppingList();
         setIsAddListDialogOpen(false);
-      } catch (error) {
-        Notification.error('Error setting document');
-        console.error('Error setting document:', error);
+      } catch (catchError) {
+        error('Error setting document');
+        console.error('Error setting document:', catchError);
       } finally {
         setLoading(false);
       }

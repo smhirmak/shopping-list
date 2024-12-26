@@ -22,6 +22,7 @@ const EditProductDialog = () => {
   const { selectedProduct, setSelectedProduct, getAllShoppingList } = useProductContext();
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+  const { success, error } = Notification();
 
   const productInfo = selectedProduct.data;
 
@@ -43,15 +44,15 @@ const EditProductDialog = () => {
             shoppingList: updatedShoppingList,
           });
 
-          Notification.success('Product successfully deleted');
+          success('Product successfully deleted');
           setSelectedProduct((prev: any) => ({ ...prev, state: false, data: '' }));
           getAllShoppingList();
         } else {
-          Notification.error('Document not found!');
+          error('Document not found!');
         }
-      } catch (error) {
-        Notification.error('An error occurred');
-        console.error('Error occurred:', error);
+      } catch (catchError) {
+        error('An error occurred');
+        console.error('Error occurred:', catchError);
       } finally {
         setDeleteLoading(false);
       }
@@ -101,15 +102,15 @@ const EditProductDialog = () => {
             shoppingList: updatedShoppingList,
           });
 
-          Notification.success('Product successfully edited');
+          success('Product successfully edited');
           setSelectedProduct(prev => ({ ...prev, state: false, data: '' }));
           getAllShoppingList();
         } else {
-          Notification.error('Belge bulunamadı!');
+          error('Belge bulunamadı!');
         }
-      } catch (error) {
-        Notification.error('An error occurred');
-        console.error('Hata oluştu:', error);
+      } catch (catchError) {
+        error('An error occurred');
+        console.error('Hata oluştu:', catchError);
       } finally {
         setSubmitLoading(false);
       }

@@ -11,6 +11,7 @@ const Settings = () => {
   const { userInfo, updateUserPassword } = useAuthContext();
   const { t } = useLocalizeContext();
   const [loading, setLoading] = useState<boolean>(false);
+  const { error } = Notification();
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -22,15 +23,15 @@ const Settings = () => {
     },
     onSubmit: async values => {
       if (values.newPassword !== values.newPasswordAgain) {
-        Notification.error(t('Passwords do not match'));
+        error(t('Passwords do not match'));
         return;
       }
       setLoading(true);
       try {
         await updateUserPassword(userInfo!.email, values.currentPassword, values.newPassword);
-      } catch (error) {
-        Notification.error('Error updating user');
-        console.error('Error updating user:', error);
+      } catch (catchError) {
+        error('Error updating user');
+        console.error('Error updating user:', catchError);
       } finally {
         setLoading(false);
       }

@@ -1,6 +1,5 @@
 import './App.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
 import Layout from './layout/Layout';
 import Home from './pages/Home';
 import BackToTopButton from './components/BackToTopButton';
@@ -17,6 +16,8 @@ import ProductProvider from './contexts/product/ProductProvider';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import GoShopping from './pages/GoShopping';
+import { NotificationProvider } from './contexts/notification/NotificationProvider';
+import { useLocalizeContext } from './contexts/locale/LocalizeContext';
 
 const router = createBrowserRouter([
   {
@@ -72,17 +73,28 @@ const router = createBrowserRouter([
   },
 ]);
 
-const App = () => (
-  <div>
-    <AuthProvider>
-      <ProductProvider>
-        <RouterProvider router={router} />
-        <ToastContainer newestOnTop toastClassName="rounded-lg" bodyStyle={{ fontSize: '.9rem' }} theme="colored" />
-        {/* <PopupProvider /> */}
-        <BackToTopButton />
-      </ProductProvider>
-    </AuthProvider>
-  </div>
-);
+const App = () => {
+  const { t } = useLocalizeContext();
+  return (
+    <div>
+      <AuthProvider>
+        <ProductProvider>
+          <NotificationProvider
+            newestTop
+            closeIcon
+            translateFunction={t}
+            theme="colored"
+            animationMode="slide"
+          >
+            <RouterProvider router={router} />
+            {/* <ToastContainer newestOnTop toastClassName="rounded-lg" bodyStyle={{ fontSize: '.9rem' }} theme="colored" /> */}
+            {/* <PopupProvider /> */}
+            <BackToTopButton />
+          </NotificationProvider>
+        </ProductProvider>
+      </AuthProvider>
+    </div>
+  );
+};
 
 export default App;
