@@ -1,3 +1,4 @@
+import Button from '@/components/Button';
 import ShoppingList from '@/components/ShoppingList';
 import { db } from '@/configurations/firebase';
 import Enums from '@/constants/Enums';
@@ -5,11 +6,12 @@ import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { useProductContext } from '@/contexts/product/ProductContext';
 import { doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const GoShopping = () => {
   const location = useLocation();
   const { t } = useLocalizeContext();
+  const navigate = useNavigate();
   const { getShoppingListById, shoppingList } = useProductContext();
   const [shoppingListId, setShoppingListId] = useState<string | null>(null);
 
@@ -20,11 +22,9 @@ const GoShopping = () => {
     if (id) getShoppingListById(id);
   }, [location.search]);
 
-  console.log(shoppingList);
-
-  const toggleItemBoughtStatus = async (shoppingListId: string, itemId: string) => {
+  const toggleItemBoughtStatus = async (listId: string, itemId: string) => {
     try {
-      const shoppingListRef = doc(db, 'shopping-list', shoppingListId);
+      const shoppingListRef = doc(db, 'shopping-list', listId);
       const shoppingListSnap = await getDoc(shoppingListRef);
 
       if (shoppingListSnap.exists()) {
@@ -61,9 +61,9 @@ const GoShopping = () => {
   return (
     <div>
       <div className="mt-4 flex size-full flex-col items-center justify-center space-y-4">
-        <div className="relative w-fit items-center justify-center space-y-2 rounded-lg bg-white px-7 py-10 shadow-lg" id="checklist">
-          <span className="text-2xl font-semibold text-red-500">{shoppingList?.shoppingListName}</span>
-          <span className="ml-2 text-sm text-black">{`(${shoppingList?.dateToShop})`}</span>
+        <div className="relative flex w-fit flex-col justify-center space-y-2 rounded-lg bg-tra-neutral-dark-white px-7 py-10 shadow-lg" id="checklist">
+          <span className="block text-center text-3xl font-semibold text-tra-neutral-light-black">{shoppingList?.shoppingListName}</span>
+          <span className="ml-2 self-end text-sm text-tra-neutral-white">{`(${shoppingList?.dateToShop})`}</span>
           {shoppingList?.shoppingList?.map((product: { productId: string; productName: string; productBrand: string; productQuantity: number;
            quantityType: keyof typeof Enums.QuantityTypeLabel; isItBought: boolean }) => (
              <ShoppingList
@@ -75,6 +75,7 @@ const GoShopping = () => {
              />
           ))}
         </div>
+        <Button onClick={() => navigate('/')}>{t('Finish Shopping')}</Button>
       </div>
     </div>
   );

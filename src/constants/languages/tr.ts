@@ -91,6 +91,7 @@ const tr = {
   Today: 'Bugün',
   Page: 'Sayfa',
   'Go Shopping': 'Alışverişe Çık',
+  'Finish Shopping': 'Alışverişi Bitir',
 };
 
 export default tr;

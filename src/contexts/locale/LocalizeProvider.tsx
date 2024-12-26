@@ -16,8 +16,8 @@ const LocalizeProvider:React.FC<{ children: ReactNode }> = ({ children }) => {
     setLocale(lang);
   };
 
-  // const t = (key: any) => i18n.t(key, { defaultValue: key });
-  const t = (key: string) => Translate(key);
+  const t = (key: any) => i18n.t(key, { defaultValue: key });
+  // const t = (key: string) => Translate(key);
 
   const contextValue = useMemo(() => ({ i18n, locale, setLocale, toggleLanguage, t }), [locale, Translate]);
 
