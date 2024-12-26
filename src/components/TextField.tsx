@@ -182,7 +182,7 @@ const TextField = React.forwardRef<HTMLInputElement, ITextField>(({
         borderRadius={borderRadius}
         showRequiredIcon={showRequiredIcon}
       >
-        {label}
+        {t(label)}
       </Label>
       <Input
         id={id}

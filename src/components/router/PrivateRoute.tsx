@@ -8,7 +8,6 @@ const PrivateRoute = () => {
 
   const redirectCheck = async () => {
     if (isInitialized && isAuthenticated != null && !isAuthenticated) {
-      // Notification.error('Either your session expired or you are not properly authenticated. You will be redirected to login page.', 3000);
       window.location.replace(Auth.unauthorizedRedirectionPath);
     }
   };

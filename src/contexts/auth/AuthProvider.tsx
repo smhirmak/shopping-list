@@ -13,8 +13,9 @@ import {
   updatePassword,
 } from 'firebase/auth';
 import { auth, db } from '@/configurations/firebase';
-import Notification from '@/components/Notification';
 import { doc, getDoc, setDoc, Timestamp, collection, getDocs } from 'firebase/firestore';
+import { UserData } from '@/types/types';
+import Notification from '@/components/Notification';
 import { useLocalizeContext } from '../locale/LocalizeContext';
 import { AuthContext, UserInfo } from './AuthContext';
 
@@ -26,6 +27,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [allUsersInfo, setAllUsersInfo] = useState<UserInfo[] | null>(null);
   const { t } = useLocalizeContext();
+  const { success, error } = Notification();
   interface signUpData {
     firstName: string;
     lastName: string;
@@ -37,10 +39,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     onAuthStateChanged(auth, async user => {
       if (user) {
         try {
-          const info = await getDoc(doc(db, 'users', user.uid));
-          setUserInfo(info.data() as UserInfo || null);
-        } catch (error) {
-          console.error('Error setting document:', error);
+          const userInfos = await getDoc(doc(db, 'users', user.uid));
+          setUserInfo(userInfos.data() as UserInfo || null);
+        } catch (catchError) {
+          console.error('Error setting document:', catchError);
         }
       }
     });
@@ -49,8 +51,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     try {
       const querySnapshot = await getDocs(collection(db, 'users'));
       setAllUsersInfo(querySnapshot.docs.map(docItem => docItem.data() as UserInfo));
-    } catch (error) {
-      console.error('Error fetching documents:', error);
+    } catch (catchError) {
+      console.error('Error fetching documents:', catchError);
     }
   };
 
@@ -60,12 +62,12 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       if (response && response.user && response.user.uid) {
         if (!response.user.emailVerified && auth.currentUser) {
           sendEmailVerification(auth.currentUser).then(() => {
-            Notification.success('Email doğrulama e-postası gönderildi. Oturum açabilmek için lütfen mail adresinizi doğrulayın.');
+            success('Email doğrulama e-postası gönderildi. Oturum açabilmek için lütfen mail adresinizi doğrulayın.');
           }).catch(() => {
-            Notification.error('Email doğrulama e-postası gönderilemedi.');
+            error('Email doğrulama e-postası gönderilemedi.');
           });
         } else {
-          Notification.success('Oturum açma başarılı!');
+          success('Oturum açma başarılı!');
           setIsAuthenticated(true);
           setIsInitialized(true);
           getUserInfo();
@@ -74,24 +76,16 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           redirect('/');
         }
       } else {
-        Notification.error('Oturum açma başarısız!');
+        error('Oturum açma başarısız!');
       }
-    } catch (error: any) {
+    } catch (catchError: any) {
       if (error instanceof Error) {
-        Notification.error(t((error as any).code.split('/').pop()));
+        error(t((catchError as any).code.split('/').pop()));
       } else {
-        Notification.error(t('An unknown error occurred'));
+        error(t('An unknown error occurred'));
       }
     }
   };
-
-  interface UserData {
-    firstName: string;
-    lastName: string;
-    email: string;
-    uid: string;
-    createDateTime: string;
-  }
 
   const addUser = async (id: string, firstName: string, lastName: string, email: string): Promise<void> => {
     try {
@@ -100,22 +94,24 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         lastName,
         email,
         uid: id,
+        includingHouse: null,
         createDateTime: Timestamp.now().toDate().toLocaleString(),
       } as UserData);
-    } catch (error) {
-      console.error('Error setting document:', error);
+    } catch (catchError) {
+      console.error('Error setting document:', catchError);
     }
   };
 
-  const editUser = async (id: string, firstName: string, lastName: string): Promise<void> => {
+  const editUser = async (id: string, firstName: string, lastName: string, includingHouse: string): Promise<void> => {
     try {
       await setDoc(doc(db, 'users', id), {
         firstName,
         lastName,
+        includingHouse,
       }, { merge: true });
-    } catch (error) {
-      Notification.error(t('Error setting document'));
-      console.error('Error setting document:', error);
+    } catch (catchError) {
+      error(t('Error setting document'));
+      console.error('Error setting document:', catchError);
     }
   };
 
@@ -128,17 +124,17 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         await reauthenticateWithCredential(user, credential);
         await updatePassword(user, newPassword);
         getUserInfo();
-        Notification.success(t('Password updated successfully'));
+        success(t('Password updated successfully'));
       } else {
-        Notification.error(t('User is not authenticated'));
+        error(t('User is not authenticated'));
       }
-    } catch (error) {
-      if (error instanceof Error && 'code' in error) {
-        Notification.error(t((error as any).code.split('/').pop()));
+    } catch (catchError) {
+      if (catchError instanceof Error && 'code' in catchError) {
+        error(t((catchError as any).code.split('/').pop()));
       } else {
-        Notification.error(t('An unknown error occurred'));
+        error(t('An unknown error occurred'));
       }
-      console.error('Error updating password:', error);
+      console.error('Error updating password:', catchError);
     }
   };
 
@@ -146,32 +142,32 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     try {
       const response = await createUserWithEmailAndPassword(auth, data.email, data.password);
       if (response && response.user && response.user.uid && auth.currentUser) {
-        Notification.success(t('Your account was successfully created!'));
+        success(t('Your account was successfully created!'));
         await sendEmailVerification(auth.currentUser);
-        Notification.success(t('Mail verification email has been sent. Please verify your email address to be able to log in.'));
+        success(t('Mail verification email has been sent. Please verify your email address to be able to log in.'));
 
         if (auth.currentUser) {
           await addUser(response.user.uid, data.firstName, data.lastName, data.email);
         } else {
-          Notification.error(t('User is not authenticated.'));
+          error(t('User is not authenticated.'));
         }
         window.location.replace('/login');
       } else {
-        Notification.error(t('Account creation failed!'));
+        error(t('Account creation failed!'));
       }
-    } catch (error: any) {
-      Notification.error(t(error.code.split('/').pop()));
+    } catch (catchError: any) {
+      error(t(catchError.code.split('/').pop()));
     }
   };
 
   const resetPassword = async (email: string) => {
     try {
       await sendPasswordResetEmail(auth, email);
-      Notification.success('Şifre sıfırlama e-postası gönderildi.');
+      success('Şifre sıfırlama e-postası gönderildi.');
       return true;
-    } catch (error: any) {
-      console.error('Hata:', error);
-      Notification.error(t(error.code.split('/').pop()));
+    } catch (catchError: any) {
+      console.error('Hata:', catchError);
+      error(t(catchError.code.split('/').pop()));
       return false;
     }
   };
@@ -181,9 +177,9 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       .then(() => {
         localStorage.removeItem('token');
       })
-      .catch(error => {
-        Notification.error('Error during logout process!');
-        console.log('logout', error);
+      .catch(catchError => {
+        error('Error during logout process!');
+        console.log('logout', catchError);
       });
   };
 
@@ -199,8 +195,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           getAllUsersInfo();
           setIsAuthenticated(true);
           setIsInitialized(true);
-        } catch (error) {
-          console.error('Error fetching ID token:', error);
+        } catch (catchError) {
+          console.error('Error fetching ID token:', catchError);
         }
       } else {
         setIsAuthenticated(false);

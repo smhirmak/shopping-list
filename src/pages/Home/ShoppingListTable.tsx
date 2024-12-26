@@ -26,7 +26,6 @@ import { useProductContext } from '@/contexts/product/ProductContext';
 import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import Enums from '@/constants/Enums';
-import Notification from '@/components/Notification';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/configurations/firebase';
 import { deleteShoppingListPopup } from '@/constants/PopupContents';
@@ -34,6 +33,7 @@ import Swal from 'sweetalert2';
 import SelectBox from '@/components/SelectBox';
 import TextField from '@/components/TextField';
 import { useNavigate } from 'react-router-dom';
+import Notification from '@/components/Notification';
 
 const Filter = ({
   column,
@@ -222,6 +222,7 @@ const ShoppingListTable: React.FC<{ rowData: any[]; mobileFilterOpen: boolean }>
   const { allUsersInfo } = useAuthContext();
   const { t, locale } = useLocalizeContext();
   const navigate = useNavigate();
+  const { success, error } = Notification();
 
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const [sorting, setSorting] = React.useState<SortingState>([{ id: 'dateToShop', desc: true }]);
@@ -233,11 +234,11 @@ const ShoppingListTable: React.FC<{ rowData: any[]; mobileFilterOpen: boolean }>
       try {
         const docRef = doc(db, 'shopping-list', shoppingListId);
         await deleteDoc(docRef);
-        Notification.success('Shopping list successfully deleted');
+        success('Shopping list successfully deleted');
         getAllShoppingList(); // Alışveriş listelerini yeniden yükleyin
-      } catch (error) {
-        Notification.error('An error occurred while deleting the shopping list');
-        console.error('Error occurred:', error);
+      } catch (catchError) {
+        error('An error occurred while deleting the shopping list');
+        console.error('Error occurred:', catchError);
       }
     }
   };

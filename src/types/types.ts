@@ -8,6 +8,14 @@ import { containerVariants } from '@/components/Container';
 import { inputVariants } from '@/components/Input';
 import { labelVariants } from '@/components/Label';
 
+export interface UserData {
+    firstName: string;
+    lastName: string;
+    email: string;
+    uid: string;
+    createDateTime: string;
+  }
+
 export interface INotification {
   children: ReactNode;
   newestTop?: boolean,
