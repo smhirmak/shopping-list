@@ -203,6 +203,9 @@ module.exports = {
         9998: '9998',
         9999: '9999',
       },
+      backgroundImage: {
+        'check-image': 'url(/assets/images/check-bg.png)',
+      },
     },
   },
   // eslint-disable-next-line global-require, @typescript-eslint/no-require-imports

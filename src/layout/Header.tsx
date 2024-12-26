@@ -24,8 +24,8 @@ const Header = () => {
   const { logout, userInfo } = useAuthContext();
   const { t } = useLocalizeContext();
   return (
-    <div className="flex w-full items-center justify-between bg-slate-700 p-4">
-      <Link to="/" className="flex items-center gap-6">
+    <div className="flex w-full items-center justify-between bg-tra-neutral p-4">
+      <Link to="/" className="flex items-center gap-2 md:gap-6">
         <img src="/assets/logos/logo.png" alt="Shopping List" className="w-12 md:w-20" />
         <p className="font-mono text-xl md:text-4xl">Shopping List</p>
       </Link>

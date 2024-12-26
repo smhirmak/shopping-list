@@ -76,7 +76,7 @@ const Filter = ({
   ) : (
     <TextField
       className={className}
-      inputClassName="h-8 w-36"
+      inputClassName="h-8 md:w-36"
       type="text"
       value={(columnFilterValue ?? '') as string}
       onChange={e => column.setFilterValue(e.target.value)}
@@ -217,7 +217,7 @@ const sortPlannedDateFn = (rowA: any, rowB: any) => {
   return 1;
 };
 
-const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
+const ShoppingListTable: React.FC<{ rowData: any[]; mobileFilterOpen: boolean }> = ({ rowData, mobileFilterOpen }) => {
   const { setSelectedShoppingList, setSelectedProduct, getAllShoppingList, setEditShoppingList } = useProductContext();
   const { allUsersInfo } = useAuthContext();
   const { t, locale } = useLocalizeContext();
@@ -412,6 +412,7 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
         createDateTime: product.createDateTime,
         creatorId: product.creatorId,
         note: product.note,
+        isItBought: product.isItBought,
         productBrand: product.productBrand,
         productCategory: product.productCategory,
         quantityType: product.quantityType,
@@ -459,20 +460,23 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
   }, [data.length, table]);
 
   return (
-    <div className="flex flex-col gap-2 p-2">
+    <div className="flex flex-col gap-2 py-2">
       <div className="mobile-responsive md:hidden">
-        {/* {table.getHeaderGroups().map(headerGroup => (
-          <div key={headerGroup.id} className="grid grid-cols-12 gap-2">
-            {headerGroup.headers.map(header => (
-              <div key={header.id} className="col-span-2 bg-tra-neutral-light px-3 py-2">
-                <div
-                  className={
+        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          mobileFilterOpen ? 'mb-4 max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
+        >
+          {table.getHeaderGroups().map(headerGroup => (
+            <div key={headerGroup.id} className="grid grid-cols-2 gap-2">
+              {headerGroup.headers.map(header => (
+                <div key={header.id} className={`col-span-1 rounded-md bg-tra-neutral-light p-2 text-xs ${!header.column.getCanSort() && 'hidden'}`}>
+                  <div
+                    className={
                     header.column.getCanSort()
                       ? 'cursor-pointer select-none'
                       : ''
                   }
-                  onClick={header.column.getToggleSortingHandler()}
-                  title={
+                    onClick={header.column.getToggleSortingHandler()}
+                    title={
                     header.column.getCanSort()
                       ? header.column.getNextSortingOrder() === 'asc'
                         ? 'Sort ascending'
@@ -481,23 +485,24 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
                           : 'Clear sort'
                       : undefined
                   }
-                >
-                  {typeof flexRender(header.column.columnDef.header, header.getContext()) === 'string' && (
+                  >
+                    {t(flexRender(header.column.columnDef.header, header.getContext()))}
+                    {/* {typeof flexRender(header.column.columnDef.header, header.getContext()) === 'string' && (
                     <span className={`flex items-center ${header?.index !== 1 && 'justify-center'} `}>
-                      {t(flexRender(header.column.columnDef.header, header.getContext()))}
                       {header.column.getIsSorted() && (header.column.getIsSorted() === 'asc' ? <CaretUp className="ml-2" /> : <CaretDown className="ml-2" />)}
                     </span>
-                  )}
-                  {header.column.getCanFilter() ? (
-                    <div>
-                      <Filter className={`${header?.index !== 1 && 'items-center'}`} column={header.column} table={table} />
-                    </div>
-                  ) : null}
+                  )} */}
+                    {header.column.getCanFilter() ? (
+                      <div>
+                        <Filter className={`${header?.index !== 1 && 'items-center'}`} column={header.column} table={table} />
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ))} */}
+              ))}
+            </div>
+          ))}
+        </div>
         {table.getRowModel().rows
           .filter(row => row.depth === 0)
           .map(row => (
@@ -506,34 +511,27 @@ const ShoppingListTable: React.FC<{ rowData: any[] }> = ({ rowData }) => {
                 {row.getVisibleCells().map((cell, i) => (
                   <div key={cell.id} className="flex items-center justify-between  px-3 py-2 hover:brightness-125">
                     <span>
-                      {flexRender(table.getHeaderGroups()[0].headers[i]?.column.columnDef.header, table.getHeaderGroups()[0].headers[i]?.getContext())}
+                      {t(flexRender(table.getHeaderGroups()[0].headers[i]?.column.columnDef.header, table.getHeaderGroups()[0].headers[i]?.getContext()))}
                     </span>
                     <span>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
                   </div>
                 ))}
               </div>
               {
-                  row.getIsExpanded() && (
-                    <div className={`mb-4 rounded-b-md bg-tra-neutral-light opacity-0 transition-all duration-500 ${row.getIsExpanded() && 'opacity-100'}`}>
-                      {/* <div className="">
-                        {subColumns.map((subColumn: any, index: any) => (
-                          <div key={index} className=" bg-tra-primary-15/80 px-3 py-2 text-base first:rounded-tl-md first:text-start last:rounded-tr-md">
-                            {typeof flexRender(subColumn.header, {}) === 'string' && t(flexRender(subColumn.header, {}))}
-                            </div>
-                            ))}
-                            </div> */}
+                row.getIsExpanded() && (
+                  <div className={`mb-4 rounded-b-md opacity-0 transition-all duration-500 ${row.getIsExpanded() && 'opacity-100'}`}>
                       {row.original.subRows?.map((subRow: any, subRowIndex: number) => (
-                        <div key={subRowIndex} className="">
+                        <div key={subRowIndex} className={`border-b-4 ${subRow.isItBought ? 'bg-success/10 bg-check-image dark:bg-success/30' : 'bg-tra-neutral-light'}`}>
                           {subColumns.map((subColumn: any, index: number) => (
-                            <div key={index} className="flex items-center justify-between  px-3 py-2">
+                            <div key={index} className="flex items-center justify-between px-3 py-2">
                               <span>{typeof flexRender(subColumn.header, {}) === 'string' && t(flexRender(subColumn.header, {}))}</span>
                               <span>{flexRender(subColumn.cell, { row: subRow })}</span>
                             </div>
                           ))}
                         </div>
                       ))}
-                    </div>
-                  )
+                  </div>
+                )
                 }
             </React.Fragment>
           ))}
