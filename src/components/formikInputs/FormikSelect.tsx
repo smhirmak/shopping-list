@@ -16,11 +16,12 @@ React.FC<{
   tooltip?: string | string[];
   options: ISelectOption[];
   placeholder?: string,
-  borderRadius?: 'default' | 'lg';
+  // borderRadius?: 'default' | 'lg';
   showRequiredIcon?: boolean;
   disabled?: boolean;
   className?: string;
-  selectClassName?: string; }> = ({ label, id, className, selectClassName, tooltip,
+  labelClassName?: string;
+  selectClassName?: string; }> = ({ label, id, className, selectClassName, tooltip, labelClassName,
     disabled, placeholder = '', showRequiredIcon, formik, options, isMulti = false, isSearchable = false }) => (
       <div className={className}>
         <Select
@@ -36,6 +37,7 @@ React.FC<{
           isSearchable={isSearchable}
           error={Boolean(MethodHelper.formikErrorCheck(formik, id))}
           className={selectClassName}
+          labelClassName={labelClassName}
           disabled={disabled}
         />
         <FormikErrorText id={id} formik={formik} />

@@ -113,8 +113,14 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
                 <Button variant="outlined" size="icon" className="h-10 max-h-10 min-h-10 self-end border-error text-error" onClick={() => setAddProduct(false)}><X className="size-4" /></Button>
                 <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
                 <div className="grid grid-cols-4 space-x-3">
-                  <FormikInput className="col-span-3" id="productQuantity" formik={formik} label="Product Quantity" type="number" />
-                  <FormikSelect id="quantityType" label="Quantity Type" formik={formik} options={Constants.ProductTypeOptionlist} />
+                  <FormikInput className="col-span-2 md:col-span-3" id="productQuantity" formik={formik} label="Product Quantity" type="number" />
+                  <FormikSelect
+                    className="col-span-2 w-full md:col-span-1"
+                    id="quantityType"
+                    label="Quantity Type"
+                    formik={formik}
+                    options={Constants.ProductTypeOptionlist}
+                  />
                 </div>
                 <FormikSelect
                   id="productCategory"

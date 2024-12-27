@@ -512,7 +512,7 @@ const ShoppingListTable: React.FC<{
             .filter(row => row.depth === 0)
             .map(row => (
               <React.Fragment key={row.id}>
-                <div className={`${!row.getIsExpanded() ? 'mb-4' : 'rounded-b-none'} grid grid-cols-2 rounded-md bg-tra-primary-5/70`}>
+                <div className={`${!row.getIsExpanded() ? 'mb-4' : 'rounded-b-none'} grid grid-cols-2 rounded-md bg-tra-primary-5/70 py-2`}>
                   {row.getVisibleCells().map((cell, i) => {
                     // Only show shoppingListName and dateToShop when not expanded
                     const columnId = table.getHeaderGroups()[0].headers[i]?.column.id;
