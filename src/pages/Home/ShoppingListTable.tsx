@@ -743,7 +743,7 @@ const ShoppingListTable: React.FC<{
                 onChange={e => {
                   table.setPageSize(Number(e));
                 }}
-                placeholder="Select Page Size"
+                placeHolder="Select Page Size"
               />
             </span>
           </div>

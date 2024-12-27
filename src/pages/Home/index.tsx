@@ -3,7 +3,7 @@ import Container from '@/components/Container';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { useState } from 'react';
 import { useProductContext } from '@/contexts/product/ProductContext';
-import { ArrowClockwise, ArrowsDownUp, ClearSorting, Funnel } from '@/assets/Icons';
+import { ArrowClockwise, ClearSorting, Funnel } from '@/assets/Icons';
 import { useAuthContext } from '@/contexts/auth/AuthContext';
 import Tooltip from '@/components/Tooltip';
 import Select from '@/components/Select';
@@ -46,14 +46,15 @@ const Home = () => {
                   size="sm"
                   selectClassName="h-10"
                   className="w-full min-w-28 md:hidden"
-                  onChange={e => setSorting(e)}
+                  onChange={e => setSorting(JSON.parse(e as string))}
                   options={[
-                    { content: t('Shop Date (Ascending)'), value: [{ id: 'dateToShop', desc: false }] },
-                    { content: t('Shop Date (Descending)'), value: [{ id: 'dateToShop', desc: true }] },
-                    { content: t('Name (A-Z)'), value: [{ id: 'shoppingListName', desc: false }] },
-                    { content: t('Name (Z-A)'), value: [{ id: 'shoppingListName', desc: true }] },
-                    { content: t('Create Date (Ascending)'), value: [{ id: 'createDateTime', desc: false }] },
-                    { content: t('Create Date (Descending)'), value: [{ id: 'createDateTime', desc: true }] },
+                    // number ve string disinda bir deger gelirse Select icinde hata veriyor o yuzden stringfy yapildi
+                    { content: t('Shop Date (Ascending)'), value: JSON.stringify([{ id: 'dateToShop', desc: false }]) },
+                    { content: t('Shop Date (Descending)'), value: JSON.stringify([{ id: 'dateToShop', desc: true }]) },
+                    { content: t('Name (A-Z)'), value: JSON.stringify([{ id: 'shoppingListName', desc: false }]) },
+                    { content: t('Name (Z-A)'), value: JSON.stringify([{ id: 'shoppingListName', desc: true }]) },
+                    { content: t('Create Date (Ascending)'), value: JSON.stringify([{ id: 'createDateTime', desc: false }]) },
+                    { content: t('Create Date (Descending)'), value: JSON.stringify([{ id: 'createDateTime', desc: true }]) },
                   ]}
                   placeHolder={t('Sort by')}
                 />

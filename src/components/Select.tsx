@@ -137,7 +137,7 @@ const Select: React.FC<ISelect> = ({
   const [selectedValue, setSelectedValue] = useState<ISelectOption[] | ISelectOption | null>(isMulti ? [] : null);
   const [searchValue, setSearchValue] = useState(isSearchable ? '' : null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
-  const searchRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null!);
   const inputRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

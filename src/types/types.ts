@@ -356,7 +356,8 @@ export interface IAccordionContent {
 
 export interface ISelectOption{
   content: string | React.ReactNode;
-  value: number | string | boolean | { id: string; desc: boolean }[];
+  // value: number | string | { id: string; desc: boolean }[];
+  value: number | string ;
 }
 
 export interface ISelect {
