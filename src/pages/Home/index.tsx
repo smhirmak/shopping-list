@@ -3,9 +3,11 @@ import Container from '@/components/Container';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { useState } from 'react';
 import { useProductContext } from '@/contexts/product/ProductContext';
-import { ArrowClockwise, Funnel } from '@/assets/Icons';
+import { ArrowClockwise, ArrowsDownUp, ClearSorting, Funnel } from '@/assets/Icons';
 import { useAuthContext } from '@/contexts/auth/AuthContext';
 import Tooltip from '@/components/Tooltip';
+import Select from '@/components/Select';
+import { SortingState } from '@tanstack/react-table';
 import ShoppingListTable from './ShoppingListTable';
 import AddNewProductDialog from './AddNewProductDialog';
 import AddNewShopListDialog from './AddNewShopListDialog';
@@ -15,30 +17,59 @@ import EditShoppingListDialog from './EditShoppingListDialog';
 const Home = () => {
   const { selectedShoppingList, getAllShoppingList, allShoppingList, selectedProduct, editShoppingList } = useProductContext();
   const { t } = useLocalizeContext();
+  const { userInfo } = useAuthContext();
   const [isAddListDialogOpen, setIsAddListDialogOpen] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const { userInfo } = useAuthContext();
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'dateToShop', desc: false }]);
 
   return (
     <Container maxWidth="xl">
       {userInfo?.includingHouse
         ? (
           <>
-            <div className="mb-4 flex items-center justify-between md:justify-end">
-              <Button size="icon" className="md:hidden" onClick={() => setMobileFilterOpen(prev => !prev)}>
-                <Funnel className="size-6" />
-              </Button>
-              <div className="flex items-center gap-4">
-                <Tooltip position="bottom" content={t('Refresh the shopping list')}>
-                  <Button size="icon" className="group bg-transparent hover:bg-transparent" onClick={() => getAllShoppingList()}>
-                    <ArrowClockwise className="size-6 text-tra-neutral-black transition-all hover:rotate-90" />
-                  </Button>
-
-                </Tooltip>
-                <Button variant="solid" onClick={() => setIsAddListDialogOpen(true)}>{t('Add List')}</Button>
+            <div className="mb-4 flex flex-col gap-4 md:justify-end">
+              <div className="flex items-center justify-between gap-4 md:self-end">
+                <Button size="icon" className="md:hidden" onClick={() => setMobileFilterOpen(prev => !prev)}>
+                  <Funnel className="size-6" />
+                </Button>
+                <div className="flex items-center gap-4">
+                  <Tooltip position="bottom" content={t('Refresh the shopping list')}>
+                    <Button size="icon" className="group bg-transparent hover:bg-transparent" onClick={() => getAllShoppingList()}>
+                      <ArrowClockwise className="size-6 text-tra-neutral-black transition-all hover:rotate-90" />
+                    </Button>
+                  </Tooltip>
+                  <Button variant="solid" onClick={() => setIsAddListDialogOpen(true)}>{t('Add List')}</Button>
+                </div>
+              </div>
+              <div className="flex justify-between gap-4">
+                <Select
+                  size="sm"
+                  selectClassName="h-10"
+                  className="w-full min-w-28 md:hidden"
+                  onChange={e => setSorting(e)}
+                  options={[
+                    { content: t('Shop Date (Ascending)'), value: [{ id: 'dateToShop', desc: false }] },
+                    { content: t('Shop Date (Descending)'), value: [{ id: 'dateToShop', desc: true }] },
+                    { content: t('Name (A-Z)'), value: [{ id: 'shoppingListName', desc: false }] },
+                    { content: t('Name (Z-A)'), value: [{ id: 'shoppingListName', desc: true }] },
+                    { content: t('Create Date (Ascending)'), value: [{ id: 'createDateTime', desc: false }] },
+                    { content: t('Create Date (Descending)'), value: [{ id: 'createDateTime', desc: true }] },
+                  ]}
+                  placeHolder={t('Sort by')}
+                />
+                {sorting?.length > 0 && (
+                <Button className="bg-transparent hover:bg-transparent md:hidden" size="icon" onClick={() => setSorting([])}>
+                  <ClearSorting className="size-6" />
+                </Button>
+                )}
               </div>
             </div>
-            <ShoppingListTable mobileFilterOpen={mobileFilterOpen} rowData={allShoppingList} />
+            <ShoppingListTable
+              mobileFilterOpen={mobileFilterOpen}
+              rowData={allShoppingList}
+              sorting={sorting}
+              setSorting={setSorting}
+            />
             {isAddListDialogOpen && (
             <AddNewShopListDialog isAddListDialogOpen={isAddListDialogOpen} setIsAddListDialogOpen={setIsAddListDialogOpen} />
             )}

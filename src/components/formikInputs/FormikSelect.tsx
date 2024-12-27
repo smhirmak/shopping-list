@@ -1,56 +1,45 @@
-import React, { ReactNode, useRef } from 'react';
-import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react';
 import Object from '@/utilities/Object';
-import Label from '../Label';
+import MethodHelper from '@/utilities/MethodHelper';
+import { ISelectOption } from '@/types/types';
 import FormikErrorText from './FormikErrorText';
-import SelectBox from '../SelectBox';
+import Select from '../Select';
 
 const FormikSelect:
 React.FC<{
+  isMulti?: boolean;
+  isSearchable?: boolean;
   label: string;
   id: string;
   formik: any;
   tooltip?: string | string[];
-  optionsList: { value: string, content: string }[];
+  options: ISelectOption[];
   placeholder?: string,
   borderRadius?: 'default' | 'lg';
   showRequiredIcon?: boolean;
   disabled?: boolean;
   className?: string;
-  selectClassName?: string;
-  startIcon?: ReactNode }> = ({ label, id, className, selectClassName, tooltip, startIcon, disabled, placeholder, borderRadius, showRequiredIcon, formik, optionsList }) => {
-    const { t } = useLocalizeContext();
-    const labelRef = useRef<HTMLLabelElement>(null);
-    return (
+  selectClassName?: string; }> = ({ label, id, className, selectClassName, tooltip,
+    disabled, placeholder = '', showRequiredIcon, formik, options, isMulti = false, isSearchable = false }) => (
       <div className={className}>
-        <Label
-          ref={labelRef}
-          className="mb-1 transition-all duration-150 ease-cubic"
-        // className={`
-        //   ${cn(labelStyles({ variant, borderRadius }))}
-        //   ${(inputFocused || !!value) ? '-top-[2px] bg-transparent' : ''}
-        //   ${labelClassName}`}
-          htmlFor={id}
-          id={`${id}-label`}
+        <Select
+          id={id}
           tooltip={tooltip}
-          startIcon={startIcon}
-          disabled={disabled}
-          borderRadius={borderRadius}
+          label={label}
           showRequiredIcon={showRequiredIcon}
-        >
-          {t(label)}
-        </Label>
-        <SelectBox
           value={Object.GetNestedValue(formik.values, id) ?? ''}
-          onChange={value => formik.setFieldValue(id, value)}
-          placeholder={placeholder}
-          optionsList={optionsList}
-          translateFunction={t}
+          onChange={value => { if (!disabled) formik.setFieldValue(id, value); }}
+          placeHolder={placeholder}
+          options={options}
+          isMulti={isMulti}
+          isSearchable={isSearchable}
+          error={Boolean(MethodHelper.formikErrorCheck(formik, id))}
           className={selectClassName}
+          disabled={disabled}
         />
         <FormikErrorText id={id} formik={formik} />
       </div>
-    );
-  };
+  );
 
 export default FormikSelect;

@@ -94,6 +94,13 @@ const tr = {
   'Finish Shopping': 'Alışverişi Bitir',
   'Including House': 'Eviniz',
   'To add and view a shopping list, please add a house from the profile page': 'Alışveriş listesi eklemek ve görüntülemek için lütfen profil sayfasından bir ev ekleyin',
+  'Sort by': 'Sırala',
+  'Name (A-Z)': 'İsim (A-Z)',
+  'Name (Z-A)': 'İsim (Z-A)',
+  'Create Date (Ascending)': 'Oluşturma Tarihi (Artan)',
+  'Create Date (Descending)': 'Oluşturma Tarihi (Azalan)',
+  'Shop Date (Ascending)': 'Alışveriş Tarihi (Artan)',
+  'Shop Date (Descending)': 'Alışveriş Tarihi (Azalan)',
 };
 
 export default tr;
