@@ -356,7 +356,7 @@ export interface IAccordionContent {
 
 export interface ISelectOption{
   content: string | React.ReactNode;
-  value: number | string | boolean;
+  value: number | string | boolean | { id: string; desc: boolean }[];
 }
 
 export interface ISelect {
@@ -390,6 +390,8 @@ export interface ISelect {
   tooltip?: string | string[];
   showRequiredIcon?: boolean;
   dropdownAlign?: 'left' | 'right';
+  noOptionsMessage?: string;
+  selectClassName?: string;
 }
 
 export interface ISelectedDate {

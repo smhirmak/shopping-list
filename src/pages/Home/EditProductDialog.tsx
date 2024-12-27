@@ -130,13 +130,13 @@ const EditProductDialog = () => {
             <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
             <div className="grid grid-cols-4 space-x-3">
               <FormikInput className="col-span-3" id="productQuantity" formik={formik} label="Product Quantity" type="number" />
-              <FormikSelect id="quantityType" label="Quantity Type" formik={formik} optionsList={Constants.ProductTypeOptionlist} placeholder="Please select a quantity type" />
+              <FormikSelect id="quantityType" label="Quantity Type" formik={formik} options={Constants.ProductTypeOptionlist} placeholder="Please select a quantity type" />
             </div>
             <FormikSelect
               id="productCategory"
               label="Product Category"
               formik={formik}
-              optionsList={Object.entries(Enums.ProductCategory).map(([key, value]) => ({
+              options={Object.entries(Enums.ProductCategory).map(([key, value]) => ({
                 value: key,
                 content: value,
               }))}
