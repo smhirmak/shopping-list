@@ -56,7 +56,6 @@ const Profile = () => {
             label="Including House"
             inputClassName="truncate"
             formik={formik}
-            readOnly
             endIcon={(
               <CopyToClipboard text={formik.values.includingHouse}>
                 <Button
