@@ -101,6 +101,10 @@ const tr = {
   'Create Date (Descending)': 'Oluşturma Tarihi (Azalan)',
   'Shop Date (Ascending)': 'Alışveriş Tarihi (Artan)',
   'Shop Date (Descending)': 'Alışveriş Tarihi (Azalan)',
+  'Add Home': 'Ev Ekle',
+  'Add New Home': 'Yeni Ev Ekle',
+  'Home Name': 'Ev Adı',
+  'New Home added successfully': 'Yeni Ev başarıyla eklendi',
 };
 
 export default tr;

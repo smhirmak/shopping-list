@@ -157,6 +157,7 @@ const TextField = React.forwardRef<HTMLInputElement, ITextField>(({
   maxLength,
   helperText,
   textarea,
+  readOnly,
   ...otherProps
 }, ref) => {
   const { t } = useLocalizeContext();
@@ -206,6 +207,7 @@ const TextField = React.forwardRef<HTMLInputElement, ITextField>(({
         borderRadius={borderRadius}
         maxLength={maxLength}
         textarea={textarea}
+        readOnly={readOnly}
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...otherProps}
       />
@@ -216,7 +218,7 @@ const TextField = React.forwardRef<HTMLInputElement, ITextField>(({
               <span>
                 <span className={`${showRequiredIcon ? 'after:ml-0.5 after:text-error after:content-required' : ''}`}>{label}</span>
                 {(tooltip) && (
-                <span className="inline-block size-5" />
+                  <span className="inline-block size-5" />
                 )}
               </span>
             ) : ''}

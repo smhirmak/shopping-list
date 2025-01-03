@@ -276,6 +276,7 @@ export interface ITextField {
   helperText?: string;
   textarea?: boolean;
   className?: string;
+  readOnly?: boolean;
 }
 
 export interface IFormikErrorText {

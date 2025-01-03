@@ -242,3 +242,9 @@ export const ClearSorting: React.FC<{ className?: string }> = ({ className }) =>
     <path d="M0 0 C25.41 0 50.82 0 77 0 C77 8.91 77 17.82 77 27 C51.59 27 26.18 27 0 27 C0 18.09 0 9.18 0 0 Z " fill="#fff" transform="translate(10,179)" />
   </svg>
 );
+
+export const Copy: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={`${cn(className)} size-4 text-current`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256">
+    <path className="fill-current" d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z" />
+  </svg>
+);

@@ -15,9 +15,13 @@ interface IFormikInput {
   size?: 'default' | 'sm' | 'lg';
   variant?: 'filled' | 'outlined' | 'underlined';
   className?: string;
+  endIcon?: React.ReactNode;
+  inputClassName?: string;
+  readOnly?: boolean;
 }
 
-const FormikInput: React.FC<IFormikInput> = ({ id, formik, variant, size, label, disabled = false, type = 'text', placeholder = '', tooltip, className, ...otherProps }) => {
+const FormikInput: React.FC<IFormikInput> = ({ id, formik, inputClassName, readOnly,
+  variant, size, label, disabled = false, type = 'text', placeholder = '', tooltip, className, endIcon, ...otherProps }) => {
   const { t } = useLocalizeContext();
   return (
     <div className={`flex flex-col ${className}`}>
@@ -25,6 +29,7 @@ const FormikInput: React.FC<IFormikInput> = ({ id, formik, variant, size, label,
         id={id}
         variant={variant}
         label={label}
+        inputClassName={inputClassName}
         size={size}
         error={Boolean(MethodHelper.formikErrorCheck(formik, id))}
         value={Object.GetNestedValue(formik.values, id) ?? ''}
@@ -35,6 +40,8 @@ const FormikInput: React.FC<IFormikInput> = ({ id, formik, variant, size, label,
         disabled={disabled}
         type={type}
         placeholder={t(placeholder)}
+        endIcon={endIcon}
+        readOnly={readOnly}
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...otherProps}
       />
