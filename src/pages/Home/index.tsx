@@ -38,7 +38,7 @@ const Home = () => {
     if ('Notification' in window && 'serviceWorker' in navigator) {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
-        pushNotification();
+        console.log('Notification permission granted');
       } else {
         console.log('Notification permission denied');
       }
@@ -52,10 +52,16 @@ const Home = () => {
     registration.showNotification('Hello', {
       body: 'This is a test notification',
       icon: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png',
+      badge: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png',
+      data: {
+        url: 'https://yourwebsite.com',
+      },
     });
   };
 
-  requestNotificationPermission();
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   return (
     <Container maxWidth="xl">
