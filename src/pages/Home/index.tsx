@@ -1,7 +1,7 @@
 import Button from '@/components/Button';
 import Container from '@/components/Container';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProductContext } from '@/contexts/product/ProductContext';
 import { ArrowClockwise, ClearSorting, Funnel } from '@/assets/Icons';
 import { useAuthContext } from '@/contexts/auth/AuthContext';
@@ -22,11 +22,47 @@ const Home = () => {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([{ id: 'dateToShop', desc: false }]);
 
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(error => {
+          console.log('Service Worker registration failed:', error);
+        });
+    }
+  }, []);
+
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        pushNotification();
+      } else {
+        console.log('Notification permission denied');
+      }
+    } else {
+      console.log('Notifications are not supported by this browser');
+    }
+  };
+
+  const pushNotification = async () => {
+    const registration = await navigator.serviceWorker.ready;
+    registration.showNotification('Hello', {
+      body: 'This is a test notification',
+      icon: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png',
+    });
+  };
+
+  requestNotificationPermission();
+
   return (
     <Container maxWidth="xl">
       {userInfo?.includingHouse
         ? (
           <>
+            <Button onClick={pushNotification}>Deneme</Button>
             <div className="mb-4 flex flex-col gap-4 md:justify-end">
               <div className="flex items-center justify-between gap-4 md:self-end">
                 <Button size="icon" className="md:hidden" onClick={() => setMobileFilterOpen(prev => !prev)}>
@@ -59,9 +95,9 @@ const Home = () => {
                   placeHolder={t('Sort by')}
                 />
                 {sorting?.length > 0 && (
-                <Button className="bg-transparent hover:bg-transparent md:hidden" size="icon" onClick={() => setSorting([])}>
-                  <ClearSorting className="size-6" />
-                </Button>
+                  <Button className="bg-transparent hover:bg-transparent md:hidden" size="icon" onClick={() => setSorting([])}>
+                    <ClearSorting className="size-6" />
+                  </Button>
                 )}
               </div>
             </div>
@@ -72,7 +108,7 @@ const Home = () => {
               setSorting={setSorting}
             />
             {isAddListDialogOpen && (
-            <AddNewShopListDialog isAddListDialogOpen={isAddListDialogOpen} setIsAddListDialogOpen={setIsAddListDialogOpen} />
+              <AddNewShopListDialog isAddListDialogOpen={isAddListDialogOpen} setIsAddListDialogOpen={setIsAddListDialogOpen} />
             )}
             {selectedShoppingList?.state && <AddNewProductDialog />}
             {selectedProduct?.state && <EditProductDialog />}
