@@ -42,7 +42,7 @@ const Settings = () => {
   });
 
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-8 rounded-xl py-10 md:w-1/2">
+    <div className="flex w-full flex-col items-center justify-center gap-8 rounded-xl py-10">
       <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
         <Form className="flex w-5/6 flex-col md:w-2/3">
           <FormikInput id="currentPassword" label="Current Password" formik={formik} type="password" />

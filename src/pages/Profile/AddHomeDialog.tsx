@@ -65,7 +65,7 @@ const AddHomeDialog: React.FC<AddHomeDialogProps> = ({ addHomeDialog, setAddHome
     <Dialog open={addHomeDialog} onOpenChange={() => setAddHomeDialog(prev => !prev)}>
       <DialogContent className="max-h-[90vh] min-w-[50vw] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl">{t('Add New Home')}</DialogTitle>
+          <DialogTitle className="text-center text-2xl">{t('Create New Home')}</DialogTitle>
         </DialogHeader>
         <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
           <Form className="flex flex-col">

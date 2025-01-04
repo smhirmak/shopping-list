@@ -103,6 +103,7 @@ const tr = {
   'Shop Date (Descending)': 'Alışveriş Tarihi (Azalan)',
   'Add Home': 'Ev Ekle',
   'Add New Home': 'Yeni Ev Ekle',
+  'Create New Home': 'Yeni Ev Oluştur',
   'Home Name': 'Ev Adı',
   'New Home added successfully': 'Yeni Ev başarıyla eklendi',
 };

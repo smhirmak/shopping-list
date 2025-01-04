@@ -46,7 +46,7 @@ const Profile = () => {
 
   return (
     <div className="flex w-full flex-col items-center justify-center gap-8 rounded-xl py-4">
-      <Button className="mr-4 self-end" color="tetriary" type="button" onClick={() => setAddHomeDialog(true)}>{t('Add New Home')}</Button>
+      <Button className="mr-4 self-end" color="tetriary" type="button" onClick={() => setAddHomeDialog(true)}>{t('Create New Home')}</Button>
       <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
         <Form className="flex w-5/6 flex-col md:w-2/3">
           <FormikInput id="firstName" label="First Name" formik={formik} />
