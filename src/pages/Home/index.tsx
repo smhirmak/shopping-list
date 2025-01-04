@@ -22,71 +22,11 @@ const Home = () => {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([{ id: 'dateToShop', desc: false }]);
 
-  // useEffect(() => {
-  //   if ('serviceWorker' in navigator) {
-  //     navigator.serviceWorker.register('/service-worker.js')
-  //       .then(registration => {
-  //         console.log('Service Worker registered with scope:', registration.scope);
-  //       })
-  //       .catch(error => {
-  //         console.log('Service Worker registration failed:', error);
-  //       });
-  //   }
-  // }, []);
-
-  // const requestNotificationPermission = async () => {
-  //   if ('Notification' in window && 'serviceWorker' in navigator) {
-  //     const permission = await Notification.requestPermission();
-  //     if (permission === 'granted') {
-  //       console.log('Notification permission granted');
-  //     } else {
-  //       console.log('Notification permission denied');
-  //     }
-  //   } else {
-  //     console.log('Notifications are not supported by this browser');
-  //   }
-  // };
-
-  // const pushNotification = async () => {
-  //   const registration = await navigator.serviceWorker.ready;
-  //   registration.showNotification('Hello', {
-  //     body: 'This is a test notification',
-  //     icon: '/assets/logos/logo.png',
-  //     badge: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png',
-  //     data: {
-  //       url: window.location.origin + location.pathname,
-  //     },
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   requestNotificationPermission();
-  // }, []);
-
-  const handlePushNotification = async () => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        await registration.showNotification('Hello!', {
-          body: 'This is a test notification.',
-          icon: '/logo192.png',
-        });
-      } catch (error) {
-        console.error('Error showing notification:', error);
-      }
-    } else {
-      console.log('Push notifications are not supported in this browser');
-    }
-  };
-
   return (
     <Container maxWidth="xl">
       {userInfo?.includingHouse
         ? (
           <>
-            <Button onClick={handlePushNotification}>
-              Send Push Notification
-            </Button>
             <div className="mb-4 flex flex-col gap-4 md:justify-end">
               <div className="flex items-center justify-between gap-4 md:self-end">
                 <Button size="icon" className="md:hidden" onClick={() => setMobileFilterOpen(prev => !prev)}>
