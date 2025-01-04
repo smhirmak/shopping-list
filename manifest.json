@@ -2,7 +2,7 @@
   "short_name": "Shopping List",
   "name": "Shopping List",
   "description": "A simple shopping list application",
-  "start_url": ".",
+  "start_url": "/login",
   "display": "standalone",
   "theme_color": "#020b1a",
   "background_color": "#020b1a",
