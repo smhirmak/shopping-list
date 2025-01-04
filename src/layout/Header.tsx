@@ -23,7 +23,6 @@ const menuList = [
 const Header = () => {
   const { logout, userInfo, isAuthenticated } = useAuthContext();
   const { t } = useLocalizeContext();
-  console.log(isAuthenticated);
   return (
     <div className="flex w-full items-center justify-between bg-tra-neutral p-2 md:p-4">
       <Link to="/" className="flex items-center gap-2 md:gap-6">
