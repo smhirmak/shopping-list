@@ -58,21 +58,30 @@ const GoShopping = () => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    const [month, day, year] = dateString.split('/');
+    return `${day.padStart(2, '0')}.${month.padStart(2, '0')}.${year}`;
+  };
+
   return (
     <div>
       <div className="mt-4 flex size-full flex-col items-center justify-center space-y-4">
         <div className="relative flex w-fit flex-col justify-center space-y-2 rounded-lg bg-tra-neutral-dark-white px-7 py-10 shadow-lg" id="checklist">
           <span className="block text-center text-3xl font-semibold text-tra-neutral-light-black">{shoppingList?.shoppingListName}</span>
-          <span className="ml-2 self-end text-sm text-tra-neutral-white">{`(${shoppingList?.dateToShop})`}</span>
-          {shoppingList?.shoppingList?.map((product: { productId: string; productName: string; productBrand: string; productQuantity: number;
-           quantityType: keyof typeof Enums.QuantityTypeLabel; isItBought: boolean }) => (
-             <ShoppingList
-               key={product.productId}
-               id={product.productId}
-               label={`${product.productName} (${product.productBrand}) - ${product.productQuantity} ${t(Enums.QuantityTypeLabel[product.quantityType])}`}
-               checked={product.isItBought}
-               onChange={handleItemChange}
-             />
+          <span className="ml-2 self-end text-sm text-tra-neutral-white">
+            {shoppingList?.dateToShop ? `(${formatDate(shoppingList.dateToShop)})` : ''}
+          </span>
+          {shoppingList?.shoppingList?.map((product: {
+            productId: string; productName: string; productBrand: string; productQuantity: number;
+            quantityType: keyof typeof Enums.QuantityTypeLabel; isItBought: boolean
+          }) => (
+            <ShoppingList
+              key={product.productId}
+              id={product.productId}
+              label={`${product.productName}${product.productBrand ? ` (${product.productBrand})` : ''} - ${product.productQuantity} ${t(Enums.QuantityTypeLabel[product.quantityType])}`}
+              checked={product.isItBought}
+              onChange={handleItemChange}
+            />
           ))}
         </div>
         <Button onClick={() => navigate('/')}>{t('Finish Shopping')}</Button>

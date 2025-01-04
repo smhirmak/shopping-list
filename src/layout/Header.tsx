@@ -21,10 +21,11 @@ const menuList = [
 ];
 
 const Header = () => {
-  const { logout, userInfo } = useAuthContext();
+  const { logout, userInfo, isAuthenticated } = useAuthContext();
   const { t } = useLocalizeContext();
+  console.log(isAuthenticated);
   return (
-    <div className="flex w-full items-center justify-between bg-tra-neutral p-4">
+    <div className="flex w-full items-center justify-between bg-tra-neutral p-2 md:p-4">
       <Link to="/" className="flex items-center gap-2 md:gap-6">
         <img src="/assets/logos/logo.png" alt="Shopping List" className="w-12 md:w-20" />
         <p className="font-mono text-xl md:text-4xl">Shopping List</p>
@@ -32,38 +33,42 @@ const Header = () => {
       <div className="flex items-center">
         <ThemeModeToggle />
         <LanguangeSelect />
-        <span className="mr-4 hidden text-xl md:block">
-          {userInfo?.firstName}
-          {' '}
-          {userInfo?.lastName}
-        </span>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <label className="burger" htmlFor="burger">
-              <input type="checkbox" id="burger" />
-              <span />
-              <span />
-              <span />
-            </label>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="px-4 py-2">
-            {menuList.map(e => (
-              <DropdownMenuItem key={e.link} asChild className="cursor-pointer gap-2 text-xl">
-                <Link to={e.link}>
-                  {e.icon}
-                  {t(e.name)}
-                </Link>
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuItem asChild onClick={logout} className="cursor-pointer">
-              <div className="flex items-center gap-2 text-xl">
-                <SignOut className="size-6" />
-                {t('Logout')}
-              </div>
-            </DropdownMenuItem>
+        {isAuthenticated && (
+          <>
+            <span className="mr-4 hidden text-xl md:block">
+              {userInfo?.firstName}
+              {' '}
+              {userInfo?.lastName}
+            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <label className="burger" htmlFor="burger">
+                  <input type="checkbox" id="burger" />
+                  <span />
+                  <span />
+                  <span />
+                </label>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="px-4 py-2">
+                {menuList.map(e => (
+                  <DropdownMenuItem key={e.link} asChild className="cursor-pointer gap-2 text-xl">
+                    <Link to={e.link}>
+                      {e.icon}
+                      {t(e.name)}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuItem asChild onClick={logout} className="cursor-pointer">
+                  <div className="flex items-center gap-2 text-xl">
+                    <SignOut className="size-6" />
+                    {t('Logout')}
+                  </div>
+                </DropdownMenuItem>
 
-          </DropdownMenuContent>
-        </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        )}
       </div>
     </div>
   );

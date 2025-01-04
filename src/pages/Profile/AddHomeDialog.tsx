@@ -11,6 +11,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import emailjs from '@emailjs/browser';
 
 interface AddHomeDialogProps {
   addHomeDialog: boolean;
@@ -38,7 +39,6 @@ const AddHomeDialog: React.FC<AddHomeDialogProps> = ({ addHomeDialog, setAddHome
         ...values,
         homeId,
       };
-      console.log(editedValues);
       try {
         await setDoc(
           doc(db, 'homes', homeId),
@@ -47,6 +47,16 @@ const AddHomeDialog: React.FC<AddHomeDialogProps> = ({ addHomeDialog, setAddHome
           editUser(userInfo!.uid, userInfo!.firstName, userInfo!.lastName, homeId);
         });
         success('New Home added successfully');
+        emailjs.send('service_yhsz8gn', 'template_qjisals', {
+          to_name: userInfo?.firstName,
+          key: homeId,
+          to_email: userInfo?.email,
+        }, '7yTLDKTfo6yvURYZ7').then(() => {
+          success('Email sent successfully');
+        }).catch(err => {
+          error('Error sending email');
+          console.error('Error sending email:', err);
+        });
         getUserInfo();
         setAddHomeDialog(false);
       } catch (catchError) {

@@ -8,7 +8,6 @@ import ErrorsPage from './pages/errors/ErrorsPage';
 import PublicRoute from './components/router/PublicRoute';
 import Login from './pages/Account/Login';
 import AuthProvider from './contexts/auth/AuthProvider';
-import LoginLayout from './layout/LoginLayout';
 import ResetPassword from './pages/Account/ResetPassword';
 import SignUp from './pages/Account/SignUp';
 import ProductProvider from './contexts/product/ProductProvider';
@@ -21,12 +20,13 @@ import { useLocalizeContext } from './contexts/locale/LocalizeContext';
 
 const router = createBrowserRouter([
   {
-    element: <PrivateRoute />,
-    errorElement: <ErrorsPage />,
+    element: <Layout />,
     children: [
       {
-        element: <Layout />,
+        element: <PrivateRoute />,
+        errorElement: <ErrorsPage />,
         children: [
+
           {
             path: '',
             element: <Home />,
@@ -45,16 +45,11 @@ const router = createBrowserRouter([
           },
         ],
       },
-    ],
-  },
-  {
-    element: <PublicRoute />,
-    errorElement: <ErrorsPage />,
-    children: [
       {
-        path: '',
-        element: <LoginLayout />,
+        element: <PublicRoute />,
+        errorElement: <ErrorsPage />,
         children: [
+
           {
             path: 'login',
             element: <Login />,

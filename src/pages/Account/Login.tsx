@@ -34,7 +34,7 @@ const Login = () => {
     validateOnMount: false,
   });
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-8 rounded-xl border-2 border-tra-neutral-grey py-10 md:w-1/2">
+    <div className="flex w-full flex-col items-center justify-center gap-8 self-center rounded-xl border-2 border-tra-neutral-grey py-8 md:w-2/5">
       <p className="text-4xl font-semibold">{t('Login')}</p>
       <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
         <Form className="flex w-5/6 flex-col md:w-2/3">

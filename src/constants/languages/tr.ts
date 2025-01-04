@@ -106,6 +106,9 @@ const tr = {
   'Create New Home': 'Yeni Ev Oluştur',
   'Home Name': 'Ev Adı',
   'New Home added successfully': 'Yeni Ev başarıyla eklendi',
+  'Email sent successfully': 'E-posta başarıyla gönderildi',
+  'Error sending email': 'E-posta gönderme hatası',
+  'Including House Key': 'Evinizin Anahtarı',
 };
 
 export default tr;

@@ -222,359 +222,265 @@ const ShoppingListTable: React.FC<{
   rowData: any[];
   mobileFilterOpen: boolean;
   sorting: SortingState;
-  setSorting: React.Dispatch<React.SetStateAction<SortingState>>; }> = ({ rowData, mobileFilterOpen, sorting, setSorting }) => {
-    const { setSelectedShoppingList, setSelectedProduct, getAllShoppingList, setEditShoppingList } = useProductContext();
-    const { allUsersInfo } = useAuthContext();
-    const { t, locale } = useLocalizeContext();
-    const navigate = useNavigate();
-    const { success, error } = Notification();
+  setSorting: React.Dispatch<React.SetStateAction<SortingState>>;
+}> = ({ rowData, mobileFilterOpen, sorting, setSorting }) => {
+  const { setSelectedShoppingList, setSelectedProduct, getAllShoppingList, setEditShoppingList } = useProductContext();
+  const { allUsersInfo } = useAuthContext();
+  const { t, locale } = useLocalizeContext();
+  const navigate = useNavigate();
+  const { success, error } = Notification();
 
-    const [expanded, setExpanded] = useState<ExpandedState>({});
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
-    const handleDeleteList = async (shoppingListId: string) => {
-      const areYouSure = await Swal.fire(deleteShoppingListPopup(t));
+  const handleDeleteList = async (shoppingListId: string) => {
+    const areYouSure = await Swal.fire(deleteShoppingListPopup(t));
 
-      if (areYouSure.isConfirmed) {
-        try {
-          const docRef = doc(db, 'shopping-list', shoppingListId);
-          await deleteDoc(docRef);
-          success('Shopping list successfully deleted');
-          getAllShoppingList(); // Alışveriş listelerini yeniden yükleyin
-        } catch (catchError) {
-          error('An error occurred while deleting the shopping list');
-          console.error('Error occurred:', catchError);
-        }
+    if (areYouSure.isConfirmed) {
+      try {
+        const docRef = doc(db, 'shopping-list', shoppingListId);
+        await deleteDoc(docRef);
+        success('Shopping list successfully deleted');
+        getAllShoppingList(); // Alışveriş listelerini yeniden yükleyin
+      } catch (catchError) {
+        error('An error occurred while deleting the shopping list');
+        console.error('Error occurred:', catchError);
+      }
+    }
+  };
+
+  const columns = React.useMemo(
+    () => [
+      {
+        id: 'expander',
+        header: () => null,
+        cell: ({ row }: { row: any }) => <ExpanderCell row={row} setExpanded={setExpanded} />,
+      },
+      {
+        header: 'Shopping List Name',
+        accessorKey: 'shoppingListName',
+        cell: (info: any) => info.getValue(),
+      },
+      {
+        header: 'Create Date Time',
+        accessorKey: 'createDateTime',
+        cell: (info: any) => info.getValue().split(':').slice(0, 2).join(':'),
+        sortingFn: sortCreateDateFn,
+      },
+      {
+        header: 'Creator Name',
+        accessorKey: 'creatorId',
+        cell: (info: any) => (
+          <span>
+            {allUsersInfo?.filter((e: any) => e.uid === info.getValue())?.[0].firstName}
+          </span>
+        ),
+      },
+      {
+        header: 'Planned Shopping Date',
+        accessorKey: 'dateToShop',
+        cell: (info: any) => {
+          const parseDate = (dateString: any) => {
+            if (!dateString) return new Date(0); // Geçersiz tarihleri sıralamak için en eski tarih
+            const [day, month, year] = dateString.split('.');
+            return new Date(`${year}-${month}-${day}`);
+          };
+
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // Bugünün tarihini saat bilgisi olmadan al
+
+          const dateToShop = parseDate(info.getValue());
+          dateToShop.setHours(0, 0, 0, 0); // Tarihi saat bilgisi olmadan al
+
+          const diffTime = dateToShop.getTime() - today.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays > 0) {
+            return (
+              <span className="flex flex-col text-end text-sm md:text-start">
+                <span>{info.getValue()}</span>
+                <span>{`(${`${Math.abs(diffDays)} ${t('days after')}`})`}</span>
+              </span>
+            );
+          } if (diffDays < 0) {
+            return (
+              <span className="flex flex-col text-end text-sm md:text-start">
+                <span>{info.getValue()}</span>
+                <span>{`(${`${Math.abs(diffDays)} ${t('days ago')}`})`}</span>
+              </span>
+            );
+          }
+          return (
+            <span className="flex flex-col text-end text-sm md:text-start">
+              <span className="text-base font-bold">{t('Today')}</span>
+              <span>{info.getValue()}</span>
+            </span>
+          );
+        },
+        sortingFn: sortPlannedDateFn,
+      },
+      {
+        id: 'addNewProduct',
+        header: () => null,
+        cell: ({ row }: { row: any }) => (
+          <div className="flex items-center justify-between gap-2 md:justify-end">
+            {row.original.subRows?.length !== undefined && (
+              <Button
+                size="sm"
+                className="h-11 px-2"
+                onClick={e => {
+                  e.stopPropagation();
+                  const shoppingListId = row?.original?.shoppingListId;
+                  navigate(`/go-shopping?shoppingListId=${shoppingListId}`);
+                }}
+              >
+                {t('Go Shopping')}
+              </Button>
+            )}
+            <AddButtonCell row={row} setSelectedShoppingList={setSelectedShoppingList} />
+            <DeleteButtonCell row={row} handleDeleteList={handleDeleteList} />
+            <EditShoppingListButton row={row} setEditShoppingList={setEditShoppingList} />
+          </div>
+        ),
+      },
+    ],
+    [allUsersInfo],
+  );
+
+  const subColumns: any = React.useMemo(
+    () => [
+      {
+        header: 'Product Name',
+        accessorKey: 'productName',
+        cell: ({ row }: { row: any }) => row.productName,
+      },
+      {
+        header: 'Product Brand',
+        accessorKey: 'productBrand',
+        cell: ({ row }: { row: any }) => (row.productBrand !== '' ? row.productBrand : '-'),
+      },
+      {
+        header: 'Product Quantity',
+        accessorKey: 'productQuantity',
+        cell: ({ row }: { row: { productQuantity: number; quantityType: keyof typeof Enums.QuantityTypeLabel } }) => `${row.productQuantity} ${Enums.QuantityTypeLabel[row.quantityType]}`,
+      },
+      {
+        header: 'Create Date Time',
+        accessorKey: 'createDateTime',
+        cell: ({ row }: { row: any }) => row.createDateTime.split(':').slice(0, 2).join(':'),
+      },
+      {
+        header: 'Creator Name',
+        accessorKey: 'creatorId',
+        cell: ({ row }: { row: any }) => (
+          <span>
+            {allUsersInfo?.filter((e: any) => e.uid === row.creatorId)?.[0].firstName}
+          </span>
+        ),
+      },
+      {
+        header: 'Product Category',
+        accessorKey: 'productCategory',
+        cell: ({ row }: { row: { productCategory: keyof typeof Enums.ProductCategory } }) => t(Enums.ProductCategory[row.productCategory]),
+      },
+      {
+        header: 'Note',
+        accessorKey: 'note',
+        cell: ({ row }: { row: any }) => <div className="max-w-48 truncate text-start hover:whitespace-break-spaces">{row.note !== '' ? row.note : '-'}</div>,
+      },
+      {
+        id: 'editProduct',
+        header: () => null,
+        cell: ({ row }: { row: any }) => (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="group bg-transparent hover:bg-transparent"
+            onClick={() => setSelectedProduct({ state: true, data: row, documentId: row.shoppingListId })}
+          >
+            <Pencil className="size-5 text-tra-tetriary/80 group-hover:text-tra-tetriary" />
+          </Button>
+        ),
+      },
+    ],
+    [allUsersInfo],
+  );
+
+  const data = React.useMemo(
+    () => rowData.map(item => ({
+      shoppingListId: item.shoppingListId,
+      shoppingListName: item.shoppingListName,
+      createDateTime: item.createDateTime,
+      creatorId: item.creatorId,
+      dateToShop: item.dateToShop,
+      subRows: item?.shoppingList?.map((product: any) => ({
+        productName: product.productName,
+        productQuantity: product.productQuantity,
+        createDateTime: product.createDateTime,
+        creatorId: product.creatorId,
+        note: product.note,
+        isItBought: product.isItBought,
+        productBrand: product.productBrand,
+        productCategory: product.productCategory,
+        quantityType: product.quantityType,
+        productId: product.productId,
+        shoppingListId: item.shoppingListId,
+      })),
+    })),
+    [rowData],
+  );
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: { expanded, sorting },
+    onExpandedChange: setExpanded,
+    getSubRows: row => row.subRows,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    getExpandedRowModel: getExpandedRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: window.innerWidth < 768 ? data.length : 10, // Show all items on mobile
+      },
+    },
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        table.setPageSize(data.length); // Show all items on mobile
+      } else {
+        table.setPageSize(10); // Default page size for larger screens
       }
     };
 
-    const columns = React.useMemo(
-      () => [
-        {
-          id: 'expander',
-          header: () => null,
-          cell: ({ row }: { row: any }) => <ExpanderCell row={row} setExpanded={setExpanded} />,
-        },
-        {
-          header: 'Shopping List Name',
-          accessorKey: 'shoppingListName',
-          cell: (info: any) => info.getValue(),
-        },
-        {
-          header: 'Create Date Time',
-          accessorKey: 'createDateTime',
-          cell: (info: any) => info.getValue().split(':').slice(0, 2).join(':'),
-          sortingFn: sortCreateDateFn,
-        },
-        {
-          header: 'Creator Name',
-          accessorKey: 'creatorId',
-          cell: (info: any) => (
-            <span>
-              {allUsersInfo?.filter((e: any) => e.uid === info.getValue())?.[0].firstName}
-            </span>
-          ),
-        },
-        {
-          header: 'Planned Shopping Date',
-          accessorKey: 'dateToShop',
-          cell: (info: any) => {
-            const parseDate = (dateString: any) => {
-              if (!dateString) return new Date(0); // Geçersiz tarihleri sıralamak için en eski tarih
-              const [day, month, year] = dateString.split('.');
-              return new Date(`${year}-${month}-${day}`);
-            };
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Set initial page size
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Bugünün tarihini saat bilgisi olmadan al
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [data.length, table]);
 
-            const dateToShop = parseDate(info.getValue());
-            dateToShop.setHours(0, 0, 0, 0); // Tarihi saat bilgisi olmadan al
-
-            const diffTime = dateToShop.getTime() - today.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays > 0) {
-              return (
-                <span className="flex flex-col text-end text-sm md:text-start">
-                  <span>{info.getValue()}</span>
-                  <span>{`(${`${Math.abs(diffDays)} ${t('days after')}`})`}</span>
-                </span>
-              );
-            } if (diffDays < 0) {
-              return (
-                <span className="flex flex-col text-end text-sm md:text-start">
-                  <span>{info.getValue()}</span>
-                  <span>{`(${`${Math.abs(diffDays)} ${t('days ago')}`})`}</span>
-                </span>
-              );
-            }
-            return (
-              <span className="flex flex-col text-end text-sm md:text-start">
-                <span className="text-base font-bold">{t('Today')}</span>
-                <span>{info.getValue()}</span>
-              </span>
-            );
-          },
-          sortingFn: sortPlannedDateFn,
-        },
-        {
-          id: 'addNewProduct',
-          header: () => null,
-          cell: ({ row }: { row: any }) => (
-            <div className="flex items-center justify-between gap-2 md:justify-end">
-              {row.original.subRows?.length !== undefined && (
-                <Button
-                  size="sm"
-                  className="h-11 px-2"
-                  onClick={e => {
-                    e.stopPropagation();
-                    const shoppingListId = row?.original?.shoppingListId;
-                    navigate(`/go-shopping?shoppingListId=${shoppingListId}`);
-                  }}
-                >
-                  {t('Go Shopping')}
-                </Button>
-              )}
-              <AddButtonCell row={row} setSelectedShoppingList={setSelectedShoppingList} />
-              <DeleteButtonCell row={row} handleDeleteList={handleDeleteList} />
-              <EditShoppingListButton row={row} setEditShoppingList={setEditShoppingList} />
-            </div>
-          ),
-        },
-      ],
-      [allUsersInfo],
-    );
-
-    const subColumns: any = React.useMemo(
-      () => [
-        {
-          header: 'Product Name',
-          accessorKey: 'productName',
-          cell: ({ row }: { row: any }) => row.productName,
-        },
-        {
-          header: 'Product Brand',
-          accessorKey: 'productBrand',
-          cell: ({ row }: { row: any }) => row.productBrand,
-        },
-        {
-          header: 'Product Quantity',
-          accessorKey: 'productQuantity',
-          cell: ({ row }: { row: { productQuantity: number; quantityType: keyof typeof Enums.QuantityTypeLabel } }) => `${row.productQuantity} ${Enums.QuantityTypeLabel[row.quantityType]}`,
-        },
-        {
-          header: 'Create Date Time',
-          accessorKey: 'createDateTime',
-          cell: ({ row }: { row: any }) => row.createDateTime.split(':').slice(0, 2).join(':'),
-        },
-        {
-          header: 'Creator Name',
-          accessorKey: 'creatorId',
-          cell: ({ row }: { row: any }) => (
-            <span>
-              {allUsersInfo?.filter((e: any) => e.uid === row.creatorId)?.[0].firstName}
-            </span>
-          ),
-        },
-        {
-          header: 'Product Category',
-          accessorKey: 'productCategory',
-          cell: ({ row }: { row: { productCategory: keyof typeof Enums.ProductCategory } }) => t(Enums.ProductCategory[row.productCategory]),
-        },
-        {
-          header: 'Note',
-          accessorKey: 'note',
-          cell: ({ row }: { row: any }) => <div className="max-w-48 truncate text-start hover:whitespace-break-spaces">{row.note}</div>,
-        },
-        {
-          id: 'editProduct',
-          header: () => null,
-          cell: ({ row }: { row: any }) => (
-            <Button
-              size="icon"
-              variant="ghost"
-              className="group bg-transparent hover:bg-transparent"
-              onClick={() => setSelectedProduct({ state: true, data: row, documentId: row.shoppingListId })}
-            >
-              <Pencil className="size-5 text-tra-tetriary/80 group-hover:text-tra-tetriary" />
-            </Button>
-          ),
-        },
-      ],
-      [allUsersInfo],
-    );
-
-    const data = React.useMemo(
-      () => rowData.map(item => ({
-        shoppingListId: item.shoppingListId,
-        shoppingListName: item.shoppingListName,
-        createDateTime: item.createDateTime,
-        creatorId: item.creatorId,
-        dateToShop: item.dateToShop,
-        subRows: item?.shoppingList?.map((product: any) => ({
-          productName: product.productName,
-          productQuantity: product.productQuantity,
-          createDateTime: product.createDateTime,
-          creatorId: product.creatorId,
-          note: product.note,
-          isItBought: product.isItBought,
-          productBrand: product.productBrand,
-          productCategory: product.productCategory,
-          quantityType: product.quantityType,
-          productId: product.productId,
-          shoppingListId: item.shoppingListId,
-        })),
-      })),
-      [rowData],
-    );
-
-    const table = useReactTable({
-      data,
-      columns,
-      state: { expanded, sorting },
-      onExpandedChange: setExpanded,
-      getSubRows: row => row.subRows,
-      getCoreRowModel: getCoreRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
-      getFilteredRowModel: getFilteredRowModel(),
-      getSortedRowModel: getSortedRowModel(),
-      onSortingChange: setSorting,
-      getExpandedRowModel: getExpandedRowModel(),
-      initialState: {
-        pagination: {
-          pageSize: window.innerWidth < 768 ? data.length : 10, // Show all items on mobile
-        },
-      },
-    });
-
-    useEffect(() => {
-      const handleResize = () => {
-        if (window.innerWidth < 768) {
-          table.setPageSize(data.length); // Show all items on mobile
-        } else {
-          table.setPageSize(10); // Default page size for larger screens
-        }
-      };
-
-      window.addEventListener('resize', handleResize);
-      handleResize(); // Set initial page size
-
-      return () => {
-        window.removeEventListener('resize', handleResize);
-      };
-    }, [data.length, table]);
-
-    return (
-      <div className="flex flex-col gap-2 py-2">
-        <div className="mobile-responsive md:hidden">
-          <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-            mobileFilterOpen ? 'mb-4 max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
-          >
-            {table.getHeaderGroups().map(headerGroup => (
-              <div key={headerGroup.id} className="grid grid-cols-2 gap-2">
-                {headerGroup.headers.map(header => (
-                  <div key={header.id} className={`col-span-1 rounded-md bg-tra-neutral-light p-2 text-xs ${!header.column.getCanSort() && 'hidden'}`}>
-                    <div
-                      className={
-                    header.column.getCanSort()
-                      ? 'cursor-pointer select-none'
-                      : ''
-                  }
-                      onClick={header.column.getToggleSortingHandler()}
-                      title={
-                    header.column.getCanSort()
-                      ? header.column.getNextSortingOrder() === 'asc'
-                        ? 'Sort ascending'
-                        : header.column.getNextSortingOrder() === 'desc'
-                          ? 'Sort descending'
-                          : 'Clear sort'
-                      : undefined
-                  }
-                    >
-                      {t(flexRender(header.column.columnDef.header, header.getContext()))}
-                      {/* {typeof flexRender(header.column.columnDef.header, header.getContext()) === 'string' && (
-                    <span className={`flex items-center ${header?.index !== 1 && 'justify-center'} `}>
-                      {header.column.getIsSorted() && (header.column.getIsSorted() === 'asc' ? <CaretUp className="ml-2" /> : <CaretDown className="ml-2" />)}
-                    </span>
-                  )} */}
-                      {header.column.getCanFilter() ? (
-                        <div>
-                          <Filter className={`${header?.index !== 1 && 'items-center'}`} column={header.column} table={table} />
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-          {table.getRowModel().rows
-            .filter(row => row.depth === 0)
-            .map(row => (
-              <React.Fragment key={row.id}>
-                <div className={`${!row.getIsExpanded() ? 'mb-4' : 'rounded-b-none'} grid grid-cols-2 rounded-md bg-tra-primary-5/70 py-2`}>
-                  {row.getVisibleCells().map((cell, i) => {
-                    // Only show shoppingListName and dateToShop when not expanded
-                    const columnId = table.getHeaderGroups()[0].headers[i]?.column.id;
-                    if (!row.getIsExpanded()
-                        && columnId !== 'shoppingListName'
-                        && columnId !== 'dateToShop'
-                        && columnId !== 'addNewProduct'
-                        && columnId !== 'expander') {
-                      return null;
-                    }
-
-                    return (
-                      <div
-                        key={cell.id}
-                        className={cn(
-                          'flex items-center px-3 py-0.5 hover:brightness-125',
-                          columnId === 'addNewProduct' && 'col-span-2',
-                          columnId === 'expander' && 'col-span-2 justify-end',
-                        )}
-                      >
-                        {/* <span>
-                          {t(flexRender(table.getHeaderGroups()[0].headers[i]?.column.columnDef.header, table.getHeaderGroups()[0].headers[i]?.getContext()))}
-                        </span> */}
-                        <span className="w-full">{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                {
-                row.getIsExpanded() && (
-                  <div className={`mb-4 rounded-b-md opacity-0 transition-all duration-500 ${row.getIsExpanded() && 'opacity-100'}`}>
-                      {row.original.subRows?.map((subRow: any, subRowIndex: number) => (
-                        <div key={subRowIndex} className={`border-b-4 ${subRow.isItBought ? 'bg-success/10 bg-check-image dark:bg-success/30' : 'bg-tra-neutral-light'}`}>
-                          {subColumns.map((subColumn: any, index: number) => (
-                            <div key={index} className="flex items-center justify-between px-3 py-2">
-                              <span>{typeof flexRender(subColumn.header, {}) === 'string' && t(flexRender(subColumn.header, {}))}</span>
-                              <span>{flexRender(subColumn.cell, { row: subRow })}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                  </div>
-                )
-                }
-              </React.Fragment>
-            ))}
-        </div>
-        <div className="hidden md:table">
-          <table className="w-full">
-            <thead>
-              {table.getHeaderGroups().map(headerGroup => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map(header => (
-                    <th key={header.id} colSpan={header.colSpan} className="bg-tra-primary-15 px-3 py-2 [&:nth-child(2)]:text-start">
-                      <div
-                        className={
+  return (
+    <div className="flex flex-col gap-2 py-2">
+      <div className="mobile-responsive md:hidden">
+        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${mobileFilterOpen ? 'mb-4 max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+          {table.getHeaderGroups().map(headerGroup => (
+            <div key={headerGroup.id} className="grid grid-cols-2 gap-2">
+              {headerGroup.headers.map(header => (
+                <div key={header.id} className={`col-span-1 rounded-md bg-tra-neutral-light p-2 text-xs ${!header.column.getCanSort() && 'hidden'}`}>
+                  <div
+                    className={
                       header.column.getCanSort()
                         ? 'cursor-pointer select-none'
                         : ''
                     }
-                        onClick={header.column.getToggleSortingHandler()}
-                        title={
+                    onClick={header.column.getToggleSortingHandler()}
+                    title={
                       header.column.getCanSort()
                         ? header.column.getNextSortingOrder() === 'asc'
                           ? 'Sort ascending'
@@ -583,137 +489,234 @@ const ShoppingListTable: React.FC<{
                             : 'Clear sort'
                         : undefined
                     }
-                      >
-                        {typeof flexRender(header.column.columnDef.header, header.getContext()) === 'string' && (
-                          <span className={`flex items-center ${header?.index !== 1 && 'justify-center'} `}>
-                            {t(flexRender(header.column.columnDef.header, header.getContext()))}
-                            {header.column.getIsSorted() && ({
-                              asc: <CaretUp className="ml-2" />,
-                              desc: <CaretDown className="ml-2" />,
-                            }[header.column.getIsSorted() as string] ?? null)}
-                          </span>
-                        )}
-                        {header.column.getCanFilter() ? (
-                          <div>
-                            <Filter className={`${header?.index !== 1 && 'items-center'}`} column={header.column} table={table} />
-                          </div>
-                        ) : null}
-
+                  >
+                    {t(flexRender(header.column.columnDef.header, header.getContext()))}
+                    {/* {typeof flexRender(header.column.columnDef.header, header.getContext()) === 'string' && (
+                    <span className={`flex items-center ${header?.index !== 1 && 'justify-center'} `}>
+                      {header.column.getIsSorted() && (header.column.getIsSorted() === 'asc' ? <CaretUp className="ml-2" /> : <CaretDown className="ml-2" />)}
+                    </span>
+                  )} */}
+                    {header.column.getCanFilter() ? (
+                      <div>
+                        <Filter className={`${header?.index !== 1 && 'items-center'}`} column={header.column} table={table} />
                       </div>
-                    </th>
-                  ))}
-                </tr>
+                    ) : null}
+                  </div>
+                </div>
               ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows
-                .filter(row => row.depth === 0)
-                .map(row => (
-                  <React.Fragment key={row.id}>
-                    <tr onClick={() => setExpanded((prev: any) => ({
-                      ...prev,
-                      [row.id]: !prev[row.id],
-                    }))}
+            </div>
+          ))}
+        </div>
+        {table.getRowModel().rows
+          .filter(row => row.depth === 0)
+          .map(row => (
+            <React.Fragment key={row.id}>
+              <div className={`${!row.getIsExpanded() ? 'mb-4' : 'rounded-b-none'} grid grid-cols-2 rounded-md bg-tra-primary-5/70 py-2`}>
+                {row.getVisibleCells().map((cell, i) => {
+                  // Only show shoppingListName and dateToShop when not expanded
+                  const columnId = table.getHeaderGroups()[0].headers[i]?.column.id;
+                  if (!row.getIsExpanded()
+                    && columnId !== 'shoppingListName'
+                    && columnId !== 'dateToShop'
+                    && columnId !== 'addNewProduct'
+                    && columnId !== 'expander') {
+                    return null;
+                  }
+
+                  return (
+                    <div
+                      key={cell.id}
+                      className={cn(
+                        'flex items-center px-3 py-0.5 hover:brightness-125',
+                        columnId === 'addNewProduct' && 'col-span-2',
+                        columnId === 'expander' && 'col-span-2 justify-end',
+                      )}
                     >
-                      {row.getVisibleCells().map(cell => (
-                        <td key={cell.id} className="px-3 py-2 text-center last:text-end [&:nth-child(2)]:text-start">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </tr>
-                    {
-                  row.getIsExpanded() && (
-                    <tr className={`opacity-0 transition-all duration-500 ${row.getIsExpanded() && 'opacity-100'}`}>
-                      <td colSpan={columns.length} style={{ paddingLeft: '3.5rem' }}>
-                        <table className="w-full">
-                          <thead>
-                            <tr>
-                              {subColumns.map((subColumn: any, index: any) => (
-                                <th key={index} className="bg-tra-primary-15/80 px-3 py-2 text-base first:rounded-tl-md first:text-start last:rounded-tr-md">
-                                  {typeof flexRender(subColumn.header, {}) === 'string' && t(flexRender(subColumn.header, {}))}
-                                </th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {row.original.subRows?.map((subRow: any, subRowIndex: number) => (
-                              <tr key={subRowIndex}>
-                                {subColumns.map((subColumn: any, index: number) => (
-                                  <td key={index} className="bg-tra-primary-5/70 px-3 py-2 text-center first:rounded-bl-md first:text-start last:rounded-br-md last:text-end">
-                                    {flexRender(subColumn.cell, { row: subRow })}
-                                  </td>
+                      {/* <span>
+                          {t(flexRender(table.getHeaderGroups()[0].headers[i]?.column.columnDef.header, table.getHeaderGroups()[0].headers[i]?.getContext()))}
+                        </span> */}
+                      <span className="w-full">{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {
+                row.getIsExpanded() && (
+                  <div className={`mb-4 rounded-b-md opacity-0 transition-all duration-500 ${row.getIsExpanded() && 'opacity-100'}`}>
+                    {row.original.subRows?.map((subRow: any, subRowIndex: number) => (
+                      <div key={subRowIndex} className={`border-b-4 ${subRow.isItBought ? 'bg-success/10 bg-check-image dark:bg-success/30' : 'bg-tra-neutral-light'}`}>
+                        {subColumns.map((subColumn: any, index: number) => (
+                          <div key={index} className="flex items-center justify-between px-3 py-2">
+                            <span>{typeof flexRender(subColumn.header, {}) === 'string' && t(flexRender(subColumn.header, {}))}</span>
+                            <span>{flexRender(subColumn.cell, { row: subRow })}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )
+              }
+            </React.Fragment>
+          ))}
+      </div>
+      <div className="hidden md:table">
+        <table className="w-full">
+          <thead>
+            {table.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map(header => (
+                  <th key={header.id} colSpan={header.colSpan} className="bg-tra-primary-15 px-3 py-2 [&:nth-child(2)]:text-start">
+                    <div
+                      className={
+                        header.column.getCanSort()
+                          ? 'cursor-pointer select-none'
+                          : ''
+                      }
+                      onClick={header.column.getToggleSortingHandler()}
+                      title={
+                        header.column.getCanSort()
+                          ? header.column.getNextSortingOrder() === 'asc'
+                            ? 'Sort ascending'
+                            : header.column.getNextSortingOrder() === 'desc'
+                              ? 'Sort descending'
+                              : 'Clear sort'
+                          : undefined
+                      }
+                    >
+                      {typeof flexRender(header.column.columnDef.header, header.getContext()) === 'string' && (
+                        <span className={`flex items-center ${header?.index !== 1 && 'justify-center'} `}>
+                          {t(flexRender(header.column.columnDef.header, header.getContext()))}
+                          {header.column.getIsSorted() && ({
+                            asc: <CaretUp className="ml-2" />,
+                            desc: <CaretDown className="ml-2" />,
+                          }[header.column.getIsSorted() as string] ?? null)}
+                        </span>
+                      )}
+                      {header.column.getCanFilter() ? (
+                        <div>
+                          <Filter className={`${header?.index !== 1 && 'items-center'}`} column={header.column} table={table} />
+                        </div>
+                      ) : null}
+
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows
+              .filter(row => row.depth === 0)
+              .map(row => (
+                <React.Fragment key={row.id}>
+                  <tr onClick={() => setExpanded((prev: any) => ({
+                    ...prev,
+                    [row.id]: !prev[row.id],
+                  }))}
+                  >
+                    {row.getVisibleCells().map(cell => (
+                      <td key={cell.id} className="px-3 py-2 text-center last:text-end [&:nth-child(2)]:text-start">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                  {
+                    row.getIsExpanded() && (
+                      <tr className={`opacity-0 transition-all duration-500 ${row.getIsExpanded() && 'opacity-100'}`}>
+                        <td colSpan={columns.length} style={{ paddingLeft: '3.5rem' }}>
+                          <table className="w-full">
+                            <thead>
+                              <tr>
+                                {subColumns.map((subColumn: any, index: any) => (
+                                  <th key={index} className="bg-tra-primary-15/80 px-3 py-2 text-base first:rounded-tl-md first:text-start last:rounded-tr-md">
+                                    {typeof flexRender(subColumn.header, {}) === 'string' && t(flexRender(subColumn.header, {}))}
+                                  </th>
                                 ))}
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
-                  )
-                }
-                  </React.Fragment>
-                ))}
-            </tbody>
-          </table>
-          <div className="flex items-center gap-2 self-end">
-            <Button
-              variant="outlined"
-              size="icon"
-              type="button"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <CaretLeftDouble className="size-5" />
-            </Button>
-            <Button
-              variant="outlined"
-              size="icon"
-              type="button"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <CaretLeft className="size-5" />
-            </Button>
-            <Button
-              variant="outlined"
-              size="icon"
-              type="button"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              <CaretRight className="size-5" />
-            </Button>
-            <Button
-              variant="outlined"
-              size="icon"
-              type="button"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-            >
-              <CaretRightDouble className="size-5" />
-            </Button>
-            <div>
-              {locale === 'tr' ? 'Toplam' : 'Total'}
+                            </thead>
+                            <tbody>
+                              {row.original.subRows?.map((subRow: any, subRowIndex: number) => (
+                                <tr key={subRowIndex}>
+                                  {subColumns.map((subColumn: any, index: number) => (
+                                    <td
+                                      key={index}
+                                      className={`${subRow?.isItBought ? 'bg-success/50' : 'bg-tra-primary-5/70'} px-3 py-2 
+                                      text-center first:rounded-bl-md first:text-start last:rounded-br-md last:text-end`}
+                                    >
+                                      {flexRender(subColumn.cell, { row: subRow })}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    )
+                  }
+                </React.Fragment>
+              ))}
+          </tbody>
+        </table>
+        <div className="mt-4 flex items-center gap-2 self-end">
+          <Button
+            variant="outlined"
+            size="icon"
+            type="button"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <CaretLeftDouble className="size-5" />
+          </Button>
+          <Button
+            variant="outlined"
+            size="icon"
+            type="button"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <CaretLeft className="size-5" />
+          </Button>
+          <Button
+            variant="outlined"
+            size="icon"
+            type="button"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <CaretRight className="size-5" />
+          </Button>
+          <Button
+            variant="outlined"
+            size="icon"
+            type="button"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            <CaretRightDouble className="size-5" />
+          </Button>
+          <div>
+            {locale === 'tr' ? 'Toplam' : 'Total'}
+            {' '}
+            {table.getRowModel().rows.length.toLocaleString()}
+            {' '}
+            {locale === 'tr' ? 'kayıttan' : 'of'}
+            {' '}
+            {table.getRowCount().toLocaleString()}
+            {' '}
+            {locale === 'tr' ? 'kayıt gösteriliyor' : 'Rows Showing'}
+          </div>
+          <span className="flex items-center gap-1">
+            <div>{t('Page')}</div>
+            <strong>
+              {table.getState().pagination.pageIndex + 1}
               {' '}
-              {table.getRowModel().rows.length.toLocaleString()}
+              {locale === 'tr' ? 'toplam' : 'of'}
               {' '}
-              {locale === 'tr' ? 'kayıttan' : 'of'}
-              {' '}
-              {table.getRowCount().toLocaleString()}
-              {' '}
-              {locale === 'tr' ? 'kayıt gösteriliyor' : 'Rows Showing'}
-            </div>
-            <span className="flex items-center gap-1">
-              <div>{t('Page')}</div>
-              <strong>
-                {table.getState().pagination.pageIndex + 1}
-                {' '}
-                {locale === 'tr' ? 'toplam' : 'of'}
-                {' '}
-                {table.getPageCount()}
-              </strong>
-            </span>
-            {/* <span className="flex items-center gap-1">
+              {table.getPageCount()}
+            </strong>
+          </span>
+          {/* <span className="flex items-center gap-1">
           | Go to page:
           <TextField
             type="number"
@@ -727,29 +730,29 @@ const ShoppingListTable: React.FC<{
             inputClassName="w-16 rounded border p-1"
           />
         </span> */}
-            <span className="ml-2 flex items-center gap-2">
-              <b>{t('Number of items to show:')}</b>
-              <Select
-                containerClassName="min-w-[100px]"
-                className="h-8"
-            // id="pageSize"
-                value={table.getState().pagination.pageSize}
-                options={[
-                  { value: 10, content: '10' },
-                  { value: 20, content: '20' },
-                  { value: 30, content: '30' },
-                  { value: 40, content: '40' },
-                  { value: 50, content: '50' }]}
-                onChange={e => {
-                  table.setPageSize(Number(e));
-                }}
-                placeHolder="Select Page Size"
-              />
-            </span>
-          </div>
+          <span className="ml-2 flex items-center gap-2">
+            <b>{t('Number of items to show:')}</b>
+            <Select
+              containerClassName="min-w-[100px]"
+              className="h-8"
+              // id="pageSize"
+              value={table.getState().pagination.pageSize}
+              options={[
+                { value: 10, content: '10' },
+                { value: 20, content: '20' },
+                { value: 30, content: '30' },
+                { value: 40, content: '40' },
+                { value: 50, content: '50' }]}
+              onChange={e => {
+                table.setPageSize(Number(e));
+              }}
+              placeHolder="Select Page Size"
+            />
+          </span>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
 export default ShoppingListTable;

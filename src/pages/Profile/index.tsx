@@ -53,7 +53,7 @@ const Profile = () => {
           <FormikInput id="lastName" label="Last Name" formik={formik} />
           <FormikInput
             id="includingHouse"
-            label="Including House"
+            label="Including House Key"
             inputClassName="truncate"
             formik={formik}
             endIcon={(
