@@ -1,6 +1,6 @@
 import Button from '@/components/Button';
 import FormikInput from '@/components/formikInputs/FormikInput';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Dialog from '@/components/Dialog';
 import { db } from '@/configurations/firebase';
 import { editShoppingListValidationSchema } from '@/constants/Validations';
 import { useAuthContext } from '@/contexts/auth/AuthContext';
@@ -62,21 +62,19 @@ const EditShoppingListDialog = () => {
   });
 
   return (
-    <Dialog open={editShoppingList.state} onOpenChange={() => setEditShoppingList(() => ({ state: false, data: '' }))}>
-      <DialogContent className="max-h-[90vh] min-w-[50vw] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl">Edit Shopping List</DialogTitle>
-        </DialogHeader>
-        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
-          <Form className="flex flex-col">
-            <FormikInput id="shoppingListName" formik={formik} label="Shopping List Name" type="text" />
-            <FormikInput id="dateToShop" formik={formik} label="Planned Shopping Date" type="date" />
-            <Button className="self-end" size="lg" color="tetriary" loading={loading}>{t('Save')}</Button>
-          </Form>
-        </Formik>
-        {/* </DialogDescription> */}
+    <Dialog open={editShoppingList.state} size="lg" onClose={() => setEditShoppingList(() => ({ state: false, data: '' }))}>
+      <div>
+        <p className="mb-4 text-center text-3xl font-bold">Edit Shopping List</p>
+      </div>
+      <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
+        <Form className="flex flex-col">
+          <FormikInput id="shoppingListName" formik={formik} label="Shopping List Name" type="text" />
+          <FormikInput id="dateToShop" formik={formik} label="Planned Shopping Date" type="date" />
+          <Button className="self-end" size="lg" color="tetriary" loading={loading}>{t('Save')}</Button>
+        </Form>
+      </Formik>
+      {/* </DialogDescription> */}
 
-      </DialogContent>
     </Dialog>
   );
 };

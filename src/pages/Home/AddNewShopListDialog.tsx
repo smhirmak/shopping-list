@@ -3,7 +3,7 @@ import Button from '@/components/Button';
 import FormikInput from '@/components/formikInputs/FormikInput';
 import FormikSelect from '@/components/formikInputs/FormikSelect';
 import Notification from '@/components/Notification';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Dialog from '@/components/Dialog';
 import { db } from '@/configurations/firebase';
 import Constants from '@/constants/Constants';
 import Enums from '@/constants/Enums';
@@ -90,57 +90,52 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
     validateOnMount: false,
   });
   return (
-    <Dialog open={isAddListDialogOpen} onOpenChange={() => setIsAddListDialogOpen((prev: any) => !prev)}>
-      <DialogContent className="max-h-[90vh] min-w-[50vw] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl">Add New Shopping List</DialogTitle>
-        </DialogHeader>
-        {/* <DialogDescription> */}
-        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
-          <Form className="flex flex-col">
-            <FormikInput id="shoppingListName" formik={formik} label="Shopping List Name" type="text" />
-            <FormikInput id="dateToShop" formik={formik} label="Planned Shopping Date" type="date" />
-            {!addProduct && (
-              <Button type="button" className="mb-4 self-end" onClick={() => setAddProduct(true)}>
-                <span className="flex gap-2">
-                  <Plus className="size-5" />
-                  {t('Add Product')}
-                </span>
-              </Button>
-            )}
-            {addProduct && (
-              <div className="mb-4 flex flex-col rounded-md border-2 border-tra-neutral-grey p-4">
-                <Button variant="outlined" size="icon" className="h-10 max-h-10 min-h-10 self-end border-error text-error" onClick={() => setAddProduct(false)}><X className="size-4" /></Button>
-                <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
-                <div className="grid grid-cols-4 space-x-3">
-                  <FormikInput className="col-span-2 md:col-span-3" id="productQuantity" formik={formik} label="Product Quantity" type="number" />
-                  <FormikSelect
-                    className="col-span-2 w-full md:col-span-1"
-                    id="quantityType"
-                    label="Quantity Type"
-                    formik={formik}
-                    options={Constants.ProductTypeOptionlist}
-                  />
-                </div>
+    <Dialog open={isAddListDialogOpen} onClose={() => setIsAddListDialogOpen((prev: any) => !prev)}>
+      <div>
+        <p className="mb-4 text-center text-3xl font-bold">Add New Shopping List</p>
+      </div>
+      <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
+        <Form className="flex flex-col">
+          <FormikInput id="shoppingListName" formik={formik} label="Shopping List Name" type="text" />
+          <FormikInput id="dateToShop" formik={formik} label="Planned Shopping Date" type="date" />
+          {!addProduct && (
+            <Button type="button" className="mb-4 self-end" onClick={() => setAddProduct(true)}>
+              <span className="flex gap-2">
+                <Plus className="size-5" />
+                {t('Add Product')}
+              </span>
+            </Button>
+          )}
+          {addProduct && (
+            <div className="mb-4 flex flex-col rounded-md border-2 border-tra-neutral-grey p-4">
+              <Button variant="outlined" size="icon" className="h-10 max-h-10 min-h-10 self-end border-error text-error" onClick={() => setAddProduct(false)}><X className="size-4" /></Button>
+              <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
+              <div className="grid grid-cols-4 space-x-3">
+                <FormikInput className="col-span-2 md:col-span-3" id="productQuantity" formik={formik} label="Product Quantity" type="number" />
                 <FormikSelect
-                  id="productCategory"
-                  label="Product Category"
+                  className="col-span-2 w-full md:col-span-1"
+                  id="quantityType"
+                  label="Quantity Type"
                   formik={formik}
-                  options={Object.entries(Enums.ProductCategory).map(([key, value]) => ({
-                    value: key,
-                    content: value,
-                  }))}
+                  options={Constants.ProductTypeOptionlist}
                 />
-                <FormikInput id="productBrand" formik={formik} label="Product Brand" type="text" />
-                <FormikInput id="note" formik={formik} label="Note" type="text" />
               </div>
-            )}
-            <Button className="self-end" size="lg" color="tetriary" loading={loading}>{t('Save')}</Button>
-          </Form>
-        </Formik>
-        {/* </DialogDescription> */}
-
-      </DialogContent>
+              <FormikSelect
+                id="productCategory"
+                label="Product Category"
+                formik={formik}
+                options={Object.entries(Enums.ProductCategory).map(([key, value]) => ({
+                  value: key,
+                  content: value,
+                }))}
+              />
+              <FormikInput id="productBrand" formik={formik} label="Product Brand" type="text" />
+              <FormikInput id="note" formik={formik} label="Note" type="text" />
+            </div>
+          )}
+          <Button className="self-end" size="lg" color="tetriary" loading={loading}>{t('Save')}</Button>
+        </Form>
+      </Formik>
     </Dialog>
   );
 };
