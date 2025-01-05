@@ -3,7 +3,7 @@ import Button from '@/components/Button';
 import FormikInput from '@/components/formikInputs/FormikInput';
 import FormikSelect from '@/components/formikInputs/FormikSelect';
 import Notification from '@/components/Notification';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Dialog from '@/components/Dialog';
 import { db } from '@/configurations/firebase';
 import Constants from '@/constants/Constants';
 import Enums from '@/constants/Enums';
@@ -121,44 +121,41 @@ const EditProductDialog = () => {
     validateOnMount: false,
   });
   return (
-    <Dialog open={selectedProduct.state} onOpenChange={() => setSelectedProduct((prev: { state: boolean; data: string; documentId: string }) => ({ ...prev, state: !prev.state }))}>
-      <DialogContent className="max-h-[90vh] min-w-[50vw] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl">{t('Edit Product')}</DialogTitle>
-        </DialogHeader>
-        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
-          <Form>
-            <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
-            <div className="grid grid-cols-4 space-x-3">
-              <FormikInput className="col-span-2 md:col-span-3" id="productQuantity" formik={formik} label="Product Quantity" type="number" />
-              <FormikSelect
-                className="col-span-2 w-full md:col-span-1"
-                id="quantityType"
-                label="Quantity Type"
-                formik={formik}
-                options={Constants.ProductTypeOptionlist}
-                placeholder="Please select a quantity type"
-              />
-            </div>
+    <Dialog open={selectedProduct.state} size="lg" onClose={() => setSelectedProduct((prev: { state: boolean; data: string; documentId: string }) => ({ ...prev, state: !prev.state }))}>
+      <div>
+        <p className="mb-4 text-center text-3xl font-bold">{t('Edit Product')}</p>
+      </div>
+      <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
+        <Form>
+          <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
+          <div className="grid grid-cols-4 space-x-3">
+            <FormikInput className="col-span-2 md:col-span-3" id="productQuantity" formik={formik} label="Product Quantity" type="number" />
             <FormikSelect
-              id="productCategory"
-              label="Product Category"
+              className="col-span-2 w-full md:col-span-1"
+              id="quantityType"
+              label="Quantity Type"
               formik={formik}
-              options={Object.entries(Enums.ProductCategory).map(([key, value]) => ({
-                value: key,
-                content: value,
-              }))}
+              options={Constants.ProductTypeOptionlist}
+              placeholder="Please select a quantity type"
             />
-            <FormikInput id="productBrand" formik={formik} label="Product Brand" type="text" />
-            <FormikInput id="note" formik={formik} label="Note" type="text" />
-            <div className="flex justify-between">
-              <Button color="tetriary" loading={submitLoading}>{t('Save')}</Button>
-              <Button onClick={handleDelete} loading={deleteLoading} type="button" className="bg-error hover:bg-error/80">{t('Delete')}</Button>
-            </div>
-          </Form>
-        </Formik>
-
-      </DialogContent>
+          </div>
+          <FormikSelect
+            id="productCategory"
+            label="Product Category"
+            formik={formik}
+            options={Object.entries(Enums.ProductCategory).map(([key, value]) => ({
+              value: key,
+              content: value,
+            }))}
+          />
+          <FormikInput id="productBrand" formik={formik} label="Product Brand" type="text" />
+          <FormikInput id="note" formik={formik} label="Note" type="text" />
+          <div className="flex justify-between">
+            <Button color="tetriary" loading={submitLoading}>{t('Save')}</Button>
+            <Button onClick={handleDelete} loading={deleteLoading} type="button" className="bg-error hover:bg-error/80">{t('Delete')}</Button>
+          </div>
+        </Form>
+      </Formik>
     </Dialog>
   );
 };

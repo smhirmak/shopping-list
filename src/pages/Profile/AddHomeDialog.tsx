@@ -1,12 +1,11 @@
 import Button from '@/components/Button';
 import FormikInput from '@/components/formikInputs/FormikInput';
 import Notification from '@/components/Notification';
-import { DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Dialog from '@/components/Dialog';
 import { db } from '@/configurations/firebase';
 import { addNewHomeValidationSchema } from '@/constants/Validations';
 import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { Dialog } from '@radix-ui/react-dialog';
 import { doc, setDoc } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
@@ -72,19 +71,16 @@ const AddHomeDialog: React.FC<AddHomeDialogProps> = ({ addHomeDialog, setAddHome
   });
 
   return (
-    <Dialog open={addHomeDialog} onOpenChange={() => setAddHomeDialog(prev => !prev)}>
-      <DialogContent className="max-h-[90vh] min-w-[50vw] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl">{t('Create New Home')}</DialogTitle>
-        </DialogHeader>
-        <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
-          <Form className="flex flex-col">
-            <FormikInput id="name" formik={formik} label="Home Name" type="text" />
-            <Button className="self-end" color="tetriary" loading={loading} type="submit">{t('Save')}</Button>
-          </Form>
-        </Formik>
-
-      </DialogContent>
+    <Dialog open={addHomeDialog} size="lg" onClose={() => setAddHomeDialog(prev => !prev)}>
+      <div>
+        <p className="mb-4 text-center text-3xl font-bold">{t('Create New Home')}</p>
+      </div>
+      <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
+        <Form className="flex flex-col">
+          <FormikInput id="name" formik={formik} label="Home Name" type="text" />
+          <Button className="self-end" color="tetriary" loading={loading} type="submit">{t('Save')}</Button>
+        </Form>
+      </Formik>
     </Dialog>
   );
 };
