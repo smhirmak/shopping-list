@@ -716,26 +716,11 @@ const ShoppingListTable: React.FC<{
               {table.getPageCount()}
             </strong>
           </span>
-          {/* <span className="flex items-center gap-1">
-          | Go to page:
-          <TextField
-            type="number"
-            onChange={e => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
-              table.setPageIndex(page);
-            }}
-            defaultValue={table.getState().pagination.pageIndex + 1}
-            min={1}
-            max={+table.getPageCount()}
-            inputClassName="w-16 rounded border p-1"
-          />
-        </span> */}
           <span className="ml-2 flex items-center gap-2">
             <b>{t('Number of items to show:')}</b>
             <Select
               containerClassName="min-w-[100px]"
-              className="h-8"
-              // id="pageSize"
+              selectClassName="h-8"
               value={table.getState().pagination.pageSize}
               options={[
                 { value: 10, content: '10' },

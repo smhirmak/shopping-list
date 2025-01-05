@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import { Gear, SignOut, User } from '@/assets/Icons';
 import LanguangeSelect from '@/components/LanguangeSelect';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/Popover';
@@ -35,7 +37,7 @@ const Header = () => {
         <LanguangeSelect />
         {isAuthenticated && (
           <>
-            <span className="mr-4 hidden text-xl md:block">
+            <span onClick={() => setShowMenu(true)} className="mr-4 hidden cursor-pointer text-xl md:block">
               {userInfo?.firstName}
               {' '}
               {userInfo?.lastName}
