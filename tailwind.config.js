@@ -123,12 +123,12 @@ module.exports = {
         15: '3.75rem',
       },
       boxShadow: {
-        'input-hover': '0 0 20px 0 hsl(var(--tra-primary-soft))',
-        'input-focus': '0 0 20px 0 hsl(var(--tra-input-focused))',
-
-        // 'input-error': '0 0 0 3px hsl(var(--error))',
-        // 'input-success': '0 0 0 3px hsl(var(--success))',
-        // 'input-warning': '0 0 0 3px hsl(var(--warning))',
+        'input-hover': '0 0 20px 0 hsl(var(--primary-soft))',
+        'input-focus': '0 0 20px 0 hsl(var(--input-focused))',
+        'soft-grey': '0px 0px 20px 0px hsl(var(--neutral-soft-grey))',
+        'soft-primary': '0px 0px 20px 0px hsl(var(--primary-soft))',
+        'hard-grey': '0px 0px 20px 0px hsl(var(--neutral-hard-grey))',
+        'hard-primary': '0px 0px 20px 0px hsl(var(--primary-hard))',
       },
       transitionProperty: {
         'font-size': 'font-size',

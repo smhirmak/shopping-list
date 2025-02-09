@@ -79,7 +79,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         error('Oturum açma başarısız!');
       }
     } catch (catchError: any) {
-      if (error instanceof Error) {
+      console.log(t(catchError.code.split('/').pop()));
+      if (catchError instanceof Error) {
         error(t((catchError as any).code.split('/').pop()));
       } else {
         error(t('An unknown error occurred'));

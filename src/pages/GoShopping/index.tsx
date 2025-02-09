@@ -4,6 +4,7 @@ import { db } from '@/configurations/firebase';
 import Enums from '@/constants/Enums';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { useProductContext } from '@/contexts/product/ProductContext';
+import dayjs from 'dayjs';
 import { doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -54,13 +55,8 @@ const GoShopping = () => {
   const handleItemChange = async (itemId: string) => {
     if (shoppingListId) {
       await toggleItemBoughtStatus(shoppingListId, itemId);
-      getShoppingListById(shoppingListId); // Refresh the shopping list
+      getShoppingListById(shoppingListId);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const [month, day, year] = dateString.split('/');
-    return `${day.padStart(2, '0')}.${month.padStart(2, '0')}.${year}`;
   };
 
   return (
@@ -69,7 +65,7 @@ const GoShopping = () => {
         <div className="relative flex w-fit flex-col justify-center space-y-2 rounded-lg bg-tra-neutral-dark-white px-7 py-10 shadow-lg" id="checklist">
           <span className="block text-center text-3xl font-semibold text-tra-neutral-light-black">{shoppingList?.shoppingListName}</span>
           <span className="ml-2 self-end text-sm text-tra-neutral-white">
-            {shoppingList?.dateToShop ? `(${formatDate(shoppingList.dateToShop)})` : ''}
+            {shoppingList?.dateToShop ? `(${dayjs(shoppingList.dateToShop).format('DD.MM.YYYY')})` : ''}
           </span>
           {shoppingList?.shoppingList?.map((product: {
             productId: string; productName: string; productBrand: string; productQuantity: number;

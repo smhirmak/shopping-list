@@ -9,6 +9,7 @@ import { useProductContext } from '@/contexts/product/ProductContext';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
+import dayjs from 'dayjs';
 
 const EditShoppingListDialog = () => {
   const { userInfo } = useAuthContext();
@@ -19,28 +20,19 @@ const EditShoppingListDialog = () => {
   const { data } = editShoppingList as { state: boolean; data: { shoppingListName: string; dateToShop: string; shoppingListId: string } | string };
   const shoppingListData = typeof data === 'string' ? { shoppingListName: '', dateToShop: '', shoppingListId: '' } : data;
 
-  const formatDateToISO = (dateString: any) => {
-    const [day, month, year] = dateString.split('.').map(Number);
-    const date = new Date(year, month - 1, day);
-    const formattedYear = date.getFullYear();
-    const formattedMonth = String(date.getMonth() + 1).padStart(2, '0');
-    const formattedDay = String(date.getDate()).padStart(2, '0');
-    return `${formattedYear}-${formattedMonth}-${formattedDay}`;
-  };
-
   const formik = useFormik({
     enableReinitialize: true,
     validationSchema: editShoppingListValidationSchema,
     initialValues: {
       shoppingListName: shoppingListData.shoppingListName,
-      dateToShop: formatDateToISO(shoppingListData.dateToShop),
+      dateToShop: dayjs(shoppingListData.dateToShop).format('YYYY-MM-DD'),
     },
     onSubmit: async (values: { shoppingListName: string; dateToShop: string }) => {
       setLoading(true);
       const editedValues = {
         ...values,
-        dateToShop: values.dateToShop && new Date(values.dateToShop).toLocaleDateString(),
-        lastUpdateDateTime: Timestamp.now().toDate().toLocaleString(),
+        dateToShop: values.dateToShop && dayjs(values.dateToShop).format('DD.MM.YYYY'),
+        lastUpdateDateTime: dayjs(Timestamp.now().toDate()).format('DD.MM.YYYY HH:mm:ss'),
         lastUpdaterId: userInfo?.uid,
       };
       try {
@@ -64,7 +56,7 @@ const EditShoppingListDialog = () => {
   return (
     <Dialog open={editShoppingList.state} size="lg" onClose={() => setEditShoppingList(() => ({ state: false, data: '' }))}>
       <div>
-        <p className="mb-4 text-center text-3xl font-bold">Edit Shopping List</p>
+        <p className="mb-4 text-center text-3xl font-bold">{t('Edit Shopping List')}</p>
       </div>
       <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
         <Form className="flex flex-col">

@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { cva } from 'class-variance-authority';
 import React, { useEffect, useRef, useState } from 'react';
 import { ISelect, ISelectOption } from '@/types/types';
+import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import Button from './Button';
 import { Popover, PopoverContent, PopoverTrigger } from './Popover';
 
@@ -134,6 +135,7 @@ const Select: React.FC<ISelect> = ({
   selectClassName,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const { t } = useLocalizeContext();
   const [selectedValue, setSelectedValue] = useState<ISelectOption[] | ISelectOption | null>(isMulti ? [] : null);
   const [searchValue, setSearchValue] = useState(isSearchable ? '' : null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -313,10 +315,10 @@ const Select: React.FC<ISelect> = ({
                px-1 py-0.5 text-sm font-medium text-tra-primary data-[disabled=true]:bg-tra-disabled-dark data-[disabled=true]:text-tra-neutral-disabled-text`}
             >
               <span className="truncate">
-                {option.content}
+                {t(option.content)}
               </span>
               <span
-                onClick={e => { if (!disabled)onTagRemove(e, option); }}
+                onClick={e => { if (!disabled) onTagRemove(e, option); }}
                 className={`MsiSelect-dropdownTagCloseButton ${dropdownTagCloseButtonClassName} group-data-[disabled=true]:hover: ml-1.5 flex cursor-pointer items-center rounded-full p-0.5 
                 hover:bg-tra-neutral-light group-data-[disabled=true]:cursor-not-allowed group-data-[disabled=false]:text-tra-neutral-black group-data-[disabled=true]:hover:bg-transparent`}
               >
@@ -342,7 +344,7 @@ const Select: React.FC<ISelect> = ({
     }
     return (
       <div className="flex max-w-full items-center overflow-hidden">
-        <span className={`max-w-full truncate whitespace-nowrap ${(!isMulti && isSearchable && showMenu) && 'text-tra-neutral opacity-90'}`}>{(selectedValue as ISelectOption).content}</span>
+        <span className={`max-w-full truncate whitespace-nowrap ${(!isMulti && isSearchable && showMenu) && 'text-tra-neutral opacity-90'}`}>{t((selectedValue as ISelectOption).content)}</span>
         {(isSearchable && showMenu) && (
           <div className={`MsiSelect-searchBox flex max-w-[80%] items-center ${!isMulti && 'absolute z-2'}`}>
             <SearchInput
@@ -391,18 +393,18 @@ const Select: React.FC<ISelect> = ({
   return (
     <div className={`MsiSelect-root relative flex flex-col gap-1 ${className}`}>
       {label
-      && (
-      <Label
-        className={`flex transition-all duration-150 ease-cubic ${labelClassName}`}
-        htmlFor={id}
-        id={`${id}-label`}
-        tooltip={tooltip}
-        disabled={disabled}
-        showRequiredIcon={showRequiredIcon}
-      >
-        {label}
-      </Label>
-      )}
+        && (
+          <Label
+            className={`flex transition-all duration-150 ease-cubic ${labelClassName}`}
+            htmlFor={id}
+            id={`${id}-label`}
+            tooltip={tooltip}
+            disabled={disabled}
+            showRequiredIcon={showRequiredIcon}
+          >
+            {t(label)}
+          </Label>
+        )}
       <Popover open={showMenu} onOpenChange={setShowMenu} disabled={disabled} dropdownAlign={dropdownAlign}>
         <PopoverTrigger className={cn(selectVariants({ size, isMulti, isSearchable, error }), selectClassName)}>
           <div id={id} className={`MsiSelect-container ${containerClassName} flex max-h-32 min-h-full w-full select-none justify-between gap-2 overflow-y-auto px-3 py-2`}>
@@ -427,7 +429,7 @@ const Select: React.FC<ISelect> = ({
                   text-tra-neutral-black hover:bg-tra-primary-5 ${isSelected(option) ? 'bg-tra-primary-5 font-semibold text-tra-primary' : ''} 
                   ${highlightedIndex === index ? 'bg-tra-primary-5' : ''}`}
               >
-                {option.content}
+                {t(option.content)}
                 {isMulti && (
                   <span className={`mr-2 ${!isSelected(option) && 'opacity-0'}`}>
                     <Check className="MsiSelect-checkIcon size-4 text-tra-primary" />

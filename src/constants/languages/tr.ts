@@ -109,6 +109,13 @@ const tr = {
   'Email sent successfully': 'E-posta başarıyla gönderildi',
   'Error sending email': 'E-posta gönderme hatası',
   'Including House Key': 'Evinizin Anahtarı',
+  'Add New Shopping List': 'Yeni Alışveriş Listesi Ekle',
+  'Edit Shopping List': 'Alışveriş Listesini Düzenle',
+  day: 'gün',
+  after: 'sonra',
+  month: 'ay',
+  year: 'yıl',
+  ago: 'önce',
 };
 
 export default tr;

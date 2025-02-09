@@ -17,8 +17,13 @@ import Settings from './pages/Settings';
 import GoShopping from './pages/GoShopping';
 import { NotificationProvider } from './contexts/notification/NotificationProvider';
 import { useLocalizeContext } from './contexts/locale/LocalizeContext';
+import Dashboard from './pages/Dashboard';
 
 const router = createBrowserRouter([
+  {
+    path: 'dashboard',
+    element: <Dashboard />,
+  },
   {
     element: <Layout />,
     children: [
@@ -43,6 +48,7 @@ const router = createBrowserRouter([
             path: 'go-shopping',
             element: <GoShopping />,
           },
+
         ],
       },
       {
@@ -72,22 +78,22 @@ const App = () => {
   const { t } = useLocalizeContext();
   return (
     <div>
-      <AuthProvider>
-        <ProductProvider>
-          <NotificationProvider
-            newestTop
-            closeIcon
-            translateFunction={t}
-            theme="colored"
-            animationMode="slide"
-          >
+      <NotificationProvider
+        newestTop
+        closeIcon
+        translateFunction={t}
+        theme="colored"
+        animationMode="slide"
+      >
+        <AuthProvider>
+          <ProductProvider>
             <RouterProvider router={router} />
             {/* <ToastContainer newestOnTop toastClassName="rounded-lg" bodyStyle={{ fontSize: '.9rem' }} theme="colored" /> */}
             {/* <PopupProvider /> */}
             <BackToTopButton />
-          </NotificationProvider>
-        </ProductProvider>
-      </AuthProvider>
+          </ProductProvider>
+        </AuthProvider>
+      </NotificationProvider>
     </div>
   );
 };

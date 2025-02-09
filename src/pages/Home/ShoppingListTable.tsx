@@ -35,6 +35,7 @@ import { useNavigate } from 'react-router-dom';
 import Notification from '@/components/Notification';
 import Select from '@/components/Select';
 import { cn } from '@/lib/utils';
+import dayjs from 'dayjs';
 
 const Filter = ({
   column,
@@ -279,40 +280,41 @@ const ShoppingListTable: React.FC<{
         header: 'Planned Shopping Date',
         accessorKey: 'dateToShop',
         cell: (info: any) => {
-          const parseDate = (dateString: any) => {
-            if (!dateString) return new Date(0); // Geçersiz tarihleri sıralamak için en eski tarih
-            const [day, month, year] = dateString.split('.');
-            return new Date(`${year}-${month}-${day}`);
+          const dateToShop = dayjs(info.getValue(), 'DD.MM.YYYY');
+          const today = dayjs().startOf('day');
+          const diffDays = dateToShop.diff(today, 'day');
+
+          const formatDiff = (days: number) => {
+            const years = Math.floor(days / 365);
+            const months = Math.floor((days % 365) / 30);
+            const remainingDays = days % 30;
+
+            const yearStr = years > 0 ? `${years} ${t('year', { count: years })}` : '';
+            const monthStr = months > 0 ? `${months} ${t('month', { count: months })}` : '';
+            const dayStr = remainingDays > 0 ? `${remainingDays} ${t('day', { count: remainingDays })}` : '';
+
+            return [yearStr, monthStr, dayStr].filter(Boolean).join(' ');
           };
-
-          const today = new Date();
-          today.setHours(0, 0, 0, 0); // Bugünün tarihini saat bilgisi olmadan al
-
-          const dateToShop = parseDate(info.getValue());
-          dateToShop.setHours(0, 0, 0, 0); // Tarihi saat bilgisi olmadan al
-
-          const diffTime = dateToShop.getTime() - today.getTime();
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
           if (diffDays > 0) {
             return (
               <span className="flex flex-col text-end text-sm md:text-start">
-                <span>{info.getValue()}</span>
-                <span>{`(${`${Math.abs(diffDays)} ${t('days after')}`})`}</span>
+                <span>{dateToShop.format('DD.MM.YYYY')}</span>
+                <span>{`(${formatDiff(diffDays)} ${t('after')})`}</span>
               </span>
             );
           } if (diffDays < 0) {
             return (
               <span className="flex flex-col text-end text-sm md:text-start">
-                <span>{info.getValue()}</span>
-                <span>{`(${`${Math.abs(diffDays)} ${t('days ago')}`})`}</span>
+                <span>{dateToShop.format('DD.MM.YYYY')}</span>
+                <span>{`(${formatDiff(Math.abs(diffDays))} ${t('ago')})`}</span>
               </span>
             );
           }
           return (
             <span className="flex flex-col text-end text-sm md:text-start">
               <span className="text-base font-bold">{t('Today')}</span>
-              <span>{info.getValue()}</span>
+              <span>{dateToShop.format('DD.MM.YYYY')}</span>
             </span>
           );
         },
@@ -361,7 +363,7 @@ const ShoppingListTable: React.FC<{
       {
         header: 'Product Quantity',
         accessorKey: 'productQuantity',
-        cell: ({ row }: { row: { productQuantity: number; quantityType: keyof typeof Enums.QuantityTypeLabel } }) => `${row.productQuantity} ${Enums.QuantityTypeLabel[row.quantityType]}`,
+        cell: ({ row }: { row: { productQuantity: number; quantityType: keyof typeof Enums.QuantityTypeLabel } }) => `${row.productQuantity} ${t(Enums.QuantityTypeLabel[row.quantityType])}`,
       },
       {
         header: 'Create Date Time',

@@ -89,8 +89,8 @@ export const Popover: React.FC<PopoverProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (contentRef.current
-          && !contentRef.current.contains(event.target as Node)
-          && !triggerRef.current?.contains(event.target as Node)) {
+        && !contentRef.current.contains(event.target as Node)
+        && !triggerRef.current?.contains(event.target as Node)) {
         handleOpenChange(false);
       }
     };

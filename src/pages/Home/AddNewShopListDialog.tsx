@@ -15,6 +15,7 @@ import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import dayjs from 'dayjs';
 
 const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void; isAddListDialogOpen: boolean }> = ({ isAddListDialogOpen, setIsAddListDialogOpen }) => {
   const { userInfo } = useAuthContext();
@@ -44,19 +45,19 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
       const listId = uuidv4();
       const productId = uuidv4();
       const editedValues = {
-        createDateTime: Timestamp.now().toDate().toLocaleString(),
-        lastUpdateDateTime: Timestamp.now().toDate().toLocaleString(),
+        createDateTime: dayjs(Timestamp.now().toDate()).format('DD.MM.YYYY HH:mm:ss'),
+        lastUpdateDateTime: dayjs(Timestamp.now().toDate()).format('DD.MM.YYYY HH:mm:ss'),
         creatorId: userInfo?.uid,
         homeId: userInfo?.includingHouse,
         lastUpdaterId: userInfo?.uid,
-        dateToShop: values.dateToShop && new Date(values.dateToShop).toLocaleDateString(),
+        dateToShop: values.dateToShop && dayjs(values.dateToShop).format('YYYY-MM-DD'),
         shoppingListId: listId,
         shoppingListName: values.shoppingListName,
         ...(addProduct && {
           shoppingList: [{
-            createDateTime: Timestamp.now().toDate().toLocaleString(),
+            createDateTime: dayjs(Timestamp.now().toDate()).format('DD.MM.YYYY HH:mm:ss'),
             creatorId: userInfo?.uid,
-            lastUpdateDateTime: Timestamp.now().toDate().toLocaleString(),
+            lastUpdateDateTime: dayjs(Timestamp.now().toDate()).format('DD.MM.YYYY HH:mm:ss'),
             lastUpdaterId: userInfo?.uid,
             note: values.note,
             productBrand: values.productBrand,
@@ -89,15 +90,17 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
     validateOnBlur: false,
     validateOnMount: false,
   });
+
   return (
     <Dialog open={isAddListDialogOpen} onClose={() => setIsAddListDialogOpen((prev: any) => !prev)}>
       <div>
-        <p className="mb-4 text-center text-3xl font-bold">Add New Shopping List</p>
+        <p className="mb-4 text-center text-3xl font-bold">{t('Add New Shopping List')}</p>
       </div>
       <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
         <Form className="flex flex-col">
           <FormikInput id="shoppingListName" formik={formik} label="Shopping List Name" type="text" />
           <FormikInput id="dateToShop" formik={formik} label="Planned Shopping Date" type="date" />
+          {/* <FormikDatePicker id="dateToShop" formik={formik} label="Planned Shopping Date" /> */}
           {!addProduct && (
             <Button type="button" className="mb-4 self-end" onClick={() => setAddProduct(true)}>
               <span className="flex gap-2">

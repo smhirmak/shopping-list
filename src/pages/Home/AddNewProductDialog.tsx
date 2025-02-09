@@ -14,6 +14,7 @@ import { arrayUnion, doc, Timestamp, updateDoc } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import dayjs from 'dayjs';
 
 const AddNewProductDialog = () => {
   const { selectedShoppingList, setSelectedShoppingList, getAllShoppingList } = useProductContext();
@@ -38,9 +39,9 @@ const AddNewProductDialog = () => {
       const productId = uuidv4();
       const editedValues = {
         ...values,
-        createDateTime: Timestamp.now().toDate().toLocaleString(),
+        createDateTime: dayjs(Timestamp.now().toDate()).format('DD.MM.YYYY HH:mm:ss'),
         creatorId: userInfo?.uid,
-        lastUpdateDateTime: Timestamp.now().toDate().toLocaleString(),
+        lastUpdateDateTime: dayjs(Timestamp.now().toDate()).format('DD.MM.YYYY HH:mm:ss'),
         lastUpdaterId: userInfo?.uid,
         productId,
         isItBought: false,

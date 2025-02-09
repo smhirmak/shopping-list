@@ -16,6 +16,7 @@ import { doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
+import dayjs from 'dayjs';
 
 const EditProductDialog = () => {
   const { t } = useLocalizeContext();
@@ -78,7 +79,7 @@ const EditProductDialog = () => {
       setSubmitLoading(true);
       const editedValues = {
         ...values,
-        lastUpdateDateTime: Timestamp.now().toDate().toLocaleString(),
+        lastUpdateDateTime: dayjs(Timestamp.now().toDate()).format('DD.MM.YYYY HH:mm:ss'),
         lastUpdaterId: userInfo?.uid,
         productQuantity: values.productQuantity && +values.productQuantity,
         isItBought: false,

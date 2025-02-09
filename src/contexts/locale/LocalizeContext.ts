@@ -27,7 +27,7 @@ i18n
   interface LocalizeContextType {
     i18n: typeof i18n;
     toggleLanguage: (lang: string) => void;
-    t: (key: any) => string;
+    t: (key1: any, key2?: {}) => string;
     setLocale: (lang: string) => void;
     locale: string;
   }
