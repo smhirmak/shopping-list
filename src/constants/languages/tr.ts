@@ -116,6 +116,11 @@ const tr = {
   month: 'ay',
   year: 'yıl',
   ago: 'önce',
+  'Add to Calendar': 'Takvime Ekle',
+  'Shopping List': 'Alışveriş Listesi',
+  'Apple Calendar': 'Apple Takvimi',
+  'Google Calendar': 'Google Takvimi',
+  'Outlook Calendar': 'Outlook Takvimi',
 };
 
 export default tr;

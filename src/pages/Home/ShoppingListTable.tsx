@@ -36,6 +36,7 @@ import Notification from '@/components/Notification';
 import Select from '@/components/Select';
 import { cn } from '@/lib/utils';
 import dayjs from 'dayjs';
+import { AddToCalendarButton } from 'add-to-calendar-button-react';
 
 const Filter = ({
   column,
@@ -261,6 +262,26 @@ const ShoppingListTable: React.FC<{
         accessorKey: 'shoppingListName',
         cell: (info: any) => info.getValue(),
       },
+      // {
+      //   header: 'Add To Calendar',
+      //   accessorKey: 'addToCalendar',
+      //   cell: ({ row }: { row: any }) => (
+      //     <AddToCalendarButton
+      //       // hidden
+      //       trigger="click"
+      //       hideCheckmark
+      //       size="2"
+      //       buttonStyle="round"
+      //       // customCss="color:red"
+      //       label={t('Add to Calendar')}
+      //       customLabels={{ apple: t('Apple Calendar'), google: t('Google Calendar'), outlook: t('Outlook Calendar') }}
+      //       name={`${row?.original?.shoppingListName} ${t('Shopping List')}`}
+      //       startDate={row?.original?.dateToShop}
+      //       options={['Apple', 'Google', 'Outlook.com']}
+      //       timeZone="Europe/Istanbul"
+      //     />
+      //   ),
+      // },
       {
         header: 'Create Date Time',
         accessorKey: 'createDateTime',
@@ -298,21 +319,21 @@ const ShoppingListTable: React.FC<{
 
           if (diffDays > 0) {
             return (
-              <span className="flex flex-col text-end text-sm md:text-start">
+              <span className="flex flex-col text-sm md:text-start">
                 <span>{dateToShop.format('DD.MM.YYYY')}</span>
                 <span>{`(${formatDiff(diffDays)} ${t('after')})`}</span>
               </span>
             );
           } if (diffDays < 0) {
             return (
-              <span className="flex flex-col text-end text-sm md:text-start">
+              <span className="flex flex-col text-sm md:text-start">
                 <span>{dateToShop.format('DD.MM.YYYY')}</span>
                 <span>{`(${formatDiff(Math.abs(diffDays))} ${t('ago')})`}</span>
               </span>
             );
           }
           return (
-            <span className="flex flex-col text-end text-sm md:text-start">
+            <span className="flex flex-col text-sm md:text-start">
               <span className="text-base font-bold">{t('Today')}</span>
               <span>{dateToShop.format('DD.MM.YYYY')}</span>
             </span>
@@ -324,7 +345,22 @@ const ShoppingListTable: React.FC<{
         id: 'addNewProduct',
         header: () => null,
         cell: ({ row }: { row: any }) => (
-          <div className="flex items-center justify-between gap-2 md:justify-end">
+          <div className="mt-4 grid grid-cols-2 items-center justify-between gap-2 md:mt-0 md:grid-cols-3 md:justify-end">
+            <AddToCalendarButton
+              // hidden
+              trigger="click"
+              hideBackground
+              hideCheckmark
+              size="2"
+              buttonStyle="round"
+              // customCss="color:red"
+              label={t('Add to Calendar')}
+              customLabels={{ apple: t('Apple Calendar'), google: t('Google Calendar'), outlook: t('Outlook Calendar') }}
+              name={`${row?.original?.shoppingListName} ${t('Shopping List')}`}
+              startDate={row?.original?.dateToShop}
+              options={['Apple', 'Google', 'Outlook.com']}
+              timeZone="Europe/Istanbul"
+            />
             {row.original.subRows?.length !== undefined && (
               <Button
                 size="sm"
@@ -338,9 +374,11 @@ const ShoppingListTable: React.FC<{
                 {t('Go Shopping')}
               </Button>
             )}
-            <AddButtonCell row={row} setSelectedShoppingList={setSelectedShoppingList} />
-            <DeleteButtonCell row={row} handleDeleteList={handleDeleteList} />
-            <EditShoppingListButton row={row} setEditShoppingList={setEditShoppingList} />
+            <div className="col-span-2 flex justify-end md:col-span-1 md:block">
+              <AddButtonCell row={row} setSelectedShoppingList={setSelectedShoppingList} />
+              <DeleteButtonCell row={row} handleDeleteList={handleDeleteList} />
+              <EditShoppingListButton row={row} setEditShoppingList={setEditShoppingList} />
+            </div>
           </div>
         ),
       },
@@ -531,6 +569,9 @@ const ShoppingListTable: React.FC<{
                       className={cn(
                         'flex items-center px-3 py-0.5 hover:brightness-125',
                         columnId === 'addNewProduct' && 'col-span-2',
+                        // columnId === 'dateToShop' && 'col-span-2',
+                        columnId === 'creatorId' && 'hidden',
+                        columnId === 'createDateTime' && 'hidden',
                         columnId === 'expander' && 'col-span-2 justify-end',
                       )}
                     >
