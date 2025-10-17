@@ -8,6 +8,14 @@ import { containerVariants } from '@/components/Container';
 import { inputVariants } from '@/components/Input';
 import { labelVariants } from '@/components/Label';
 
+export interface UserInfo {
+  email: string;
+  firstName: string;
+  lastName: string;
+  uid: string
+  includingHouse: string;
+}
+
 export interface UserData {
     firstName: string;
     lastName: string;
