@@ -8,18 +8,18 @@ import { db } from '@/configurations/firebase';
 import Constants from '@/constants/Constants';
 import Enums from '@/constants/Enums';
 import { newShoppingListValidate, newShoppingListValidationSchema } from '@/constants/Validations';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { useProductContext } from '@/contexts/product/ProductContext';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
+import useAuthStore from '@/stores/authStore';
+import useProductStore from '@/stores/productStore';
 
 const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void; isAddListDialogOpen: boolean }> = ({ isAddListDialogOpen, setIsAddListDialogOpen }) => {
-  const { userInfo } = useAuthContext();
-  const { getAllShoppingList } = useProductContext();
+  const userInfo = useAuthStore(state => state.userInfo);
+  const getAllShoppingList = useProductStore(state => state.getAllShoppingList);
   const { t } = useLocalizeContext();
   const { success, error } = Notification();
 

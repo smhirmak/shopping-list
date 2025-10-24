@@ -3,13 +3,17 @@ import FormikInput from '@/components/formikInputs/FormikInput';
 import { signUpValidationSchema } from '@/constants/Validations';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { Form, Formik, useFormik } from 'formik';
-import { Link } from 'react-router-dom';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import Notification from '@/components/Notification';
+import useAuthStore from '@/stores/authStore';
+import { SignUpDRequest } from '@/types/types';
 
 const SignUp = () => {
   const { t } = useLocalizeContext();
-  const { signUp } = useAuthContext();
+  const signUp = useAuthStore(state => state.signUp);
+  const navigate = useNavigate();
+  const { error, success } = Notification()
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -25,7 +29,18 @@ const SignUp = () => {
     onSubmit: async values => {
       setLoading(true);
       try {
-        await signUp(values);
+        const result = await signUp(values as SignUpDRequest);
+        if (result.status === 'success') {
+          navigate('/login');
+          result.messages?.forEach(message => {
+            success(message);
+          });
+        } else if (result.status === 'error') {
+          result.messages?.forEach(message => {
+            error(message);
+          });
+        }
+
       } finally {
         setLoading(false);
       }

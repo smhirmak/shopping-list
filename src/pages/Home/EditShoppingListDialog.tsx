@@ -3,17 +3,19 @@ import FormikInput from '@/components/formikInputs/FormikInput';
 import Dialog from '@/components/Dialog';
 import { db } from '@/configurations/firebase';
 import { editShoppingListValidationSchema } from '@/constants/Validations';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { useProductContext } from '@/contexts/product/ProductContext';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import dayjs from 'dayjs';
+import useAuthStore from '@/stores/authStore';
+import useProductStore from '@/stores/productStore';
 
 const EditShoppingListDialog = () => {
-  const { userInfo } = useAuthContext();
-  const { getAllShoppingList, setEditShoppingList, editShoppingList } = useProductContext();
+  const userInfo = useAuthStore(state => state.userInfo);
+  const getAllShoppingList = useProductStore(state => state.getAllShoppingList)
+  const updateEditShoppingList = useProductStore(state => state.updateEditShoppingList)
+  const editShoppingList = useProductStore(state => state.editShoppingList)
   const { t } = useLocalizeContext();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -39,7 +41,7 @@ const EditShoppingListDialog = () => {
         if (typeof data !== 'string') {
           const docRef = doc(db, 'shopping-list', data.shoppingListId);
           await setDoc(docRef, editedValues, { merge: true });
-          setEditShoppingList(() => ({ state: false, data: '' }));
+          updateEditShoppingList({ state: false, data: '' });
           getAllShoppingList();
         }
       } catch (error) {
@@ -54,7 +56,7 @@ const EditShoppingListDialog = () => {
   });
 
   return (
-    <Dialog open={editShoppingList.state} size="lg" onClose={() => setEditShoppingList(() => ({ state: false, data: '' }))}>
+    <Dialog open={editShoppingList.state} size="lg" onClose={() => updateEditShoppingList({ state: false, data: '' })}>
       <div>
         <p className="mb-4 text-center text-3xl font-bold">{t('Edit Shopping List')}</p>
       </div>

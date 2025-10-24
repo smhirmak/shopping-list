@@ -8,10 +8,8 @@ import PrivateRoute from './components/router/PrivateRoute';
 import ErrorsPage from './pages/errors/ErrorsPage';
 import PublicRoute from './components/router/PublicRoute';
 import Login from './pages/Account/Login';
-import AuthProvider, { jwtTimeCheckRef } from './contexts/auth/AuthProvider';
 import ResetPassword from './pages/Account/ResetPassword';
 import SignUp from './pages/Account/SignUp';
-import ProductProvider from './contexts/product/ProductProvider';
 // import { PopupProvider } from './components/Alert';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
@@ -19,7 +17,8 @@ import GoShopping from './pages/GoShopping';
 import { NotificationProvider } from './contexts/notification/NotificationProvider';
 import { useLocalizeContext } from './contexts/locale/LocalizeContext';
 import Dashboard from './pages/Dashboard';
-import useAuthStore from './stores/authStore';
+import useAuthStore, { jwtTimeCheckRef } from './stores/authStore';
+import useProductStore from './stores/productStore';
 
 const router = createBrowserRouter([
   {
@@ -82,6 +81,8 @@ const App = () => {
   const logout = useAuthStore(state => state.logout);
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const changeInitialized = useAuthStore(state => state.changeInitialized);
+  const userInfo = useAuthStore(state => state.userInfo);
+  const getAllShoppingList = useProductStore(state => state.getAllShoppingList);
 
   useEffect(() => {
     verifyToken();
@@ -95,6 +96,12 @@ const App = () => {
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (userInfo?.includingHouse) {
+      getAllShoppingList(userInfo.includingHouse);
+    }
+  }, [userInfo?.includingHouse]);
+
   useImperativeHandle(jwtTimeCheckRef, () => ({ logout }));
 
   return (
@@ -106,14 +113,10 @@ const App = () => {
         theme="colored"
         animationMode="slide"
       >
-        <AuthProvider>
-          <ProductProvider>
-            <RouterProvider router={router} />
-            {/* <ToastContainer newestOnTop toastClassName="rounded-lg" bodyStyle={{ fontSize: '.9rem' }} theme="colored" /> */}
-            {/* <PopupProvider /> */}
-            <BackToTopButton />
-          </ProductProvider>
-        </AuthProvider>
+        <RouterProvider router={router} />
+        {/* <ToastContainer newestOnTop toastClassName="rounded-lg" bodyStyle={{ fontSize: '.9rem' }} theme="colored" /> */}
+        {/* <PopupProvider /> */}
+        <BackToTopButton />
       </NotificationProvider>
     </div>
   );

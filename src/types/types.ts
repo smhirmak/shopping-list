@@ -455,3 +455,24 @@ export interface IDialog {
   scroll?: boolean;
   position?: 'center' | 'top' | 'bottom' | 'onlyMobileBottom';
 }
+
+  export interface SignUpDRequest {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }
+
+export interface ShoppingProduct {
+  productName: string;
+  productQuantity: number;
+  createDateTime: string;
+  creatorId: string;
+  note: string;
+  isItBought: boolean;
+  productBrand: string;
+  productCategory: string;
+  quantityType: string;
+  productId: string;
+  shoppingListId: string;
+}

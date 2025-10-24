@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { auth, db } from '@/configurations/firebase';
-import { UserInfo } from '@/types/types';
-import { EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, sendEmailVerification, signInWithEmailAndPassword, updatePassword } from 'firebase/auth';
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { SignUpDRequest, UserData, UserInfo } from '@/types/types';
+import { createUserWithEmailAndPassword, EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, updatePassword } from 'firebase/auth';
+import { collection, doc, getDoc, getDocs, setDoc, Timestamp } from 'firebase/firestore';
+import { createRef } from 'react';
 import { create } from 'zustand';
+
+export const jwtTimeCheckRef = createRef();
 
 interface AuthStore {
   userInfo: UserInfo | null
@@ -17,6 +20,10 @@ interface AuthStore {
   verifyToken: () => () => void
   changeInitialized: (value: boolean) => void
   updateUserPassword: (email: string, currentPassword: string, newPassword: string) => Promise<{ status: string; message?: string }>
+  addUser: (id: string, firstName: string, lastName: string, email: string) => Promise<{ state: string, message: string }>
+  signUp: (data: SignUpDRequest) => Promise<{ status: string; messages?: string[] }>
+  editUser: (id: string, firstName: string, lastName: string, includingHouse: string) => Promise<{ status: string; messages: string }>
+  resetPassword: (email: string) => Promise<{ status: string; message?: string }>
 }
 
 const useAuthStore = create<AuthStore>((set, get) => ({
@@ -100,7 +107,6 @@ const useAuthStore = create<AuthStore>((set, get) => ({
 
   updateUserPassword: async (email: string, currentPassword: string, newPassword: string): Promise<{ status: string, message?: string }> => {
     try {
-      // debugger;
       const user = auth.currentUser;
       if (user) {
         const credential = EmailAuthProvider.credential(email, currentPassword);
@@ -118,6 +124,67 @@ const useAuthStore = create<AuthStore>((set, get) => ({
       return { status: 'error', message: 'An unknown error occurred' };
     }
   },
+
+  addUser: async (id: string, firstName: string, lastName: string, email: string): Promise<{ state: string, message: string }> => {
+    try {
+      await setDoc(doc(db, 'users', id), {
+        firstName,
+        lastName,
+        email,
+        uid: id,
+        includingHouse: null,
+        createDateTime: Timestamp.now().toDate().toLocaleString(),
+      } as UserData);
+      return { state: 'success', message: 'User added successfully' };
+    } catch (catchError) {
+      console.error('Error setting document:', catchError);
+      return { state: 'error', message: 'Error adding user' };
+    }
+  },
+
+  signUp: async (data: SignUpDRequest) => {
+    try {
+      const response = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      if (response && response.user && response.user.uid && auth.currentUser) {
+        await sendEmailVerification(auth.currentUser);
+        if (auth.currentUser) {
+          await get().addUser(response.user.uid, data.firstName, data.lastName, data.email);
+        } else {
+          return { status: 'error', messages: ['User authentication failed after account creation.'] };
+        }
+        return { status: 'success', messages: ['Your account was successfully created!', 'Mail verification email has been sent. Please verify your email address to be able to log in.'] };
+      } else {
+        return { status: 'error', messages: ['Account creation failed. Please try again.'] };
+      }
+    } catch (catchError: any) {
+      return { status: 'error', messages: [catchError.code.split('/').pop()] };
+    }
+  },
+
+  editUser: async (id: string, firstName: string, lastName: string, includingHouse: string): Promise<{ status: string, messages: string }> => {
+    try {
+      await setDoc(doc(db, 'users', id), {
+        firstName,
+        lastName,
+        includingHouse,
+      }, { merge: true });
+      return { status: 'success', messages: 'User information updated successfully.' };
+    } catch (catchError) {
+      console.error('Error setting document:', catchError);
+      return { status: 'error', messages: 'Error updating user information.' };
+    }
+  },
+
+  resetPassword: async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return { status: 'success', message: 'Şifre sıfırlama e-postası gönderildi.' };
+    } catch (catchError: any) {
+      console.error('Hata:', catchError);
+      return { status: 'error', message: catchError.code.split('/').pop() };
+    }
+  },
+
 
 }));
 
