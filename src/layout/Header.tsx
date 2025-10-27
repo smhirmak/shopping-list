@@ -2,10 +2,11 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { Gear, SignOut, User } from '@/assets/Icons';
 import LanguangeSelect from '@/components/LanguangeSelect';
+import Notification from '@/components/Notification';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/Popover';
 import ThemeModeToggle from '@/components/ThemeModeToggle';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
+import useAuthStore from '@/stores/authStore';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -23,9 +24,22 @@ const menuList = [
 ];
 
 const Header = () => {
-  const { logout, userInfo, isAuthenticated } = useAuthContext();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const userInfo = useAuthStore(state => state.userInfo);
+  const logout = useAuthStore(state => state.logout);
   const { t } = useLocalizeContext();
   const [showMenu, setShowMenu] = useState(false);
+
+  const { error } = Notification();
+
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result.status === 'success') {
+      setShowMenu(false);
+    } else {
+      error(t(result.code?.split('/').pop()));
+    }
+  };
   return (
     <div className="flex w-full items-center justify-between bg-tra-neutral p-2 md:p-4">
       <Link to="/" className="flex items-center gap-2 md:gap-6">
@@ -42,7 +56,7 @@ const Header = () => {
               {' '}
               {userInfo?.lastName}
             </span>
-            <Popover dropdownAlign="right" open={showMenu} onOpenChange={setShowMenu}>
+            <Popover open={showMenu} onOpenChange={setShowMenu}>
               <PopoverTrigger>
                 <label className="burger" data-state={showMenu ? 'open' : 'closed'} htmlFor="burger">
                   <input type="checkbox" id="burger" />
@@ -52,7 +66,8 @@ const Header = () => {
                 </label>
               </PopoverTrigger>
               <PopoverContent
-                className="shadow-soft-grey max-h-80 min-h-12 w-fit min-w-max max-w-full overflow-auto rounded-md bg-tra-background px-2 py-4"
+                align='end'
+                className="max-h-80 min-h-12 w-fit min-w-max max-w-full overflow-auto rounded-md bg-tra-background px-2 py-4 shadow-soft-grey"
               >
                 {menuList.map(e => (
                   <div key={e.link} className="mb-2 cursor-pointer rounded-md p-2 text-xl hover:bg-tra-primary-15">
@@ -62,7 +77,7 @@ const Header = () => {
                     </Link>
                   </div>
                 ))}
-                <div onClick={() => { logout(); setShowMenu(false); }} className="cursor-pointer rounded-md p-2 hover:bg-tra-primary-15">
+                <div onClick={handleLogout} className="cursor-pointer rounded-md p-2 hover:bg-tra-primary-15">
                   <div className="flex items-center gap-2 text-xl">
                     <SignOut className="size-6" />
                     {t('Logout')}

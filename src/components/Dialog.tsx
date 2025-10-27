@@ -178,7 +178,7 @@ const Dialog: React.FC<IDialog> = ({
             <X className="size-6" aria-hidden="true" />
           </Button>
         </div>
-        <div className="mt-3">
+        <div className="mt-6">
           {children}
         </div>
       </div>

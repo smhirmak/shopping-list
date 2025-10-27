@@ -3,7 +3,7 @@ import ShoppingList from '@/components/ShoppingList';
 import { db } from '@/configurations/firebase';
 import Enums from '@/constants/Enums';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { useProductContext } from '@/contexts/product/ProductContext';
+import useProductStore from '@/stores/productStore';
 import dayjs from 'dayjs';
 import { doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
@@ -13,7 +13,8 @@ const GoShopping = () => {
   const location = useLocation();
   const { t } = useLocalizeContext();
   const navigate = useNavigate();
-  const { getShoppingListById, shoppingList } = useProductContext();
+  const getShoppingListById = useProductStore(state => state.getAllShoppingList);
+  const shoppingList = useProductStore(state => state.shoppingList);
   const [shoppingListId, setShoppingListId] = useState<string | null>(null);
 
   useEffect(() => {

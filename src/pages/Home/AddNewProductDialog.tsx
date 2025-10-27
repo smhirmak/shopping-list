@@ -7,18 +7,20 @@ import { db } from '@/configurations/firebase';
 import Constants from '@/constants/Constants';
 import Enums from '@/constants/Enums';
 import { newProductValidationSchema } from '@/constants/Validations';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { useProductContext } from '@/contexts/product/ProductContext';
 import { arrayUnion, doc, Timestamp, updateDoc } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
+import useAuthStore from '@/stores/authStore';
+import useProductStore from '@/stores/productStore';
 
 const AddNewProductDialog = () => {
-  const { selectedShoppingList, setSelectedShoppingList, getAllShoppingList } = useProductContext();
-  const { userInfo } = useAuthContext();
+  const selectedShoppingList = useProductStore(state => state.selectedShoppingList)
+  const updateSelectedShoppingList = useProductStore(state => state.updateSelectedShoppingList)
+  const getAllShoppingList = useProductStore(state => state.getAllShoppingList)
+  const userInfo = useAuthStore(state => state.userInfo);
   const { t } = useLocalizeContext();
   const [loading, setLoading] = useState<boolean>(false);
   const { success, error } = Notification();
@@ -32,7 +34,7 @@ const AddNewProductDialog = () => {
       productCategory: Object.keys(Enums.ProductCategory)[0],
       productBrand: '',
       note: '',
-      quantityType: Enums.QuantityType.Kg,
+      quantityType: Enums.QuantityType.Piece,
     },
     onSubmit: async values => {
       setLoading(true);
@@ -54,7 +56,7 @@ const AddNewProductDialog = () => {
         });
         success('Product added successfully in list');
         getAllShoppingList();
-        setSelectedShoppingList(prev => ({ ...prev, state: false }));
+        updateSelectedShoppingList({ state: false });
       } catch (catchError) {
         error('Error setting document');
         console.error('Error setting document:', catchError);
@@ -68,12 +70,12 @@ const AddNewProductDialog = () => {
   });
 
   return (
-    <Dialog open={selectedShoppingList.state} size="lg" onClose={() => setSelectedShoppingList((prev: { state: boolean; id: string }) => ({ ...prev, state: !prev.state }))}>
+    <Dialog open={selectedShoppingList.state} size="lg" onClose={() => updateSelectedShoppingList({ state: !selectedShoppingList.state })}>
       <div>
-        <p className="mb-4 text-center text-3xl font-bold">{t('Add New Product to List')}</p>
+        <p className="mb-8 text-center text-3xl font-bold">{t('Add New Product to List')}</p>
       </div>
       <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
-        <Form className="flex flex-col">
+        <Form className="grid md:grid-cols-2 gap-x-4 gap-y-2">
           <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
           <div className="grid grid-cols-4 space-x-3">
             <FormikInput className="col-span-2 md:col-span-3" id="productQuantity" formik={formik} label="Product Quantity" type="number" />
@@ -96,7 +98,7 @@ const AddNewProductDialog = () => {
           />
           <FormikInput id="productBrand" formik={formik} label="Product Brand" type="text" />
           <FormikInput id="note" formik={formik} label="Note" type="text" />
-          <Button className="self-end" color="tetriary" loading={loading}>{t('Save')}</Button>
+          <Button className="self-end md:col-span-2" color="tetriary" loading={loading}>{t('Save')}</Button>
         </Form>
       </Formik>
     </Dialog>

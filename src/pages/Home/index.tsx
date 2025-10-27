@@ -2,9 +2,7 @@ import Button from '@/components/Button';
 import Container from '@/components/Container';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { useState } from 'react';
-import { useProductContext } from '@/contexts/product/ProductContext';
 import { ArrowClockwise, ClearSorting, Funnel } from '@/assets/Icons';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import Tooltip from '@/components/Tooltip';
 import Select from '@/components/Select';
 import { SortingState } from '@tanstack/react-table';
@@ -13,11 +11,17 @@ import AddNewProductDialog from './AddNewProductDialog';
 import AddNewShopListDialog from './AddNewShopListDialog';
 import EditProductDialog from './EditProductDialog';
 import EditShoppingListDialog from './EditShoppingListDialog';
+import useAuthStore from '@/stores/authStore';
+import useProductStore from '@/stores/productStore';
 
 const Home = () => {
-  const { selectedShoppingList, getAllShoppingList, allShoppingList, selectedProduct, editShoppingList } = useProductContext();
+  const selectedShoppingList = useProductStore(state => state.selectedShoppingList);
+  const getAllShoppingList = useProductStore(state => state.getAllShoppingList);
+  const allShoppingList = useProductStore(state => state.allShoppingList);
+  const selectedProduct = useProductStore(state => state.selectedProduct);
+  const editShoppingList = useProductStore(state => state.editShoppingList);
   const { t } = useLocalizeContext();
-  const { userInfo } = useAuthContext();
+  const userInfo = useAuthStore(state => state.userInfo);
   const [isAddListDialogOpen, setIsAddListDialogOpen] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([{ id: 'dateToShop', desc: false }]);
@@ -76,7 +80,7 @@ const Home = () => {
             )}
             {selectedShoppingList?.state && <AddNewProductDialog />}
             {selectedProduct?.state && <EditProductDialog />}
-            {editShoppingList.state && <EditShoppingListDialog />}
+            {editShoppingList?.state && <EditShoppingListDialog />}
           </>
         ) : (
           <div className="mt-20 flex w-full items-center justify-center text-center">

@@ -8,18 +8,18 @@ import { db } from '@/configurations/firebase';
 import Constants from '@/constants/Constants';
 import Enums from '@/constants/Enums';
 import { newShoppingListValidate, newShoppingListValidationSchema } from '@/constants/Validations';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { useProductContext } from '@/contexts/product/ProductContext';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
+import useAuthStore from '@/stores/authStore';
+import useProductStore from '@/stores/productStore';
 
 const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void; isAddListDialogOpen: boolean }> = ({ isAddListDialogOpen, setIsAddListDialogOpen }) => {
-  const { userInfo } = useAuthContext();
-  const { getAllShoppingList } = useProductContext();
+  const userInfo = useAuthStore(state => state.userInfo);
+  const getAllShoppingList = useProductStore(state => state.getAllShoppingList);
   const { t } = useLocalizeContext();
   const { success, error } = Notification();
 
@@ -77,7 +77,7 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
           editedValues,
         );
         success('Shopping List added successfully');
-        getAllShoppingList();
+        await getAllShoppingList(userInfo?.includingHouse);
         setIsAddListDialogOpen(false);
       } catch (catchError) {
         error('Error setting document');
@@ -92,12 +92,12 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
   });
 
   return (
-    <Dialog open={isAddListDialogOpen} onClose={() => setIsAddListDialogOpen((prev: any) => !prev)}>
+    <Dialog open={isAddListDialogOpen} size='lg' onClose={() => setIsAddListDialogOpen((prev: any) => !prev)}>
       <div>
-        <p className="mb-4 text-center text-3xl font-bold">{t('Add New Shopping List')}</p>
+        <p className="mb-8 text-center text-3xl font-bold">{t('Add New Shopping List')}</p>
       </div>
       <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
-        <Form className="flex flex-col">
+        <Form className="grid md:grid-cols-2 gap-x-4 gap-y-2">
           <FormikInput id="shoppingListName" formik={formik} label="Shopping List Name" type="text" />
           <FormikInput id="dateToShop" formik={formik} label="Planned Shopping Date" type="date" />
           {/* <FormikDatePicker id="dateToShop" formik={formik} label="Planned Shopping Date" /> */}
@@ -110,10 +110,10 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
             </Button>
           )}
           {addProduct && (
-            <div className="mb-4 flex flex-col rounded-md border-2 border-tra-neutral-grey p-4">
-              <Button variant="outlined" size="icon" className="h-10 max-h-10 min-h-10 self-end border-error text-error" onClick={() => setAddProduct(false)}><X className="size-4" /></Button>
+            <div className="mb-4 grid md:grid-cols-2 gap-x-4 gap-y-2 rounded-md border-2 border-tra-neutral-grey p-4 md:col-span-2">
+              <Button variant="outlined" size="icon" className="h-10 max-h-10 min-h-10 self-end border-error text-error md:col-span-2" onClick={() => setAddProduct(false)}><X className="size-4" /></Button>
               <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
-              <div className="grid grid-cols-4 space-x-3">
+              <div className="grid grid-cols-4 space-x-3 pr-4">
                 <FormikInput className="col-span-2 md:col-span-3" id="productQuantity" formik={formik} label="Product Quantity" type="number" />
                 <FormikSelect
                   className="col-span-2 w-full md:col-span-1"
@@ -136,7 +136,7 @@ const AddNewShopListDialog: React.FC<{ setIsAddListDialogOpen: (e: any) => void;
               <FormikInput id="note" formik={formik} label="Note" type="text" />
             </div>
           )}
-          <Button className="self-end" size="lg" color="tetriary" loading={loading}>{t('Save')}</Button>
+          <Button className="self-end md:col-span-2" size="lg" color="tetriary" loading={loading}>{t('Save')}</Button>
         </Form>
       </Formik>
     </Dialog>

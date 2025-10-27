@@ -8,6 +8,14 @@ import { containerVariants } from '@/components/Container';
 import { inputVariants } from '@/components/Input';
 import { labelVariants } from '@/components/Label';
 
+export interface UserInfo {
+  email: string;
+  firstName: string;
+  lastName: string;
+  uid: string
+  includingHouse: string;
+}
+
 export interface UserData {
     firstName: string;
     lastName: string;
@@ -368,7 +376,7 @@ export interface ISelect {
   isMulti?: boolean;
   isSearchable?: boolean;
   onChange: (e: string | number | string[] | number[] | boolean) => void;
-  align?: string;
+  align?: 'center' | 'start' | 'end' | undefined;
   label?: string;
   disabled?: boolean;
   error?: boolean;
@@ -391,7 +399,7 @@ export interface ISelect {
   id?: string;
   tooltip?: string | string[];
   showRequiredIcon?: boolean;
-  dropdownAlign?: 'left' | 'right';
+  dropdownAlign?: 'center' | 'start' | 'end' | undefined;
   noOptionsMessage?: string;
   selectClassName?: string;
 }
@@ -446,4 +454,25 @@ export interface IDialog {
   fullWidth?: boolean;
   scroll?: boolean;
   position?: 'center' | 'top' | 'bottom' | 'onlyMobileBottom';
+}
+
+  export interface SignUpDRequest {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }
+
+export interface ShoppingProduct {
+  productName: string;
+  productQuantity: number;
+  createDateTime: string;
+  creatorId: string;
+  note: string;
+  isItBought: boolean;
+  productBrand: string;
+  productCategory: string;
+  quantityType: string;
+  productId: string;
+  shoppingListId: string;
 }

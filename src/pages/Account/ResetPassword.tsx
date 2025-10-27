@@ -4,13 +4,15 @@ import { Form, Formik, useFormik } from 'formik';
 import FormikInput from '@/components/formikInputs/FormikInput';
 import Button from '@/components/Button';
 import { useState } from 'react';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '@/stores/authStore';
+import Notification from '@/components/Notification';
 
 const ResetPassword = () => {
   const { t } = useLocalizeContext();
-  const { resetPassword } = useAuthContext();
+  const resetPassword = useAuthStore(state => state.resetPassword);
   const navigate = useNavigate();
+  const { success, error } = Notification()
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -23,9 +25,13 @@ const ResetPassword = () => {
     onSubmit: async values => {
       setLoading(true);
       try {
-        const response: boolean = await resetPassword(values.email);
-        if (response) {
+        const response = await resetPassword(values.email);
+        if (response.status === 'success') {
+
           navigate('/login');
+          success(t(response.message || 'Password reset email sent successfully.'));
+        } else {
+          error(t(response.message || 'Error sending password reset email.'));
         }
       } catch (error) {
         console.error('Reset password error:', error);

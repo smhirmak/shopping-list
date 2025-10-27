@@ -22,8 +22,6 @@ import {
 } from '@tanstack/react-table';
 import { CaretDown, CaretLeft, CaretLeftDouble, CaretRight, CaretRightDouble, CaretUp, Pencil, Plus } from '@/assets/Icons';
 import Button from '@/components/Button';
-import { useProductContext } from '@/contexts/product/ProductContext';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import Enums from '@/constants/Enums';
 import { deleteDoc, doc } from 'firebase/firestore';
@@ -37,6 +35,8 @@ import Select from '@/components/Select';
 import { cn } from '@/lib/utils';
 import dayjs from 'dayjs';
 import { AddToCalendarButton } from 'add-to-calendar-button-react';
+import useAuthStore from '@/stores/authStore';
+import useProductStore from '@/stores/productStore';
 
 const Filter = ({
   column,
@@ -107,7 +107,7 @@ const ExpanderCell = ({ row, setExpanded }: { row: any; setExpanded: React.Dispa
   </>
 );
 
-const AddButtonCell = ({ row, setSelectedShoppingList }: { row: any; setSelectedShoppingList: React.Dispatch<React.SetStateAction<{ state: boolean; id: string }>> }) => (
+const AddButtonCell = ({ row, setSelectedShoppingList }: { row: any; setSelectedShoppingList: any }) => (
   <Button
     size="icon"
     className="group bg-transparent hover:bg-transparent"
@@ -120,7 +120,7 @@ const AddButtonCell = ({ row, setSelectedShoppingList }: { row: any; setSelected
   </Button>
 );
 
-const EditShoppingListButton = ({ row, setEditShoppingList }: { row: any; setEditShoppingList: React.Dispatch<React.SetStateAction<{ state: boolean; data: any }>> }) => (
+const EditShoppingListButton = ({ row, setEditShoppingList }: { row: any; setEditShoppingList: any }) => (
   <Button
     size="icon"
     variant="ghost"
@@ -226,8 +226,11 @@ const ShoppingListTable: React.FC<{
   sorting: SortingState;
   setSorting: React.Dispatch<React.SetStateAction<SortingState>>;
 }> = ({ rowData, mobileFilterOpen, sorting, setSorting }) => {
-  const { setSelectedShoppingList, setSelectedProduct, getAllShoppingList, setEditShoppingList } = useProductContext();
-  const { allUsersInfo } = useAuthContext();
+  const updateSelectedShoppingList = useProductStore(state => state.updateSelectedShoppingList);
+  const getAllShoppingList = useProductStore(state => state.getAllShoppingList);
+  const updateSelectedProduct = useProductStore(state => state.updateSelectedProduct);
+  const updateEditShoppingList = useProductStore(state => state.updateEditShoppingList);
+  const allUsersInfo = useAuthStore(state => state.allUsersInfo);
   const { t, locale } = useLocalizeContext();
   const navigate = useNavigate();
   const { success, error } = Notification();
@@ -242,7 +245,7 @@ const ShoppingListTable: React.FC<{
         const docRef = doc(db, 'shopping-list', shoppingListId);
         await deleteDoc(docRef);
         success('Shopping list successfully deleted');
-        getAllShoppingList(); // Alışveriş listelerini yeniden yükleyin
+        await getAllShoppingList(); // Alışveriş listelerini yeniden yükleyin
       } catch (catchError) {
         error('An error occurred while deleting the shopping list');
         console.error('Error occurred:', catchError);
@@ -361,23 +364,22 @@ const ShoppingListTable: React.FC<{
               options={['Apple', 'Google', 'Outlook.com']}
               timeZone="Europe/Istanbul"
             />
-            {row.original.subRows?.length !== undefined && (
-              <Button
-                size="sm"
-                className="h-11 px-2"
-                onClick={e => {
-                  e.stopPropagation();
-                  const shoppingListId = row?.original?.shoppingListId;
-                  navigate(`/go-shopping?shoppingListId=${shoppingListId}`);
-                }}
-              >
-                {t('Go Shopping')}
-              </Button>
-            )}
+            <Button
+              size="sm"
+              className="h-11 px-2"
+              disabled={row.original.subRows?.length === undefined || row.original.subRows?.length === 0}
+              onClick={e => {
+                e.stopPropagation();
+                const shoppingListId = row?.original?.shoppingListId;
+                navigate(`/go-shopping?shoppingListId=${shoppingListId}`);
+              }}
+            >
+              {t('Go Shopping')}
+            </Button>
             <div className="col-span-2 flex justify-end md:col-span-1 md:block">
-              <AddButtonCell row={row} setSelectedShoppingList={setSelectedShoppingList} />
+              <AddButtonCell row={row} setSelectedShoppingList={updateSelectedShoppingList} />
               <DeleteButtonCell row={row} handleDeleteList={handleDeleteList} />
-              <EditShoppingListButton row={row} setEditShoppingList={setEditShoppingList} />
+              <EditShoppingListButton row={row} setEditShoppingList={updateEditShoppingList} />
             </div>
           </div>
         ),
@@ -435,7 +437,7 @@ const ShoppingListTable: React.FC<{
             size="icon"
             variant="ghost"
             className="group bg-transparent hover:bg-transparent"
-            onClick={() => setSelectedProduct({ state: true, data: row, documentId: row.shoppingListId })}
+            onClick={() => updateSelectedProduct({ state: true, data: row, documentId: row.shoppingListId })}
           >
             <Pencil className="size-5 text-tra-tetriary/80 group-hover:text-tra-tetriary" />
           </Button>

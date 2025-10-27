@@ -9,24 +9,27 @@ import Constants from '@/constants/Constants';
 import Enums from '@/constants/Enums';
 import { deleteProductPopup } from '@/constants/PopupContents';
 import { editProductValidationSchema } from '@/constants/Validations';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
-import { useProductContext } from '@/contexts/product/ProductContext';
 import { doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
+import useAuthStore from '@/stores/authStore';
+import useProductStore from '@/stores/productStore';
+import { ShoppingProduct } from '@/types/types';
 
 const EditProductDialog = () => {
   const { t } = useLocalizeContext();
-  const { userInfo } = useAuthContext();
-  const { selectedProduct, setSelectedProduct, getAllShoppingList } = useProductContext();
+  const userInfo = useAuthStore(state => state.userInfo);
+  const selectedProduct = useProductStore(state => state.selectedProduct);
+  const updateSelectedProduct = useProductStore(state => state.updateSelectedProduct);
+  const getAllShoppingList = useProductStore(state => state.getAllShoppingList);
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
   const { success, error } = Notification();
 
-  const productInfo = selectedProduct.data;
+  const productInfo = selectedProduct.data as ShoppingProduct;
 
   const handleDelete = async () => {
     const areYouSure = await Swal.fire(deleteProductPopup(t));
@@ -40,14 +43,14 @@ const EditProductDialog = () => {
           const data = docSnap.data();
           const { shoppingList } = data;
 
-          const updatedShoppingList = shoppingList.filter((item: any) => item.productId !== selectedProduct?.data.productId);
+          const updatedShoppingList = shoppingList.filter((item: any) => item.productId !== selectedProduct?.data?.productId);
 
           await updateDoc(docRef, {
             shoppingList: updatedShoppingList,
           });
 
           success('Product successfully deleted');
-          setSelectedProduct((prev: any) => ({ ...prev, state: false, data: '' }));
+          updateSelectedProduct({ state: false, data: null });
           getAllShoppingList();
         } else {
           error('Document not found!');
@@ -105,7 +108,7 @@ const EditProductDialog = () => {
           });
 
           success('Product successfully edited');
-          setSelectedProduct(prev => ({ ...prev, state: false, data: '' }));
+          updateSelectedProduct({ state: false, data: null });
           getAllShoppingList();
         } else {
           error('Belge bulunamadı!');
@@ -122,7 +125,7 @@ const EditProductDialog = () => {
     validateOnMount: false,
   });
   return (
-    <Dialog open={selectedProduct.state} size="lg" onClose={() => setSelectedProduct((prev: { state: boolean; data: string; documentId: string }) => ({ ...prev, state: !prev.state }))}>
+    <Dialog open={selectedProduct.state} size="lg" onClose={() => updateSelectedProduct({ state: !selectedProduct.state, data: selectedProduct.data, documentId: selectedProduct.documentId })}>
       <div>
         <p className="mb-4 text-center text-3xl font-bold">{t('Edit Product')}</p>
       </div>

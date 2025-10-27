@@ -2,16 +2,17 @@ import Button from '@/components/Button';
 import FormikInput from '@/components/formikInputs/FormikInput';
 import Notification from '@/components/Notification';
 import { updatePasswordValidationSchema } from '@/constants/Validations';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
+import useAuthStore from '@/stores/authStore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 
 const Settings = () => {
-  const { userInfo, updateUserPassword } = useAuthContext();
+  const userInfo = useAuthStore(state => state.userInfo);
+  const updateUserPassword = useAuthStore(state => state.updateUserPassword);
   const { t } = useLocalizeContext();
   const [loading, setLoading] = useState<boolean>(false);
-  const { error } = Notification();
+  const { success, error } = Notification();
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -28,7 +29,12 @@ const Settings = () => {
       }
       setLoading(true);
       try {
-        await updateUserPassword(userInfo!.email, values.currentPassword, values.newPassword);
+        const result = await updateUserPassword(userInfo!.email, values.currentPassword, values.newPassword);
+        if (result.status === 'success') {
+          success(t(result.message || 'Password updated successfully'));
+        } else {
+          error(t(result.message || 'Error updating password'));
+        }
       } catch (catchError) {
         error('Error updating user');
         console.error('Error updating user:', catchError);

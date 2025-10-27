@@ -130,7 +130,7 @@ const Select: React.FC<ISelect> = ({
   id,
   tooltip,
   showRequiredIcon,
-  dropdownAlign,
+  dropdownAlign = 'start',
   noOptionsMessage,
   selectClassName,
 }) => {
@@ -405,8 +405,8 @@ const Select: React.FC<ISelect> = ({
             {t(label)}
           </Label>
         )}
-      <Popover open={showMenu} onOpenChange={setShowMenu} disabled={disabled} dropdownAlign={dropdownAlign}>
-        <PopoverTrigger className={cn(selectVariants({ size, isMulti, isSearchable, error }), selectClassName)}>
+      <Popover open={showMenu} onOpenChange={setShowMenu}>
+        <PopoverTrigger disabled={disabled} className={cn(selectVariants({ size, isMulti, isSearchable, error }), selectClassName)}>
           <div id={id} className={`MsiSelect-container ${containerClassName} flex max-h-32 min-h-full w-full select-none justify-between gap-2 overflow-y-auto px-3 py-2`}>
             <div title={textContent} className={`MsiSelect-selectText ${selectTextClassName} flex h-full max-h-full max-w-full items-center ${!isMulti && 'self-center'} truncate font-medium`}>
               {getDisplay()}
@@ -418,6 +418,7 @@ const Select: React.FC<ISelect> = ({
         </PopoverTrigger>
 
         <PopoverContent
+          align={dropdownAlign}
           className={`MsiSelect-dropdownMenu ${dropdownMenuClassName} shadow-soft-grey max-h-80 min-h-12 w-full max-w-full overflow-auto rounded-md bg-tra-background`}
         >
           <div onKeyDown={handleKeyDown} ref={dropdownRef}>

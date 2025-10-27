@@ -4,13 +4,13 @@ import Notification from '@/components/Notification';
 import Dialog from '@/components/Dialog';
 import { db } from '@/configurations/firebase';
 import { addNewHomeValidationSchema } from '@/constants/Validations';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { doc, setDoc } from 'firebase/firestore';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import emailjs from '@emailjs/browser';
+import useAuthStore from '@/stores/authStore';
 
 interface AddHomeDialogProps {
   addHomeDialog: boolean;
@@ -18,7 +18,9 @@ interface AddHomeDialogProps {
 }
 
 const AddHomeDialog: React.FC<AddHomeDialogProps> = ({ addHomeDialog, setAddHomeDialog }) => {
-  const { userInfo, editUser, getUserInfo } = useAuthContext();
+  const userInfo = useAuthStore(state => state.userInfo);
+  const editUser = useAuthStore(state => state.editUser);
+  const getUserInfo = useAuthStore(state => state.getUserInfo);
   const { t } = useLocalizeContext();
   const { success, error } = Notification();
   const [loading, setLoading] = useState<boolean>(false);

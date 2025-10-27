@@ -3,16 +3,18 @@ import FormikInput from '@/components/formikInputs/FormikInput';
 import Notification from '@/components/Notification';
 import TextField from '@/components/TextField';
 import { updateUserInfoValidationSchema } from '@/constants/Validations';
-import { useAuthContext } from '@/contexts/auth/AuthContext';
 import { useLocalizeContext } from '@/contexts/locale/LocalizeContext';
 import { Form, Formik, useFormik } from 'formik';
 import { useState } from 'react';
 import { Copy } from '@/assets/Icons';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import AddHomeDialog from './AddHomeDialog';
+import useAuthStore from '@/stores/authStore';
 
 const Profile = () => {
-  const { userInfo, editUser, getUserInfo } = useAuthContext();
+  const userInfo = useAuthStore(state => state.userInfo);
+  const editUser = useAuthStore(state => state.editUser);
+  const getUserInfo = useAuthStore(state => state.getUserInfo);
   const { t } = useLocalizeContext();
   const [loading, setLoading] = useState<boolean>(false);
   const { success, error } = Notification();
