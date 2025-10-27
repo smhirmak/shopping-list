@@ -13,6 +13,7 @@
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@phosphor-icons/react": "^2.1.7",
+    "@radix-ui/react-popover": "^1.1.15",
     "@tanstack/react-table": "^8.20.5",
     "@vitejs/plugin-react": "^4.3.4",
     "add-to-calendar-button-react": "^2.8.1",

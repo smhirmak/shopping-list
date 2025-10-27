@@ -34,7 +34,7 @@ const AddNewProductDialog = () => {
       productCategory: Object.keys(Enums.ProductCategory)[0],
       productBrand: '',
       note: '',
-      quantityType: Enums.QuantityType.Kg,
+      quantityType: Enums.QuantityType.Piece,
     },
     onSubmit: async values => {
       setLoading(true);
@@ -72,10 +72,10 @@ const AddNewProductDialog = () => {
   return (
     <Dialog open={selectedShoppingList.state} size="lg" onClose={() => updateSelectedShoppingList({ state: !selectedShoppingList.state })}>
       <div>
-        <p className="mb-4 text-center text-3xl font-bold">{t('Add New Product to List')}</p>
+        <p className="mb-8 text-center text-3xl font-bold">{t('Add New Product to List')}</p>
       </div>
       <Formik initialValues={formik.initialValues} onSubmit={formik.submitForm} onReset={formik.handleReset}>
-        <Form className="flex flex-col">
+        <Form className="grid md:grid-cols-2 gap-x-4 gap-y-2">
           <FormikInput id="productName" formik={formik} label="Product Name" type="text" />
           <div className="grid grid-cols-4 space-x-3">
             <FormikInput className="col-span-2 md:col-span-3" id="productQuantity" formik={formik} label="Product Quantity" type="number" />
@@ -98,7 +98,7 @@ const AddNewProductDialog = () => {
           />
           <FormikInput id="productBrand" formik={formik} label="Product Brand" type="text" />
           <FormikInput id="note" formik={formik} label="Note" type="text" />
-          <Button className="self-end" color="tetriary" loading={loading}>{t('Save')}</Button>
+          <Button className="self-end md:col-span-2" color="tetriary" loading={loading}>{t('Save')}</Button>
         </Form>
       </Formik>
     </Dialog>

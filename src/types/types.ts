@@ -376,7 +376,7 @@ export interface ISelect {
   isMulti?: boolean;
   isSearchable?: boolean;
   onChange: (e: string | number | string[] | number[] | boolean) => void;
-  align?: string;
+  align?: 'center' | 'start' | 'end' | undefined;
   label?: string;
   disabled?: boolean;
   error?: boolean;
@@ -399,7 +399,7 @@ export interface ISelect {
   id?: string;
   tooltip?: string | string[];
   showRequiredIcon?: boolean;
-  dropdownAlign?: 'left' | 'right';
+  dropdownAlign?: 'center' | 'start' | 'end' | undefined;
   noOptionsMessage?: string;
   selectClassName?: string;
 }
