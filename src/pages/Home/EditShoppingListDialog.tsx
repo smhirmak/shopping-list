@@ -42,7 +42,7 @@ const EditShoppingListDialog = () => {
           const docRef = doc(db, 'shopping-list', data.shoppingListId);
           await setDoc(docRef, editedValues, { merge: true });
           updateEditShoppingList({ state: false, data: '' });
-          getAllShoppingList();
+          getAllShoppingList(userInfo?.includingHouse);
         }
       } catch (error) {
         console.error('Error updating document: ', error);

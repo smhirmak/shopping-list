@@ -55,7 +55,7 @@ const AddNewProductDialog = () => {
           shoppingList: arrayUnion(editedValues),
         });
         success('Product added successfully in list');
-        getAllShoppingList();
+        getAllShoppingList(userInfo?.includingHouse);
         updateSelectedShoppingList({ state: false });
       } catch (catchError) {
         error('Error setting document');

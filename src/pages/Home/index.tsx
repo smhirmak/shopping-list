@@ -38,7 +38,7 @@ const Home = () => {
                 </Button>
                 <div className="flex items-center gap-4">
                   <Tooltip position="bottom" content={t('Refresh the shopping list')}>
-                    <Button size="icon" className="group bg-transparent hover:bg-transparent" onClick={() => getAllShoppingList()}>
+                    <Button size="icon" className="group bg-transparent hover:bg-transparent" onClick={() => getAllShoppingList(userInfo?.includingHouse)}>
                       <ArrowClockwise className="size-6 text-tra-neutral-black transition-all hover:rotate-90" />
                     </Button>
                   </Tooltip>

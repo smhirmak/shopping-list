@@ -51,7 +51,7 @@ const EditProductDialog = () => {
 
           success('Product successfully deleted');
           updateSelectedProduct({ state: false, data: null });
-          getAllShoppingList();
+          getAllShoppingList(userInfo?.includingHouse);
         } else {
           error('Document not found!');
         }
@@ -109,7 +109,7 @@ const EditProductDialog = () => {
 
           success('Product successfully edited');
           updateSelectedProduct({ state: false, data: null });
-          getAllShoppingList();
+          getAllShoppingList(userInfo?.includingHouse);
         } else {
           error('Belge bulunamadı!');
         }

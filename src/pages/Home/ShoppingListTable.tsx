@@ -231,6 +231,7 @@ const ShoppingListTable: React.FC<{
   const updateSelectedProduct = useProductStore(state => state.updateSelectedProduct);
   const updateEditShoppingList = useProductStore(state => state.updateEditShoppingList);
   const allUsersInfo = useAuthStore(state => state.allUsersInfo);
+  const userInfo = useAuthStore(state => state.userInfo);
   const { t, locale } = useLocalizeContext();
   const navigate = useNavigate();
   const { success, error } = Notification();
@@ -245,7 +246,7 @@ const ShoppingListTable: React.FC<{
         const docRef = doc(db, 'shopping-list', shoppingListId);
         await deleteDoc(docRef);
         success('Shopping list successfully deleted');
-        await getAllShoppingList(); // Alışveriş listelerini yeniden yükleyin
+        await getAllShoppingList(userInfo?.includingHouse); // Alışveriş listelerini yeniden yükleyin
       } catch (catchError) {
         error('An error occurred while deleting the shopping list');
         console.error('Error occurred:', catchError);
