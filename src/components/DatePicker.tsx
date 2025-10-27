@@ -38,7 +38,6 @@ interface IDatePicker {
   dropdownMenuClassName?: string;
   showRequiredIcon?: boolean;
   tooltip?: string | string[];
-  dropdownAlign?: 'left' | 'right';
   mode?: 'single' | 'range';
   locale?: Locale;
 }
@@ -81,7 +80,6 @@ const DatePicker: React.FC<IDatePicker> = ({
   dropdownMenuClassName = '',
   showRequiredIcon = false,
   tooltip,
-  dropdownAlign,
   mode = 'single',
   locale,
 }) => {
@@ -529,7 +527,7 @@ const DatePicker: React.FC<IDatePicker> = ({
             {label}
           </Label>
         )}
-      <Popover open={popoverOpen} onOpenChange={handlePopoverOpenChange} disabled={disabled} dropdownAlign={dropdownAlign}>
+      <Popover open={popoverOpen} onOpenChange={handlePopoverOpenChange}>
         <PopoverTrigger>
           <Button
             variant="outlined"

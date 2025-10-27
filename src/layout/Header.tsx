@@ -56,7 +56,7 @@ const Header = () => {
               {' '}
               {userInfo?.lastName}
             </span>
-            <Popover dropdownAlign="right" open={showMenu} onOpenChange={setShowMenu}>
+            <Popover open={showMenu} onOpenChange={setShowMenu}>
               <PopoverTrigger>
                 <label className="burger" data-state={showMenu ? 'open' : 'closed'} htmlFor="burger">
                   <input type="checkbox" id="burger" />
@@ -66,6 +66,7 @@ const Header = () => {
                 </label>
               </PopoverTrigger>
               <PopoverContent
+                align='end'
                 className="max-h-80 min-h-12 w-fit min-w-max max-w-full overflow-auto rounded-md bg-tra-background px-2 py-4 shadow-soft-grey"
               >
                 {menuList.map(e => (
